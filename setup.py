@@ -8,12 +8,13 @@
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from setuptools.command.develop import develop
+import tarfile
+import subprocess
 
 
 def _initial():
     import os
     import shutil
-    import subprocess
 
     path = os.getcwd()
     if shutil.which('java') is None:
@@ -21,7 +22,7 @@ def _initial():
 
     result = subprocess.run(['java', '-version'], stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
-    if 'Java(TM) SE Runtime Environment' not in result.stderr.encode('ascii'):
+    if 'java version' not in result.stderr.decode('ascii'):
         raise ValueError(('Please verify that java is installed and working. '
                           'As a first test, please execute "java -version" '
                           'and make sure the output shows there is an actual '
@@ -32,21 +33,41 @@ def _initial():
                           'sufficient.'))
 
 
-def _post():
+src_url = 'https://raw.github.com/smirarab/sepp-refs/master/gg/sepp-package.tar.bz'
+def _post(obj):
     import urllib.request
     import shutil
+    import q2_fragment_insertion
+    import os
 
-    with urllib.request.urlopen('') as response, open(out, 'wb') as out:
+    assets_dir = os.path.join(obj.install_libbase,
+                              'q2_fragment_insertion/assets/')
+
+    if not os.path.exists(assets_dir):
+        os.mkdir(assets_dir)
+
+    out_f = 'sepp-package.tar.bz'
+    with urllib.request.urlopen(src_url) as response, open(out_f, 'wb') as out:
         shutil.copyfileobj(response, out)
 
-    # unpack the download
+    opened = tarfile.open(out_f, "r:bz2")
+    opened.extractall(path=assets_dir)
+    opened.close()
+
+    obj.execute(_config_sepp, [assets_dir], 'Configuring SEPP')
+
+
+def _config_sepp(assets_dir):
+    subprocess.run(['python', 'setup.py', 'config', '-c'], check=True,
+                   cwd=assets_dir + '/sepp-package/sepp')
+
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
         _initial()
         install.run(self)
-        _post()
+        _post(self)
 
 
 class PostDevelopCommand(develop):
@@ -54,20 +75,22 @@ class PostDevelopCommand(develop):
     def run(self):
         _initial()
         develop.run(self)
-        _post()
+        _post(self)
 
 
 setup(
     name="q2-fragment-insertion",
-    version="2017.2.0.dev0",
+    version="2017.5.0.dev0",
     packages=find_packages(),
-    install_requires=['qiime2 == 2017.2.*', 'pandas', 'q2-types == 2017.2.*',
-                      'q2templates == 2017.2.*'],
+    #install_requires=['qiime2 == 2017.2.*', 'pandas', 'q2-types == 2017.2.*',
+     #                 'q2templates == 2017.2.*'],
     author="Daniel McDonald",
     author_email="wasade@gmail.com",
     description="Fragment insertion into existing phylogenies",
     entry_points={
         "qiime2.plugins":
         ["q2-fragment-insertion=q2_fragment_insertion.plugin_setup:plugin"]
-    }
+    },
+    cmdclass={'install': PostInstallCommand,
+              'develop': PostDevelopCommand}
 )

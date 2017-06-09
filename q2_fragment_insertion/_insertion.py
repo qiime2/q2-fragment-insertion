@@ -7,9 +7,15 @@
 # ----------------------------------------------------------------------------
 
 import os
+import shutil
+import tempfile
+import subprocess
 
 import skbio
-from q2_types.feature_data import DNAIterator
+from q2_types.feature_data import DNAFASTAFormat
+from q2_types.tree import NewickFormat
+
+from q2_fragment_insertion._format import PlacementsFormat
 
 
 def _sanity():
@@ -23,26 +29,33 @@ def _sanity():
 
 def _sepp_path():
     return os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        'assests/sepp-package/run-sepp.sh')
+                        'assets/sepp-package/run-sepp.sh')
 
 
-def _run(seqs_fp, threads):
+def _run(seqs_fp, threads, cwd):
     cmd = [_sepp_path(),
            seqs_fp,
            'q2-fragment-insertion',
-           '-x', threads],
+           '-x', str(threads)]
 
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=cwd)
 
 
-def sepp_16s_greengenes(representative_sequences: DNAIterator
-                        threads: int=1) -> skbio.TreeNode:
+def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
+                        threads: int=1) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
 
-    current = os.getcwd()
+    cwd = os.getcwd()
+    placements = 'q2-fragment-insertion_placement.json'
+    tree = 'q2-fragment-insertion_placement.tog.tre'
+
     with tempfile.TemporaryDirectory() as tmp:
-        os.chdir(tmp)
-        _run(str(representative_sequences), str(threads))
-        outfile = 'q2-fragment-insertion_placement.tog.tre'
-        return skbio.TreeNode.read(outfile)
+        _run(str(representative_sequences), str(threads), tmp)
+        outtree = os.path.join(tmp, tree)
+        outplacements = os.path.join(tmp, placements)
+
+        shutil.copy(outtree, cwd)
+        shutil.copy(outplacements, cwd)
+
+    return tree, placements
