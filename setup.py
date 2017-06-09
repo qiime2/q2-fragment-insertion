@@ -82,8 +82,6 @@ setup(
     name="q2-fragment-insertion",
     version="2017.5.0.dev0",
     packages=find_packages(),
-    #install_requires=['qiime2 == 2017.2.*', 'pandas', 'q2-types == 2017.2.*',
-     #                 'q2templates == 2017.2.*'],
     author="Daniel McDonald",
     author_email="wasade@gmail.com",
     description="Fragment insertion into existing phylogenies",
