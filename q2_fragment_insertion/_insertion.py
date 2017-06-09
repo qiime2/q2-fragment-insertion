@@ -46,16 +46,18 @@ def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
 
     _sanity()
 
-    cwd = os.getcwd()
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.tre'
+
+    placements_result = PlacementsFormat()
+    tree_result = NewickFormat()
 
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences), str(threads), tmp)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 
-        shutil.copy(outtree, cwd)
-        shutil.copy(outplacements, cwd)
+        shutil.copyfile(outtree, str(tree_result))
+        shutil.copyfile(outplacements, str(placements_result))
 
-    return tree, placements
+    return tree_result, placements_result
