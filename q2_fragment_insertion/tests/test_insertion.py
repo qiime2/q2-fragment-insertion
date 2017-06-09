@@ -8,6 +8,7 @@
 
 import unittest
 
+from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
 from q2_types.feature_data import DNAFASTAFormat, DNAIterator
 from q2_fragment_insertion._insertion import sepp_16s_greengenes

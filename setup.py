@@ -16,7 +16,6 @@ def _initial():
     import os
     import shutil
 
-    path = os.getcwd()
     if shutil.which('java') is None:
         raise ValueError('java not found')
 
@@ -33,12 +32,13 @@ def _initial():
                           'sufficient.'))
 
 
-src_url = 'https://raw.github.com/smirarab/sepp-refs/master/gg/sepp-package.tar.bz'
 def _post(obj):
     import urllib.request
     import shutil
-    import q2_fragment_insertion
     import os
+
+    src_url = ('https://raw.github.com/smirarab/sepp-refs/'
+               'master/gg/sepp-package.tar.bz')
 
     assets_dir = os.path.join(obj.install_libbase,
                               'q2_fragment_insertion/assets/')
@@ -90,5 +90,7 @@ setup(
         ["q2-fragment-insertion=q2_fragment_insertion.plugin_setup:plugin"]
     },
     cmdclass={'install': PostInstallCommand,
-              'develop': PostDevelopCommand}
+              'develop': PostDevelopCommand},
+    package_data={
+        'q2_fragment_insertion.tests': ['data/*']}
 )

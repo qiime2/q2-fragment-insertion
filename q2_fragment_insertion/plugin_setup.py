@@ -33,12 +33,10 @@ plugin.register_semantic_types(Placements)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
 
-_parameter_descriptions = {'threads': 'The number of threads to use'
-}
+_parameter_descriptions = {'threads': 'The number of threads to use'}
 
 
-_output_descriptions = {'tree': 'The tree with inserted feature data'
-}
+_output_descriptions = {'tree': 'The tree with inserted feature data'}
 
 
 _parameters = {'threads': qiime2.plugin.Int}

@@ -11,7 +11,6 @@ import shutil
 import tempfile
 import subprocess
 
-import skbio
 from q2_types.feature_data import DNAFASTAFormat
 from q2_types.tree import NewickFormat
 
