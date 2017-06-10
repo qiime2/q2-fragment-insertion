@@ -10,25 +10,28 @@ import os
 import shutil
 import tempfile
 import subprocess
+from pkg_resources import resource_exists, Requirement, resource_filename
 
 from q2_types.feature_data import DNAFASTAFormat
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
 
+# adapted from q2-state-unifrac
+ARGS = (Requirement.parse('q2_fragment_insertion'),
+                          ('q2_fragment_insertion/'
+                           'assets/sepp-package/run-sepp.sh'))
+
 
 def _sanity():
     if shutil.which('java') is None:
         raise ValueError("java does not appear in $PATH")
-
-    sepp = _sepp_path()
-    if not os.path.exists(sepp):
-        raise ValueError("Cannot find run-sepp.sh, expected it at: %s" % sepp)
+    if not resource_exists(*ARGS):
+        raise ValueError("ssu could not be located!")
 
 
 def _sepp_path():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        'assets/sepp-package/run-sepp.sh')
+    return resource_filename(*ARGS)
 
 
 def _run(seqs_fp, threads, cwd):
