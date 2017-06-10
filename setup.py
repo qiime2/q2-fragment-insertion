@@ -13,7 +13,6 @@ import subprocess
 
 
 def _initial():
-    import os
     import shutil
 
     if shutil.which('java') is None:

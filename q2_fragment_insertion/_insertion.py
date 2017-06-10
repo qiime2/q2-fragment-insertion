@@ -19,8 +19,7 @@ from q2_fragment_insertion._format import PlacementsFormat
 
 # adapted from q2-state-unifrac
 ARGS = (Requirement.parse('q2_fragment_insertion'),
-                          ('q2_fragment_insertion/'
-                           'assets/sepp-package/run-sepp.sh'))
+        'q2_fragment_insertion/assets/sepp-package/run-sepp.sh')
 
 
 def _sanity():
