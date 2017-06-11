@@ -21,4 +21,4 @@ script:
   - flake8 setup.py q2_fragment_insertion
   - python ../q2lint/q2lint.py
   - qiime dev refresh-cache
-  - travis_wait 30 nosetests
+  - travis_wait 60 nosetests
