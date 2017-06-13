@@ -23,7 +23,7 @@ class TestDenoiseUtil(TestPluginBase):
         view = ar.view(DNAFASTAFormat)
         obs_tree, obs_placements = sepp_16s_greengenes(view)
 
-        tree = obs_tree.view(skbio.TreeNode)
+        tree = skbio.TreeNode.read(str(obs_tree))
         obs = {n.name for n in tree.tips()}
         seqs = {r.id for r in ar.view(DNAIterator)}
         self.assertIn(seqs, obs)
