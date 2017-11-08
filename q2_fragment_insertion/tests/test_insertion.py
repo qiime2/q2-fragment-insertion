@@ -25,7 +25,7 @@ class TestDenoiseUtil(TestPluginBase):
 
         tree = skbio.TreeNode.read(str(obs_tree))
         obs = {n.name for n in tree.tips()}
-        seqs = {r.id for r in ar.view(DNAIterator)}
+        seqs = {r.metadata['id'] for r in ar.view(DNAIterator)}
         self.assertIn(seqs, obs)
 
 
