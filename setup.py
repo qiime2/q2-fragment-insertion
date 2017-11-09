@@ -64,7 +64,17 @@ def _post(obj):
     opened.extractall(path=assets_dir)
     opened.close()
 
+    # copy patch file
+    name_patch = 'passreference.patch'
+    shutil.copy(name_patch, assets_dir)
+
+    obj.execute(_patch_sepp, [assets_dir, name_patch], 'Patch run-sepp.sh')
     obj.execute(_config_sepp, [assets_dir], 'Configuring SEPP')
+
+
+def _patch_sepp(assets_dir, name_patch):
+    subprocess.run(['patch', 'sepp-package/run-sepp.sh', name_patch],
+                   check=True, cwd=assets_dir)
 
 
 def _config_sepp(assets_dir):
