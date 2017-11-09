@@ -111,6 +111,7 @@ setup(
     },
     cmdclass={'install': PostInstallCommand,
               'develop': PostDevelopCommand},
+    license='BSD-3-Clause',
     package_data={
         'q2_fragment_insertion.tests': ['data/*']}
 )
