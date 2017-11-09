@@ -8,7 +8,7 @@
 import importlib
 
 import qiime2.plugin
-from q2_types.feature_data import FeatureData, Sequence
+from q2_types.feature_data import FeatureData, Sequence, AlignedSequence
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
@@ -48,10 +48,20 @@ _outputs = [('tree', Phylogeny[Rooted]),
 
 plugin.methods.register_function(
     function=q2fi.sepp_16s_greengenes,
-    inputs={'representative_sequences': FeatureData[Sequence]},
+    inputs={'representative_sequences': FeatureData[Sequence],
+            'reference_alignment': FeatureData[AlignedSequence],
+            'reference_phylogeny': Phylogeny[Rooted]},
     parameters=_parameters,
     outputs=_outputs,
-    input_descriptions={'representative_sequences': "The sequences to insert"},
+    input_descriptions={
+        'representative_sequences': "The sequences to insert",
+        'reference_alignment':
+        ('The reference multiple nucleotide alignment used '
+         'to construct the reference phylogeny.'),
+        'reference_phylogeny':
+        ('The rooted reference phylogeny. Must be in sync '
+         'with reference-alignment, i.e. each tip name must'
+         ' have exactly one corresponding row.')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
     name='Insert fragment 16S sequences using SEPP into Greengenes 13_8',
