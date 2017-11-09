@@ -13,7 +13,8 @@ import subprocess
 from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
-from q2_types.feature_data import DNAFASTAFormat, AlignedDNAFASTAFormat
+from q2_types.feature_data import (DNAFASTAFormat, AlignedDNAFASTAFormat,
+                                   AlignedDNAIterator)
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
@@ -30,8 +31,8 @@ def _sanity():
         raise ValueError("ssu could not be located!")
 
 
-def _reference_matches(reference_alignment: skbio.alignment.TabularMSA=None,
-                       reference_phylogeny: skbio.TreeNode=None) -> bool:
+def _reference_matches(reference_alignment: AlignedDNAFASTAFormat=None,
+                       reference_phylogeny: NewickFormat=None) -> bool:
     dir_sepp_ref = 'q2_fragment_insertion/assets/sepp-package/ref/'
 
     # no check neccessary when user does not provide specific references,
@@ -40,19 +41,28 @@ def _reference_matches(reference_alignment: skbio.alignment.TabularMSA=None,
         return True
 
     # if only phylogeny is provided by the user, load default alignment
-    if (reference_alignment is None) and (reference_phylogeny is not None):
-        reference_alignment = skbio.alignment.TabularMSA.read(os.path.join(
-            dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta'),
-            format='fasta', constructor=DNA)
+    if reference_alignment is None:
+        filename_alignment = resource_filename(
+            Requirement.parse('q2_fragment_insertion'),
+            os.path.join(dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta'))
+    else:
+        filename_alignment = str(reference_alignment)
+    ids_alignment = {
+        row.metadata['id']
+        for row in skbio.alignment.TabularMSA.read(
+            filename_alignment,
+            format='fasta', constructor=skbio.sequence.DNA)}
 
     # if only alignment is provided by the user, load default phylogeny
-    if (reference_alignment is not None) and (reference_phylogeny is None):
-        reference_phylogeny = TreeNode.read(os.path.join(
-            dir_sepp_ref, 'reference-gg-raxml-bl-rooted-relabelled.tre'))
-
-    # collect all sequence names from alignment and tip names from phylogeny
-    ids_alignment = {row.metadata['id'] for row in reference_alignment}
-    ids_tips = {node.name for node in reference_phylogeny.tips()}
+    if reference_phylogeny is None:
+        filename_phylogeny = resource_filename(
+            Requirement.parse('q2_fragment_insertion'),
+            os.path.join(dir_sepp_ref,
+                         'reference-gg-raxml-bl-rooted-relabelled.tre'))
+    else:
+        filename_phylogeny = str(reference_phylogeny)
+    ids_tips = {node.name
+                for node in skbio.TreeNode.read(filename_phylogeny).tips()}
 
     # both id sets need to match
     return ids_alignment == ids_tips
@@ -76,30 +86,31 @@ def _sepp_path():
 
 
 def _run(seqs_fp, threads, cwd,
-         filename_ref_alignment=None, filename_ref_phylogeny=None):
+         reference_alignment: AlignedDNAFASTAFormat=None,
+         reference_phylogeny: NewickFormat=None):
     cmd = [_sepp_path(),
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads)]
-    if filename_ref_alignment is not None:
-        cmd.extend(['-a', os.path.join(cwd, filename_ref_alignment)])
-    if filename_ref_phylogeny is not None:
-        cmd.extend(['-t', os.path.join(cwd, filename_ref_phylogeny)])
+    if reference_alignment is not None:
+        cmd.extend(['-a', str(reference_alignment)])
+    if reference_phylogeny is not None:
+        cmd.extend(['-t', str(reference_phylogeny)])
 
     subprocess.run(cmd, check=True, cwd=cwd)
 
 
 def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
                         threads: int=1,
-                        reference_alignment: skbio.alignment.TabularMSA=None,
-                        reference_phylogeny: skbio.TreeNode=None
+                        reference_alignment: AlignedDNAFASTAFormat=None,
+                        reference_phylogeny: NewickFormat=None
                         ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
     # check if sequences and tips in reference match
     if not _reference_matches(reference_alignment, reference_phylogeny):
         raise ValueError(
-            ('Reference alignment and phylogeny don\'t match up. Please ensure'
+            ('Reference alignment and phylogeny do not match up. Please ensure'
              ' that all sequences in the alignment correspond to exactly one '
              'tip name in the phylogeny.'))
 
@@ -110,21 +121,8 @@ def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
     tree_result = NewickFormat()
 
     with tempfile.TemporaryDirectory() as tmp:
-        # write reference alignment and phylogeny to tmp dir if provided by
-        # the user
-        filename_ref_alignment = None
-        if reference_alignment is not None:
-            filename_ref_alignment = 'reference_alignment.fasta'
-            reference_alignment.write(
-                os.path.join(tmp, filename_ref_alignment), format='fasta')
-        filename_ref_phylogeny = None
-        if reference_phylogeny is not None:
-            filename_ref_phylogeny = 'reference_phylogeny.nwk'
-            reference_phylogeny.write(
-                os.path.join(tmp, filename_ref_phylogeny))
-
         _run(str(representative_sequences), str(threads), tmp,
-             filename_ref_alignment, filename_ref_phylogeny)
+             reference_alignment, reference_phylogeny)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 
