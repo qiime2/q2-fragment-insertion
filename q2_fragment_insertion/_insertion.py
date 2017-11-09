@@ -13,8 +13,7 @@ import subprocess
 from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
-from q2_types.feature_data import (DNAFASTAFormat, AlignedDNAFASTAFormat,
-                                   AlignedDNAIterator)
+from q2_types.feature_data import DNAFASTAFormat, AlignedDNAFASTAFormat
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
