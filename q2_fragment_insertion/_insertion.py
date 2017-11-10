@@ -13,7 +13,8 @@ import subprocess
 from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
-from q2_types.feature_data import (DNAFASTAFormat,
+from q2_types.feature_data import (DNASequencesDirectoryFormat,
+                                   DNAFASTAFormat,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
@@ -106,7 +107,7 @@ def _run(seqs_fp, threads, cwd,
     subprocess.run(cmd, check=True, cwd=cwd)
 
 
-def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
+def sepp_16s_greengenes(representative_sequences: DNASequencesDirectoryFormat,
                         threads: int=1,
                         reference_alignment:
                         AlignedDNASequencesDirectoryFormat=None,
@@ -128,7 +129,8 @@ def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
     tree_result = NewickFormat()
 
     with tempfile.TemporaryDirectory() as tmp:
-        _run(str(representative_sequences), str(threads), tmp,
+        _run(str(representative_sequences.file.view(DNAFASTAFormat)),
+             str(threads), tmp,
              reference_alignment, reference_phylogeny)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
