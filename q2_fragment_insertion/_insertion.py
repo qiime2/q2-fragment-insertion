@@ -86,6 +86,23 @@ def _add_missing_branch_length(filename_tree):
     tree.write(filename_tree)
 
 
+def _obtain_taxonomy(filename_tree: str,
+                     representative_sequences:
+                     AlignedDNASequencesDirectoryFormat) -> pd.DataFrame:
+    """Buttom up traverse tree for nodes that are inserted fragments and
+       collect taxonomic labels upon traversal."""
+    tree = skbio.TreeNode.read(filename_tree)
+    taxonomy = []
+    for feature_id in representative_sequences.file.view(DNAIterator):
+        lineage = []
+        for ancestor in tree.find(feature_id).ancestors():
+            if (ancestor.name is not None) and ('__' in ancestor.name):
+                lineage.append(ancestor.name)
+        taxonomy.append({'Feature ID': feature_id,
+                         'Taxon': '; '.join(reversed(lineage))})
+    return pd.DataFrame(taxonomy).set_index('Feature ID')
+
+
 def _sepp_path():
     return resource_filename(*ARGS)
 
