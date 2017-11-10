@@ -13,7 +13,8 @@ from qiime2.plugin.testing import TestPluginBase
 from q2_types.feature_data import DNAFASTAFormat
 from q2_fragment_insertion._insertion import sepp_16s_greengenes
 import skbio
-from q2_types.feature_data import (AlignedDNAFASTAFormat, DNAIterator)
+from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
+                                   DNAIterator)
 from q2_types.tree import NewickFormat
 
 
@@ -30,7 +31,7 @@ class TestFragmentInsertion(TestPluginBase):
 
         ar_refaln = Artifact.load(self.get_data_path(
             'reference_alignment_small.qza'))
-        ref_aln_small = ar_refaln.view(AlignedDNAFASTAFormat)
+        ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
         obs_tree, obs_placements = sepp_16s_greengenes(
             view,
@@ -50,7 +51,7 @@ class TestFragmentInsertion(TestPluginBase):
 
         ar_refaln = Artifact.load(self.get_data_path(
             'reference_alignment_small.qza'))
-        ref_aln_small = ar_refaln.view(AlignedDNAFASTAFormat)
+        ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
         with self.assertRaises(ValueError):
             obs_tree, obs_placements = sepp_16s_greengenes(

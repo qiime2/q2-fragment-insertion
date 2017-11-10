@@ -13,7 +13,10 @@ import subprocess
 from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
-from q2_types.feature_data import DNAFASTAFormat, AlignedDNAFASTAFormat
+from q2_types.feature_data import (DNAFASTAFormat,
+                                   AlignedDNASequencesDirectoryFormat,
+                                   AlignedDNAIterator,
+                                   AlignedDNAFASTAFormat)
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
@@ -30,7 +33,8 @@ def _sanity():
         raise ValueError("ssu could not be located!")
 
 
-def _reference_matches(reference_alignment: AlignedDNAFASTAFormat=None,
+def _reference_matches(reference_alignment:
+                       AlignedDNASequencesDirectoryFormat=None,
                        reference_phylogeny: NewickFormat=None) -> bool:
     dir_sepp_ref = 'q2_fragment_insertion/assets/sepp-package/ref/'
 
@@ -44,13 +48,15 @@ def _reference_matches(reference_alignment: AlignedDNAFASTAFormat=None,
         filename_alignment = resource_filename(
             Requirement.parse('q2_fragment_insertion'),
             os.path.join(dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta'))
+        ids_alignment = {
+            row.metadata['id']
+            for row in skbio.alignment.TabularMSA.read(
+                filename_alignment,
+                format='fasta', constructor=skbio.sequence.DNA)}
     else:
-        filename_alignment = str(reference_alignment)
-    ids_alignment = {
-        row.metadata['id']
-        for row in skbio.alignment.TabularMSA.read(
-            filename_alignment,
-            format='fasta', constructor=skbio.sequence.DNA)}
+        ids_alignment = {
+            row.metadata['id']
+            for row in reference_alignment.file.view(AlignedDNAIterator)}
 
     # if only alignment is provided by the user, load default phylogeny
     if reference_phylogeny is None:
@@ -85,14 +91,15 @@ def _sepp_path():
 
 
 def _run(seqs_fp, threads, cwd,
-         reference_alignment: AlignedDNAFASTAFormat=None,
+         reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None):
     cmd = [_sepp_path(),
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads)]
     if reference_alignment is not None:
-        cmd.extend(['-a', str(reference_alignment)])
+        cmd.extend([
+            '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
     if reference_phylogeny is not None:
         cmd.extend(['-t', str(reference_phylogeny)])
 
@@ -101,7 +108,8 @@ def _run(seqs_fp, threads, cwd,
 
 def sepp_16s_greengenes(representative_sequences: DNAFASTAFormat,
                         threads: int=1,
-                        reference_alignment: AlignedDNAFASTAFormat=None,
+                        reference_alignment:
+                        AlignedDNASequencesDirectoryFormat=None,
                         reference_phylogeny: NewickFormat=None
                         ) -> (NewickFormat, PlacementsFormat):
 
