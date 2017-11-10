@@ -33,7 +33,7 @@ class TestFragmentInsertion(TestPluginBase):
             'reference_alignment_small.qza'))
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
-        obs_tree, obs_placements = sepp_16s_greengenes(
+        obs_tree, obs_placements, obs_taxonomy = sepp_16s_greengenes(
             view,
             reference_alignment=ref_aln_small,
             reference_phylogeny=ref_phylo_small)
@@ -54,13 +54,12 @@ class TestFragmentInsertion(TestPluginBase):
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
         with self.assertRaises(ValueError):
-            obs_tree, obs_placements = sepp_16s_greengenes(
-                None, reference_phylogeny=ref_phylo_small)
+            sepp_16s_greengenes(None, reference_phylogeny=ref_phylo_small)
 
         with self.assertRaises(ValueError):
-            obs_tree, obs_placements = sepp_16s_greengenes(
-                None, reference_alignment=ref_aln_small)
+            sepp_16s_greengenes(None, reference_alignment=ref_aln_small)
 
+    # TODO: create test for taxonomy check
 
 if __name__ == '__main__':
     unittest.main()
