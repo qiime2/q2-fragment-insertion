@@ -61,7 +61,7 @@ plugin.methods.register_function(
         'reference_phylogeny':
         ('The rooted reference phylogeny. Must be in sync '
          'with reference-alignment, i.e. each tip name must'
-         ' have exactly one corresponding row.')},
+         ' have exactly one corresponding record.')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
     name='Insert fragment 16S sequences using SEPP into Greengenes 13_8',
