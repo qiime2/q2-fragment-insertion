@@ -10,10 +10,10 @@ import unittest
 
 from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
-from q2_types.feature_data import DNAFASTAFormat
 from q2_fragment_insertion._insertion import sepp_16s_greengenes
 import skbio
 from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
+                                   DNASequencesDirectoryFormat,
                                    DNAIterator)
 from q2_types.tree import NewickFormat
 
@@ -23,7 +23,7 @@ class TestFragmentInsertion(TestPluginBase):
 
     def test_exercise_sepp_16s_greengenes(self):
         ar = Artifact.load(self.get_data_path('real_data.qza'))
-        view = ar.view(DNAFASTAFormat)
+        view = ar.view(DNASequencesDirectoryFormat)
 
         ar_refphylo = Artifact.load(self.get_data_path(
             'reference_phylogeny_small.qza'))
