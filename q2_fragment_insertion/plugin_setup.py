@@ -42,7 +42,7 @@ _output_descriptions = {
     'classification':
     ('Taxonomic lineages for fragments, obtained by traversing the insertion '
      'tree bottom up and collecting taxonomic labels. Only works for '
-     'GreenGenes lines labels, i.e. they need to contain "__" infixes.')}
+     'Greengenes lines labels, i.e. they need to contain "__" infixes.')}
 
 
 _parameters = {'threads': qiime2.plugin.Int}

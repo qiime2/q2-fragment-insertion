@@ -14,6 +14,7 @@ from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
 import pandas as pd
+import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
                                    DNAIterator,
@@ -98,11 +99,15 @@ def _obtain_taxonomy(filename_tree: str,
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
         lineage = []
-        for ancestor in tree.find(fragment.metadata['id']).ancestors():
-            if (ancestor.name is not None) and ('__' in ancestor.name):
-                lineage.append(ancestor.name)
+        try:
+            for ancestor in tree.find(fragment.metadata['id']).ancestors():
+                if (ancestor.name is not None) and ('__' in ancestor.name):
+                    lineage.append(ancestor.name)
+            lineage_str = '; '.join(reversed(lineage))
+        except skbio.tree.MissingNodeError:
+            lineage_str = np.nan
         taxonomy.append({'Feature ID': fragment.metadata['id'],
-                         'Taxon': '; '.join(reversed(lineage))})
+                         'Taxon': lineage_str})
     return pd.DataFrame(taxonomy).set_index('Feature ID')
 
 
