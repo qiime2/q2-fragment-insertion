@@ -8,7 +8,8 @@
 import importlib
 
 import qiime2.plugin
-from q2_types.feature_data import FeatureData, Sequence, AlignedSequence
+from q2_types.feature_data import (FeatureData, Sequence, AlignedSequence,
+                                   Taxonomy)
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
@@ -36,14 +37,20 @@ plugin.register_semantic_type_to_format(Placements,
 _parameter_descriptions = {'threads': 'The number of threads to use'}
 
 
-_output_descriptions = {'tree': 'The tree with inserted feature data'}
+_output_descriptions = {
+    'tree': 'The tree with inserted feature data',
+    'classification':
+    ('Taxonomic lineages for fragments, obtained by traversing the insertion '
+     'tree bottom up and collecting taxonomic labels. Only works for '
+     'Greengenes lines labels, i.e. they need to contain "__" infixes.')}
 
 
 _parameters = {'threads': qiime2.plugin.Int}
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
-            ('placements', Placements)]
+            ('placements', Placements),
+            ('classification', FeatureData[Taxonomy])]
 
 
 plugin.methods.register_function(

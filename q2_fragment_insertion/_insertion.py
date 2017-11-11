@@ -13,8 +13,11 @@ import subprocess
 from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
+import pandas as pd
+import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
+                                   DNAIterator,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
@@ -87,6 +90,27 @@ def _add_missing_branch_length(filename_tree):
     tree.write(filename_tree)
 
 
+def _obtain_taxonomy(filename_tree: str,
+                     representative_sequences:
+                     DNASequencesDirectoryFormat) -> pd.DataFrame:
+    """Buttom up traverse tree for nodes that are inserted fragments and
+       collect taxonomic labels upon traversal."""
+    tree = skbio.TreeNode.read(filename_tree)
+    taxonomy = []
+    for fragment in representative_sequences.file.view(DNAIterator):
+        lineage = []
+        try:
+            for ancestor in tree.find(fragment.metadata['id']).ancestors():
+                if (ancestor.name is not None) and ('__' in ancestor.name):
+                    lineage.append(ancestor.name)
+            lineage_str = '; '.join(reversed(lineage))
+        except skbio.tree.MissingNodeError:
+            lineage_str = np.nan
+        taxonomy.append({'Feature ID': fragment.metadata['id'],
+                         'Taxon': lineage_str})
+    return pd.DataFrame(taxonomy).set_index('Feature ID')
+
+
 def _sepp_path():
     return resource_filename(*ARGS)
 
@@ -112,7 +136,7 @@ def sepp_16s_greengenes(representative_sequences: DNASequencesDirectoryFormat,
                         reference_alignment:
                         AlignedDNASequencesDirectoryFormat=None,
                         reference_phylogeny: NewickFormat=None
-                        ) -> (NewickFormat, PlacementsFormat):
+                        ) -> (NewickFormat, PlacementsFormat, pd.DataFrame):
 
     _sanity()
     # check if sequences and tips in reference match
@@ -127,6 +151,7 @@ def sepp_16s_greengenes(representative_sequences: DNASequencesDirectoryFormat,
 
     placements_result = PlacementsFormat()
     tree_result = NewickFormat()
+    taxonomy = pd.DataFrame()
 
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
@@ -136,8 +161,9 @@ def sepp_16s_greengenes(representative_sequences: DNASequencesDirectoryFormat,
         outplacements = os.path.join(tmp, placements)
 
         _add_missing_branch_length(outtree)
+        taxonomy = _obtain_taxonomy(outtree, representative_sequences)
 
         shutil.copyfile(outtree, str(tree_result))
         shutil.copyfile(outplacements, str(placements_result))
 
-    return tree_result, placements_result
+    return tree_result, placements_result, taxonomy

@@ -12,6 +12,8 @@ from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
 from q2_fragment_insertion._insertion import sepp_16s_greengenes
 import skbio
+import pandas as pd
+from pandas.testing import assert_frame_equal
 from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
                                    DNASequencesDirectoryFormat,
                                    DNAIterator)
@@ -33,7 +35,7 @@ class TestFragmentInsertion(TestPluginBase):
             'reference_alignment_small.qza'))
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
-        obs_tree, obs_placements = sepp_16s_greengenes(
+        obs_tree, obs_placements, obs_classification = sepp_16s_greengenes(
             view,
             reference_alignment=ref_aln_small,
             reference_phylogeny=ref_phylo_small)
@@ -43,6 +45,11 @@ class TestFragmentInsertion(TestPluginBase):
         seqs = {r.metadata['id'] for r in ar.view(DNAIterator)}
         for seq in seqs:
             self.assertIn(seq, obs)
+
+        # test classification
+        exp_classification = pd.read_csv(self.get_data_path(
+            'taxonomy_real_data_small.tsv'), index_col=0, sep="\t").fillna("")
+        assert_frame_equal(obs_classification, exp_classification)
 
     def test_refmismatch(self):
         ar_refphylo = Artifact.load(self.get_data_path(
@@ -54,12 +61,39 @@ class TestFragmentInsertion(TestPluginBase):
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
         with self.assertRaises(ValueError):
-            obs_tree, obs_placements = sepp_16s_greengenes(
-                None, reference_phylogeny=ref_phylo_small)
+            sepp_16s_greengenes(None, reference_phylogeny=ref_phylo_small)
 
         with self.assertRaises(ValueError):
-            obs_tree, obs_placements = sepp_16s_greengenes(
-                None, reference_alignment=ref_aln_small)
+            sepp_16s_greengenes(None, reference_alignment=ref_aln_small)
+
+        ar_refphylo_tiny = Artifact.load(self.get_data_path(
+            'reference_phylogeny_tiny.qza'))
+        ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
+
+        with self.assertRaises(ValueError):
+            sepp_16s_greengenes(None, reference_alignment=ref_aln_small,
+                                reference_phylogeny=ref_phylo_tiny)
+
+    def test_classification(self):
+        ar = Artifact.load(self.get_data_path('real_data.qza'))
+        view = ar.view(DNASequencesDirectoryFormat)
+
+        ar_refphylo_tiny = Artifact.load(self.get_data_path(
+            'reference_phylogeny_tiny.qza'))
+        ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
+
+        ar_refaln_tiny = Artifact.load(self.get_data_path(
+            'reference_alignment_tiny.qza'))
+        ref_aln_tiny = ar_refaln_tiny.view(AlignedDNASequencesDirectoryFormat)
+
+        obs_tree, obs_placements, obs_classification = sepp_16s_greengenes(
+            view,
+            reference_alignment=ref_aln_tiny,
+            reference_phylogeny=ref_phylo_tiny)
+
+        exp_classification = pd.read_csv(self.get_data_path(
+            'taxonomy_real_data_tiny.tsv'), index_col=0, sep="\t").fillna("")
+        assert_frame_equal(obs_classification, exp_classification)
 
 
 if __name__ == '__main__':
