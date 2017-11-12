@@ -28,7 +28,7 @@ QIIME 2's "Moving Pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials
 
 Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 
-   - rep-seqs.qza: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2017.10%2Fdata%2Ftutorials%2Fmoving-pictures%2Frep-seqs.qza) | [download](https://docs.qiime2.org/2017.10/data/tutorials/moving-pictures/rep-seqs.qza)
+   - `rep-seqs.qza`: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2017.10%2Fdata%2Ftutorials%2Fmoving-pictures%2Frep-seqs.qza) | [download](https://docs.qiime2.org/2017.10/data/tutorials/moving-pictures/rep-seqs.qza)
 
 The following single command will produce three outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]`, 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) and 3) `classification.qza` which is a taxonomic classification for every fragment that has been inserted into the reference phylogeny and is of the type `FeatureData[Taxonomy]`:
 ```
@@ -39,8 +39,8 @@ qiime fragment-insertion sepp-16s-greengenes \
   --o-classification insertion-taxonomy.qza
 ```
 Output artifacts:
-   - insertion-tree.qza [view]() | [download]()
-   - insertion-placements.qza [view]() | [download]()
-   - insertion-taxonomy.qza [view]() | [download]()
+   - `insertion-tree.qza`: [view]() | [download]()
+   - `insertion-placements.qza`: [view]() | [download]()
+   - `insertion-taxonomy.qza`: [view]() | [download]()
  
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
