@@ -1,18 +1,19 @@
 ## Installation
 
-Once QIIME2 is [installed](https://docs.qiime2.org/2017.5/install/native/), it should be possible to install `q2-fragment-insertion` with:
+Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), it should be possible to install `q2-fragment-insertion` with:
 
-    source activate qiime2-2017.5
-    git clone https://github.com/wasade/q2-fragment-insertion.git
+    source activate qiime2-2017.10
+    git clone https://github.com/biocore/q2-fragment-insertion.git
     cd q2-fragment-insertion
     python setup.py install
     qiime dev refresh-cache
-    
+
 You will need Java to run SEPP, and you may need to install it. How you do it is dependent on your operating system. If you're on OSX, you likely need to grab a legacy version of Java. Information can be found [here](https://support.apple.com/kb/dl1572?locale=en_US).
 
 ## Important
 
-Currently only insertion into Greengenes 13_8 at 99% is available. We have not exposed mechanisms yet to construct references which can be used, however this can be accomplished by using [SEPP](https://github.com/smirarab/sepp) directly.
+Default reference (phylogeny and matching alignment) is Greengenes 13_8 at 99%.
+You can provide your own reference via optional inputs `--i-reference-alignment` and `--i-reference-phylogeny`. Make sure that every tip of the reference phylogeny has exactly one corresponding sequence in the reference alignment. Taxonomic lineage is obtained from the provided reference phylogeny, which may or may not be decorated with internal node names containing `_` `_`.
 
 Sequences which are not at least 75% similar by sequence identity to any record in the tree to insert into are not inserted into the tree.
 
@@ -20,4 +21,7 @@ A fragment may be reasonable to insert into multiple locations. However, downstr
 
 ## Files produced
 
-The plugin will generate two files, one which is a `Phylogeny[Rooted]` type, and once which is a `Placements` type. The former is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. The latter is a JSON object which, for every input sequence, describes the different possible placements. 
+The plugin will generate three files:
+  1. A `Phylogeny[Rooted]` type: This is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. You can directly use this tree for phylogenetic diversity computation like UniFrac or faith_PD.
+  2. A `Placements` type: It is a JSON object which, for every input sequence, describes the different possible placements.
+  3. And last a `FeatureData[Taxonomy]` type: This is a table that holds a taxonomic lineage string for every fragment inserted into the tree. The lineage is obtained by traversing the tree from the fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes.
