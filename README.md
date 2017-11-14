@@ -20,7 +20,10 @@ A fragment may be reasonable to insert into multiple locations. However, downstr
 
 ## Files produced
 
-The plugin will generate two files, one which is a `Phylogeny[Rooted]` type, and once which is a `Placements` type. The former is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. The latter is a JSON object which, for every input sequence, describes the different possible placements. 
+The plugin will generate three files:
+  1. A `Phylogeny[Rooted]` type: This is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. You can directly use this tree for phylogenetic diversity computation like UniFrac or Faith's Phylogenetic Diversity.
+  2. A `Placements` type: It is a JSON object which, for every input sequence, describes the different possible placements.
+  3. And last a `FeatureData[Taxonomy]` type: This is a table that holds a taxonomic lineage string for every fragment inserted into the tree. The lineage is obtained by traversing the tree from the fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT encourage the use of this file, since it has not been compared to existing taxonomic assignment methods. Particularly since the default reference tree is not inline with the reference taxonomy.**
 
 ## Example
 
