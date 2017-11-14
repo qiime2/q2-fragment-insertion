@@ -1,18 +1,18 @@
 ## Installation
 
-Once QIIME2 is [installed](https://docs.qiime2.org/2017.5/install/native/), it should be possible to install `q2-fragment-insertion` with:
+Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
 
-    source activate qiime2-2017.5
-    git clone https://github.com/wasade/q2-fragment-insertion.git
+    git clone https://github.com/biocore/q2-fragment-insertion.git
     cd q2-fragment-insertion
     python setup.py install
     qiime dev refresh-cache
-    
+
 You will need Java to run SEPP, and you may need to install it. How you do it is dependent on your operating system. If you're on OSX, you likely need to grab a legacy version of Java. Information can be found [here](https://support.apple.com/kb/dl1572?locale=en_US).
 
 ## Important
 
-Currently only insertion into Greengenes 13_8 at 99% is available. We have not exposed mechanisms yet to construct references which can be used, however this can be accomplished by using [SEPP](https://github.com/smirarab/sepp) directly.
+Default reference (phylogeny and matching alignment) is Greengenes 13_8 at 99%.
+You can provide your own reference via optional inputs `--i-reference-alignment` and `--i-reference-phylogeny`. Make sure that every tip of the reference phylogeny has exactly one corresponding sequence in the reference alignment. Insertion taxonomic lineage information can be obtained from the provided reference phylogeny, by concatenating internal node labels along the path from the root to the inserted fragment. Only node labels are considerd which contain Greengenes like infixes with two underscores `_` `_`, indicating taxonomic labels. Your reference phylogeny might contain other internal node labels which are not taxonomic labels.
 
 Sequences which are not at least 75% similar by sequence identity to any record in the tree to insert into are not inserted into the tree.
 
