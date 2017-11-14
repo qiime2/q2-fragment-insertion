@@ -1,8 +1,7 @@
 ## Installation
 
-Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), it should be possible to install `q2-fragment-insertion` with:
+Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
 
-    source activate qiime2-2017.10
     git clone https://github.com/biocore/q2-fragment-insertion.git
     cd q2-fragment-insertion
     python setup.py install
