@@ -36,7 +36,7 @@ Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 The following single command will produce three outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]`, 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) and 3) `classification.qza` which is a taxonomic classification for every fragment that has been inserted into the reference phylogeny and is of the type `FeatureData[Taxonomy]` (Computation might take some 10 minutes):
 ```
 qiime fragment-insertion sepp-16s-greengenes \
-  --i-representative-sequences rep-seqs.qzv \
+  --i-representative-sequences rep-seqs.qza \
   --o-tree insertion-tree.qza \
   --o-placements insertion-placements.qza \
   --o-classification insertion-taxonomy.qza
