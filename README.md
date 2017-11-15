@@ -35,7 +35,7 @@ Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 
 The following single command will produce three outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]`, 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) and 3) `classification.qza` which is a taxonomic classification for every fragment that has been inserted into the reference phylogeny and is of the type `FeatureData[Taxonomy]` (Computation might take some 10 minutes):
 ```
-qiime fragment-insertion sepp-16s-greengenes \
+qiime fragment-insertion sepp \
   --i-representative-sequences rep-seqs.qzv \
   --o-tree insertion-tree.qza \
   --o-placements insertion-placements.qza \
@@ -45,5 +45,5 @@ Output artifacts:
    - `insertion-tree.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-tree.qza?raw=true)
    - `insertion-placements.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-placements.qza?raw=true)
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
- 
+
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.

@@ -54,7 +54,7 @@ _outputs = [('tree', Phylogeny[Rooted]),
 
 
 plugin.methods.register_function(
-    function=q2fi.sepp_16s_greengenes,
+    function=q2fi.sepp,
     inputs={'representative_sequences': FeatureData[Sequence],
             'reference_alignment': FeatureData[AlignedSequence],
             'reference_phylogeny': Phylogeny[Rooted]},
@@ -71,7 +71,8 @@ plugin.methods.register_function(
          ' have exactly one corresponding record.')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
-    name='Insert fragment 16S sequences using SEPP into Greengenes 13_8',
+    name=('Insert fragment sequences using SEPP into reference phylogenies '
+          'like Greengenes 13_8'),
     description=('Perform fragment insertion of 16S sequences using the SEPP '
                  'algorithm against the Greengenes 13_8 99% tree.')
 )

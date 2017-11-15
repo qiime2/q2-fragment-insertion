@@ -131,12 +131,11 @@ def _run(seqs_fp, threads, cwd,
     subprocess.run(cmd, check=True, cwd=cwd)
 
 
-def sepp_16s_greengenes(representative_sequences: DNASequencesDirectoryFormat,
-                        threads: int=1,
-                        reference_alignment:
-                        AlignedDNASequencesDirectoryFormat=None,
-                        reference_phylogeny: NewickFormat=None
-                        ) -> (NewickFormat, PlacementsFormat, pd.DataFrame):
+def sepp(representative_sequences: DNASequencesDirectoryFormat,
+         threads: int=1,
+         reference_alignment: AlignedDNASequencesDirectoryFormat=None,
+         reference_phylogeny: NewickFormat=None
+         ) -> (NewickFormat, PlacementsFormat, pd.DataFrame):
 
     _sanity()
     # check if sequences and tips in reference match
