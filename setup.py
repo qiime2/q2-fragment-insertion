@@ -20,7 +20,9 @@ def _initial():
 
     result = subprocess.run(['java', '-version'], stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
-    if 'java version' not in result.stderr.decode('ascii'):
+    err_content = result.stderr.decode('ascii')
+    if ('java version' not in err_content) and \
+       ('jdk version' not in err_content):
         raise ValueError(('Please verify that java is installed and working. '
                           'As a first test, please execute "java -version" '
                           'and make sure the output shows there is an actual '
