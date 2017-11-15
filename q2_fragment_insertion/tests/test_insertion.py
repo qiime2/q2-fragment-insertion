@@ -72,7 +72,7 @@ class TestFragmentInsertion(TestPluginBase):
 
         with self.assertRaises(ValueError):
             sepp(None, reference_alignment=ref_aln_small,
-                                reference_phylogeny=ref_phylo_tiny)
+                 reference_phylogeny=ref_phylo_tiny)
 
     def test_classification(self):
         ar = Artifact.load(self.get_data_path('real_data.qza'))
