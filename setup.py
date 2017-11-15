@@ -1,6 +1,3 @@
-    err_content = result.stderr.decode('ascii')
-    if ('java version' not in err_content) and \
-       ('jdk version' not in err_content):
 # ----------------------------------------------------------------------------
 # Copyright (c) 2016-2017, QIIME 2 development team.
 #
