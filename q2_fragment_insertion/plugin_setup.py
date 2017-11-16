@@ -21,6 +21,7 @@ plugin = qiime2.plugin.Plugin(
     name='fragment-insertion',
     version=q2fi.__version__,
     website='https://github.com/wasade/q2-fragment-insertion',
+    short_description='Plugin for extending phylogenies.',
     package='q2_fragment_insertion',
     user_support_text='https://github.com/wasade/q2-fragment-insertion/issues',
     citation_text=('Mirarab, Siavash, Nam Nguyen, and Tandy J. Warnow. "SEPP: '

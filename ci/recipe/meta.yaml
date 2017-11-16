@@ -1,0 +1,57 @@
+{% set version = '0.1.0' %}
+{% set qiime2release = '2017.10' %}
+
+package:
+  name: q2-fragment-insertion
+  version: {{ version }}
+
+source:
+  - git_url: https://github.com/biocore/q2-fragment-insertion.git
+  #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
+
+build:
+  number: 1
+  script:
+    - python setup.py install
+
+requirements:
+  build:
+    - python 3.5*
+    - setuptools
+    - nodejs
+    - java-jdk
+    - biom-format >=2.1.5,<2.2.0
+    - qiime2 {{ qiime2release }}.*
+    - q2templates {{ qiime2release }}.*
+    - q2-types {{ qiime2release }}.*
+    - q2-feature-table {{ qiime2release }}.*
+
+  run:
+    - python 3.5*
+    - setuptools
+    - nodejs
+    - java-jdk
+    - biom-format >=2.1.5,<2.2.0
+    - qiime2 {{ qiime2release }}.*
+    - q2templates {{ qiime2release }}.*
+    - q2-types {{ qiime2release }}.*
+    - q2-feature-table {{ qiime2release }}.*
+    - q2cli {{ qiime2release }}.*
+    - q2-types {{ qiime2release }}.*
+
+test:
+  source_files:
+    - q2_fragment_insertion/tests/data/reference_alignment_tiny.qza
+    - q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza
+    - q2_fragment_insertion/tests/data/real_data.qza
+  commands:
+    - qiime fragment-insertion sepp-16s-greengenes --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/
+    - qiime tools export --output-dir ./test_conda_tmp/ ./test_conda_tmp/tree.qza
+    - ls test_conda_tmp/tree.nwk
+  imports:
+    - q2_fragment_insertion
+
+about:
+  home: https://github.com/biocore/q2-fragment-insertion
+  license: BSD-3-Clause
+  license_family: BSD
