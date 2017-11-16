@@ -10,7 +10,7 @@ import unittest
 
 from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
-from q2_fragment_insertion._insertion import sepp_16s_greengenes
+from q2_fragment_insertion._insertion import sepp
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -23,7 +23,7 @@ from q2_types.tree import NewickFormat
 class TestFragmentInsertion(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
 
-    def test_exercise_sepp_16s_greengenes(self):
+    def test_exercise_sepp(self):
         ar = Artifact.load(self.get_data_path('real_data.qza'))
         view = ar.view(DNASequencesDirectoryFormat)
 
@@ -35,7 +35,7 @@ class TestFragmentInsertion(TestPluginBase):
             'reference_alignment_small.qza'))
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
-        obs_tree, obs_placements, obs_classification = sepp_16s_greengenes(
+        obs_tree, obs_placements, obs_classification = sepp(
             view,
             reference_alignment=ref_aln_small,
             reference_phylogeny=ref_phylo_small)
@@ -61,18 +61,18 @@ class TestFragmentInsertion(TestPluginBase):
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
         with self.assertRaises(ValueError):
-            sepp_16s_greengenes(None, reference_phylogeny=ref_phylo_small)
+            sepp(None, reference_phylogeny=ref_phylo_small)
 
         with self.assertRaises(ValueError):
-            sepp_16s_greengenes(None, reference_alignment=ref_aln_small)
+            sepp(None, reference_alignment=ref_aln_small)
 
         ar_refphylo_tiny = Artifact.load(self.get_data_path(
             'reference_phylogeny_tiny.qza'))
         ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
 
         with self.assertRaises(ValueError):
-            sepp_16s_greengenes(None, reference_alignment=ref_aln_small,
-                                reference_phylogeny=ref_phylo_tiny)
+            sepp(None, reference_alignment=ref_aln_small,
+                 reference_phylogeny=ref_phylo_tiny)
 
     def test_classification(self):
         ar = Artifact.load(self.get_data_path('real_data.qza'))
@@ -86,7 +86,7 @@ class TestFragmentInsertion(TestPluginBase):
             'reference_alignment_tiny.qza'))
         ref_aln_tiny = ar_refaln_tiny.view(AlignedDNASequencesDirectoryFormat)
 
-        obs_tree, obs_placements, obs_classification = sepp_16s_greengenes(
+        obs_tree, obs_placements, obs_classification = sepp(
             view,
             reference_alignment=ref_aln_tiny,
             reference_phylogeny=ref_phylo_tiny)

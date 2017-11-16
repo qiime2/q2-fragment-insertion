@@ -7,8 +7,8 @@
 # ----------------------------------------------------------------------------
 import pkg_resources
 
-from ._insertion import sepp_16s_greengenes
+from ._insertion import sepp
 
 
 __version__ = pkg_resources.get_distribution('q2-fragment-insertion').version
-__all__ = ['sepp_16s_greengenes']
+__all__ = ['sepp']
