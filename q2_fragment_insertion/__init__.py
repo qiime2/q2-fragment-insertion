@@ -7,8 +7,8 @@
 # ----------------------------------------------------------------------------
 import pkg_resources
 
-from ._insertion import sepp
+from ._insertion import sepp, classify_paths
 
 
 __version__ = pkg_resources.get_distribution('q2-fragment-insertion').version
-__all__ = ['sepp']
+__all__ = ['sepp', 'classify_paths']
