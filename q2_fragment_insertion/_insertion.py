@@ -95,7 +95,7 @@ def _obtain_taxonomy(filename_tree: str,
                      DNASequencesDirectoryFormat) -> pd.DataFrame:
     """Buttom up traverse tree for nodes that are inserted fragments and
        collect taxonomic labels upon traversal."""
-    tree = skbio.TreeNode.read(filename_tree)
+    tree = skbio.TreeNode.read(str(filename_tree))
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
         lineage = []
@@ -108,7 +108,13 @@ def _obtain_taxonomy(filename_tree: str,
             lineage_str = np.nan
         taxonomy.append({'Feature ID': fragment.metadata['id'],
                          'Taxon': lineage_str})
-    return pd.DataFrame(taxonomy).set_index('Feature ID')
+    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
+    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
+        raise ValueError(
+            ("None of the representative-sequences can be found in the "
+             "insertion tree. Please double check that both inputs match up, "
+             "i.e. are results from the same 'sepp' run."))
+    return pd_taxonomy
 
 
 def _sepp_path():
@@ -135,7 +141,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          threads: int=1,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None
-         ) -> (NewickFormat, PlacementsFormat, pd.DataFrame):
+         ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
     # check if sequences and tips in reference match
@@ -160,9 +166,13 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
         outplacements = os.path.join(tmp, placements)
 
         _add_missing_branch_length(outtree)
-        taxonomy = _obtain_taxonomy(outtree, representative_sequences)
 
         shutil.copyfile(outtree, str(tree_result))
         shutil.copyfile(outplacements, str(placements_result))
 
-    return tree_result, placements_result, taxonomy
+    return tree_result, placements_result
+
+
+def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
+                   tree: NewickFormat) -> pd.DataFrame:
+    return _obtain_taxonomy(str(tree), representative_sequences)
