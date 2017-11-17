@@ -2,12 +2,8 @@
 
 Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
 
-    git clone https://github.com/biocore/q2-fragment-insertion.git
-    cd q2-fragment-insertion
-    python setup.py install
+    conda install -c https://conda.anaconda.org/biocore q2-fragment-insertion
     qiime dev refresh-cache
-
-You will need Java to run SEPP, and you may need to install it. How you do it is dependent on your operating system. If you're on OSX, you likely need to grab a legacy version of Java. Information can be found [here](https://support.apple.com/kb/dl1572?locale=en_US).
 
 ## Important
 
@@ -47,3 +43,34 @@ Output artifacts:
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
+
+### Import representative sequencs into QIIME 2 artifact
+
+Assume you have a collection of representative sequences as a multiple fasta file, e.g. from downloading a `reference-hit.seqs.fa` Qiita file. You can *import* this file into a QIIME 2 artifact with the following command:
+
+    qiime tools import \
+    --input-path reference-hit.seqs.fa \
+    --output-path reference-hit.seqs.qza \
+    --type "FeatureData[Sequence]"    
+
+The command will produce a new file with the name `reference-hit.seqs.qza`, which you can use as input `--i-representative-sequences` for the *fragment-insertion* plugin.
+
+## Create conda packages (Developers only)
+
+Obtain latest sources from this git repository:
+
+    git clone https://github.com/biocore/q2-fragment-insertion.git
+
+Move into newly cloned directory:
+
+    cd q2-fragment-insertion
+
+Execute the build command via a Makefile target:
+
+    make conda
+
+Upload the newly created conda package to biocore:
+
+    anaconda upload -u biocore q2-fragment-insertion-0.1.0-py35h3e8d850_1.tar.bz2
+
+Remember to do that for both, Linux and OSX.
