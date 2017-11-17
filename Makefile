@@ -1,4 +1,9 @@
 conda: ci/recipe/meta.yaml
+	# update your conda
+	conda update -q -y -c defaults --override-channels conda
+	conda update -q -y -c defaults --override-channels conda-build
+
+	# build the conda package
 	conda build \
 		-c https://conda.anaconda.org/qiime2/label/r2017.10 \
 		-c https://conda.anaconda.org/conda-forge \
