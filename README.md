@@ -16,10 +16,9 @@ A fragment may be reasonable to insert into multiple locations. However, downstr
 
 ## Files produced
 
-The plugin will generate three files:
+The plugin will generate two files:
   1. A `Phylogeny[Rooted]` type: This is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. You can directly use this tree for phylogenetic diversity computation like UniFrac or Faith's Phylogenetic Diversity.
   2. A `Placements` type: It is a JSON object which, for every input sequence, describes the different possible placements.
-  3. And last a `FeatureData[Taxonomy]` type: This is a table that holds a taxonomic lineage string for every fragment inserted into the tree. The lineage is obtained by traversing the tree from the fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT encourage the use of this file, since it has not been compared to existing taxonomic assignment methods. Particularly since the default reference tree is not inline with the reference taxonomy.**
 
 ## Example
 
@@ -29,20 +28,36 @@ Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 
    - `rep-seqs.qza`: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2017.10%2Fdata%2Ftutorials%2Fmoving-pictures%2Frep-seqs.qza) | [download](https://docs.qiime2.org/2017.10/data/tutorials/moving-pictures/rep-seqs.qza)
 
-The following single command will produce three outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]`, 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) and 3) `classification.qza` which is a taxonomic classification for every fragment that has been inserted into the reference phylogeny and is of the type `FeatureData[Taxonomy]` (Computation might take some 10 minutes):
+The following single command will produce two outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]` and 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) (Computation might take some 10 minutes):
 ```
 qiime fragment-insertion sepp-16s-greengenes \
   --i-representative-sequences rep-seqs.qza \
   --o-tree insertion-tree.qza \
-  --o-placements insertion-placements.qza \
-  --o-classification insertion-taxonomy.qza
+  --o-placements insertion-placements.qza
 ```
 Output artifacts:
    - `insertion-tree.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-tree.qza?raw=true)
    - `insertion-placements.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-placements.qza?raw=true)
-   - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
+
+### Assign taxonomy
+
+The *fragment-insertion* plugin provides two alternative methods to assign a taxonomic lineage to every fragment sequence. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment sequence. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.gza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.gza) of type `FeatureData[Taxonomy]`.
+
+    qiime fragment-insertion classify-otus \
+      --i-representative-sequences rep-seqs.qza \
+      --i-tree insertion-tree.qza \
+      --i-reference-taxonomy taxonomy_gg99.gza \
+      --o-classification taxonomy.gza
+
+Output artifacts:
+   - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
+
+
+You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
+
+Alternatively, you can use the function `classify-paths` to a taxonomy. The lineage strings are obtained by traversing the insertion tree from each fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT encourage the use of this function, since it has not been compared to existing taxonomic assignment methods. Particularly since the default reference tree is not inline with the reference taxonomy.**
 
 ### Import representative sequencs into QIIME 2 artifact
 
