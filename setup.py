@@ -70,6 +70,9 @@ def _post(obj):
     name_patch = 'passreference.patch'
     shutil.copy(name_patch, assets_dir)
 
+    # copy default taxonomy Greengenes 99%: OTU-ID to lineage
+    shutil.copy('taxonomy_gg99.gza', assets_dir)
+
     obj.execute(_patch_sepp, [assets_dir, name_patch], 'Patch run-sepp.sh')
     obj.execute(_config_sepp, [assets_dir], 'Configuring SEPP')
 
