@@ -100,4 +100,32 @@ plugin.methods.register_function(
 )
 
 
+plugin.methods.register_function(
+    function=q2fi.classify_otus,
+    inputs={'representative_sequences': FeatureData[Sequence],
+            'tree': Phylogeny[Rooted],
+            'reference_taxonomy': FeatureData[Taxonomy]},
+    input_descriptions={
+        'representative_sequences':
+        "The sequences used for a \'sepp\' run to produce the \'tree\'.",
+        'tree':
+        ('The tree resulting from inserting fragments into a reference '
+         'phylogeny, i.e. the output of function \'sepp\''),
+        'reference_taxonomy':
+        ("Reference taxonomic table that maps every OTU-ID into a taxonomic "
+         "lineage string.")},
+    parameters={},
+    parameter_descriptions={},
+    outputs=[('classification', FeatureData[Taxonomy])],
+    output_descriptions={
+        'classification': 'Taxonomic lineages for inserted fragments.'},
+    name=('Obtain taxonomic lineages, by finding closest OTU in reference '
+          'phylogeny.'),
+    description=(
+        'Use the resulting tree from \'sepp\' and find closest OTU-ID for '
+        'every inserted fragment. Then, look up the reference lineage string '
+        'in the reference taxonomy.')
+)
+
+
 importlib.import_module('q2_fragment_insertion._transformer')
