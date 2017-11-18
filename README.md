@@ -43,7 +43,7 @@ You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha a
 
 ### Assign taxonomy
 
-The *fragment-insertion* plugin provides two alternative methods to assign a taxonomic lineage to every fragment sequence. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment sequence. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.gza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.gza) of type `FeatureData[Taxonomy]`.
+The *fragment-insertion* plugin provides two alternative methods to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.gza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.gza) of type `FeatureData[Taxonomy]`.
 
     qiime fragment-insertion classify-otus \
       --i-representative-sequences rep-seqs.qza \
@@ -53,7 +53,6 @@ The *fragment-insertion* plugin provides two alternative methods to assign a tax
 
 Output artifacts:
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
-
 
 You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
 
