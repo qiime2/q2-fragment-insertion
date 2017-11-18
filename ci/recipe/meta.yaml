@@ -10,7 +10,7 @@ source:
   #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
 
 build:
-  number: 1
+  number: 2
   script:
     - python setup.py install
 
@@ -45,7 +45,7 @@ test:
     - q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza
     - q2_fragment_insertion/tests/data/real_data.qza
   commands:
-    - qiime fragment-insertion sepp-16s-greengenes --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/
+    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/
     - qiime tools export --output-dir ./test_conda_tmp/ ./test_conda_tmp/tree.qza
     - ls test_conda_tmp/tree.nwk
   imports:
