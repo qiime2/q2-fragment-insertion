@@ -10,7 +10,8 @@ import unittest
 
 from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
-from q2_fragment_insertion._insertion import sepp, classify_paths
+from q2_fragment_insertion._insertion import (sepp,
+                                              classify_paths, classify_otus)
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -81,7 +82,8 @@ class TestClassify(TestPluginBase):
             ar_repseq.view(DNASequencesDirectoryFormat),
             ar_tree.view(NewickFormat))
         exp_classification = pd.read_csv(self.get_data_path(
-            'taxonomy_real_data_tiny.tsv'), index_col=0, sep="\t").fillna("")
+            'taxonomy_real_data_tiny_paths.tsv'),
+            index_col=0, sep="\t").fillna("")
         assert_frame_equal(obs_classification, exp_classification)
 
         ar_tree_small = Artifact.load(
@@ -90,7 +92,8 @@ class TestClassify(TestPluginBase):
             ar_repseq.view(DNASequencesDirectoryFormat),
             ar_tree_small.view(NewickFormat))
         exp_classification_small = pd.read_csv(self.get_data_path(
-            'taxonomy_real_data_small.tsv'), index_col=0, sep="\t").fillna("")
+            'taxonomy_real_data_small_paths.tsv'),
+            index_col=0, sep="\t").fillna("")
         assert_frame_equal(obs_classification_small, exp_classification_small)
 
         ar_refphylo_tiny = Artifact.load(self.get_data_path(
@@ -99,6 +102,44 @@ class TestClassify(TestPluginBase):
         with self.assertRaises(ValueError):
             classify_paths(
                 ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
+
+    def test_classify_otus(self):
+        ar_tree = Artifact.load(self.get_data_path('sepp_tree_tiny.qza'))
+        ar_repseq = Artifact.load(self.get_data_path('real_data.qza'))
+
+        obs_classification = classify_otus(
+            ar_repseq.view(DNASequencesDirectoryFormat),
+            ar_tree.view(NewickFormat))
+        exp_classification = pd.read_csv(self.get_data_path(
+            'taxonomy_real_data_tiny_otus.tsv'),
+            index_col=0, sep="\t").fillna("")
+        assert_frame_equal(obs_classification, exp_classification)
+
+        ar_tree_small = Artifact.load(
+            self.get_data_path('sepp_tree_small.qza'))
+        obs_classification_small = classify_otus(
+            ar_repseq.view(DNASequencesDirectoryFormat),
+            ar_tree_small.view(NewickFormat))
+
+        exp_classification_small = pd.read_csv(self.get_data_path(
+            'taxonomy_real_data_small_otus.tsv'),
+            index_col=0, sep="\t").fillna("")
+        assert_frame_equal(obs_classification_small, exp_classification_small)
+
+        ar_refphylo_tiny = Artifact.load(self.get_data_path(
+            'reference_phylogeny_tiny.qza'))
+        ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
+        with self.assertRaises(ValueError):
+            classify_otus(
+                ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
+
+        # test that missing taxon mappings result in an error
+        ar_taxonomy = Artifact.load(
+            self.get_data_path('taxonomy_missingotus.qza'))
+        with self.assertRaises(ValueError):
+            classify_otus(ar_repseq.view(DNASequencesDirectoryFormat),
+                          ar_tree.view(NewickFormat),
+                          reference_taxonomy=ar_taxonomy.view(pd.DataFrame))
 
 
 if __name__ == '__main__':
