@@ -20,7 +20,9 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAIterator,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
-                                   AlignedDNAFASTAFormat)
+                                   AlignedDNAFASTAFormat,
+                                   HeaderlessTSVTaxonomyDirectoryFormat)
+from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
@@ -176,3 +178,71 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
 def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
                    tree: NewickFormat) -> pd.DataFrame:
     return _obtain_taxonomy(str(tree), representative_sequences)
+
+
+def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
+                  tree: NewickFormat,
+                  reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
+    if reference_taxonomy is None:
+        filename_default_taxonomy = resource_filename(
+            Requirement.parse('q2_fragment_insertion'),
+            os.path.join('q2_fragment_insertion/assets/', 'taxonomy_gg99.gza'))
+        reference_taxonomy = Artifact.load(
+            filename_default_taxonomy).view(pd.DataFrame)
+
+    # ensure feature IDs are strings to match IDs from the tree
+    reference_taxonomy.index = map(str, reference_taxonomy.index)
+
+    # load the insertion tree
+    tree = skbio.TreeNode.read(str(tree))
+
+    # ensure that all reference tips in the tree (those without the inserted
+    # fragments) have a mapping in the user provided taxonomy table
+    names_tips = set([node.name for node in tree.tips()])
+    names_fragments = set([fragment.metadata['id']
+                           for fragment
+                           in representative_sequences.file.view(DNAIterator)])
+    if len((set(names_tips) - set(names_fragments)) -
+            set(reference_taxonomy.index)) > 0:
+        raise ValueError("Not all OTUs in the provided insertion tree have "
+                         "mappings in the provided reference taxonomy.")
+
+    taxonomy = []
+    for fragment in representative_sequences.file.view(DNAIterator):
+        lineage_str = np.nan
+        try:
+            curr_node = tree.find(fragment.metadata['id'])
+            foundOTUs = []
+            while len(foundOTUs) == 0:
+                for node in curr_node.postorder():
+                    if (node.name is not None) and \
+                       (node.name in reference_taxonomy.index):
+                        foundOTUs.append(node.name)
+                if curr_node.is_root():
+                    break
+                curr_node = curr_node.parent
+            if len(foundOTUs) > 0:
+                split_lineages = []
+                for otu in foundOTUs:
+                    # find lineage string for OTU
+                    lineage = reference_taxonomy.loc[otu, 'Taxon']
+                    # necessary to split lineage apart to ensure that
+                    # the longest common prefix operates on atomic ranks
+                    # instead of characters
+                    split_lineages.append(list(
+                        map(str.strip, lineage.split(';'))))
+                # find the longest common prefix rank-wise and concatenate to
+                # one lineage string, separated by ;
+                lineage_str = "; ".join(os.path.commonprefix(split_lineages))
+        except skbio.tree.MissingNodeError:
+            pass
+        taxonomy.append({'Feature ID': fragment.metadata['id'],
+                         'Taxon': lineage_str})
+    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
+    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
+        raise ValueError(
+            ("None of the representative-sequences can be found in the "
+             "insertion tree. Please double check that both inputs match up, "
+             "i.e. are results from the same 'sepp' run."))
+
+    return pd_taxonomy
