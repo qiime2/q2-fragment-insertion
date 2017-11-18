@@ -20,8 +20,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAIterator,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
-                                   AlignedDNAFASTAFormat,
-                                   HeaderlessTSVTaxonomyDirectoryFormat)
+                                   AlignedDNAFASTAFormat)
 from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
@@ -158,7 +157,6 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
 
     placements_result = PlacementsFormat()
     tree_result = NewickFormat()
-    taxonomy = pd.DataFrame()
 
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
