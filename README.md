@@ -9,6 +9,35 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
 
 You will need Java to run SEPP, and you may need to install it. How you do it is dependent on your operating system. If you're on OSX, you likely need to grab a legacy version of Java. Information can be found [here](https://support.apple.com/kb/dl1572?locale=en_US).
 
+## Why you should prefer fragment insertion aka SEPP over de-novo trees
+
+### Fragment insertion avoids artificially long outgroup branches that would lead to exaggerated separation in beta diversity.
+
+<img src="Example/denovoArtifacts.png">
+
+Beta diversity was computed for all 599 samples of this study (manuscript in preparation) on the non rarefied deblur table with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
+
+  A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
+  
+  B) Mean path length from root to tips in the denovo tree is 0.94, while the lowest common ancestor for the three *Methanobrevibacter* sOTUs has an outstanding length of 1.43. Manually shortening the grandparent's branch length from 0.82 to 0.4 re-unites clusters.
+
+  C) Inserting denovo fragments into a well curated reference phylogeny via the fragment insertion plugin also resolves cluster separation but does not require any manual manipulation.
+
+### Fragment insertion enables meta-analyses across different variable 16S regions and fragment length.
+
+<img src="Example/metaanalysis.png">
+
+Meta-analyses of two microbiome studies with heterogeneous variable 16S regions. 
+Both studies sampled the same three body products: [Study 'Family'](https://qiita.ucsd.edu/study/description/797) contains 854 human and 217 dog samples with 37,181 sOTUs of the first 128nt from V2 [[Song et al.]](http://dx.doi.org/10.7554/eLife.00458), while [study 'Yanomani'](https://qiita.ucsd.edu/study/description/10052) comprises 66 samples of uncontacted Amerindians in Venezuela with 17,249 sOTUs of the first 150nt of V4 [[Clemente et al.]](http://dx.doi.org/10.1126/sciadv.1500183).
+Beta diversity was computed on one non rarefied deblur table combining both studies as unweighted unifrac distance.
+
+  A) De-novo tree construction via aligning sOTU sequences with mafft and reconstructing the phylogeny via fasttree results in strong artifacts in PcoA (black arrow), because separation is extremely driven by variable region.
+
+  B) Inserting sOTU sequences from different regions into the same backbone tree as SEPP does, results in a phylogeny that correctly separates samples in PcoA space by body product. Study effect is rather marginal.
+
+  C) The 'Yanomani' samples were additionally profiled targeting the V2 region, thus we could insert the resulting 6,604 sOTUs together with the 'Family' study samples into the same phylogeny as a positive control. Separation is indeed driven by "body product" and not by study.
+
+
 ## Important
 
 Default reference (phylogeny and matching alignment) is Greengenes 13_8 at 99%.
