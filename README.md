@@ -74,3 +74,11 @@ Upload the newly created conda package to biocore:
     anaconda upload -u biocore q2-fragment-insertion-0.1.0-py35h3e8d850_1.tar.bz2
 
 Remember to do that for both, Linux and OSX.
+
+## How to import taxonomy tables
+
+    qiime tools import \
+    --input-path taxonomy.tsv \
+    --source-format HeaderlessTSVTaxonomyFormat \
+    --type "FeatureData[Taxonomy]" \
+    --output-path foo.gza
