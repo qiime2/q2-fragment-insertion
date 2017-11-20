@@ -1,4 +1,4 @@
-{% set version = '0.1.0' %}
+{% set version = '0.2.0' %}
 {% set qiime2release = '2017.10' %}
 
 package:
@@ -10,7 +10,7 @@ source:
   #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
 
 build:
-  number: 2
+  number: 1
   script:
     - python setup.py install
 
