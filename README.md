@@ -5,13 +5,13 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
     conda install -c https://conda.anaconda.org/biocore q2-fragment-insertion
     qiime dev refresh-cache
 
-## Why you should prefer fragment insertion aka SEPP over de-novo trees
+## Why you should prefer fragment insertion AKA SEPP over de-novo trees
 
 ### Fragment insertion avoids artificially long outgroup branches that would lead to exaggerated separation in beta diversity.
 
 <img src="Example/denovoArtifacts.png">
 
-Beta diversity was computed for all 599 samples of this study (manuscript in preparation) on the non rarefied deblur table with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
+Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the non rarefied deblur table with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
 
   A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
   
@@ -25,15 +25,15 @@ Beta diversity was computed for all 599 samples of this study (manuscript in pre
 
 Meta-analyses of two microbiome studies with heterogeneous variable 16S regions. 
 Both studies sampled the same three body products: [Study 'Family'](https://qiita.ucsd.edu/study/description/797) contains 854 human and 217 dog samples with 37,181 sOTUs of the first 128nt from V2 [[Song et al.]](http://dx.doi.org/10.7554/eLife.00458), while [study 'Yanomani'](https://qiita.ucsd.edu/study/description/10052) comprises 66 samples of uncontacted Amerindians in Venezuela with 17,249 sOTUs of the first 150nt of V4 [[Clemente et al.]](http://dx.doi.org/10.1126/sciadv.1500183).
-Beta diversity was computed on one non rarefied deblur table combining both studies as unweighted unifrac distance.
+Beta diversity was computed on one non rarefied deblur table combining both studies as unweighted UniFrac distance.
 
-  A) De-novo tree construction via aligning sOTU sequences with mafft and reconstructing the phylogeny via fasttree results in strong artifacts in PcoA (black arrow), because separation is extremely driven by variable region.
+  A) De-novo tree construction via aligning sOTU sequences with mafft and reconstructing the phylogeny via fasttree results in strong artifacts in Principal Coordinate Analysis (PCoA) (note the black arrow), because separation is extremely driven by variable region.
 
-  B) Inserting sOTU sequences from different regions into the same backbone tree as SEPP does, results in a phylogeny that correctly separates samples in PcoA space by body product. Study effect is rather marginal.
+  B) Inserting sOTU sequences from different regions into the same backbone tree as SEPP does, results in a phylogeny that separates samples as expected in PCoA space by body product. Study effect is rather marginal.
 
   C) The 'Yanomani' samples were additionally profiled targeting the V2 region, thus we could insert the resulting 6,604 sOTUs together with the 'Family' study samples into the same phylogeny as a positive control. Separation is indeed driven by "body product" and not by study.
 
-## Important
+## Notes
 
 Default reference (phylogeny and matching alignment) is Greengenes 13_8 at 99%.
 You can provide your own reference via optional inputs `--i-reference-alignment` and `--i-reference-phylogeny`. Make sure that every tip of the reference phylogeny has exactly one corresponding sequence in the reference alignment. Insertion taxonomic lineage information can be obtained from the provided reference phylogeny, by concatenating internal node labels along the path from the root to the inserted fragment. Only node labels are considerd which contain Greengenes like infixes with two underscores `_` `_`, indicating taxonomic labels. Your reference phylogeny might contain other internal node labels which are not taxonomic labels.
