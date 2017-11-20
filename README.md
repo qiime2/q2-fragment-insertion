@@ -11,7 +11,7 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
 
 <img src="Example/denovoArtifacts.png">
 
-Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the non rarefied deblur table with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
+Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the deblur table rarefied to 5,870 sequences per sample with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
 
   A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
   
@@ -19,7 +19,7 @@ Beta diversity was computed for all 599 samples of [this study](https://qiita.uc
 
   C) Inserting denovo fragments into a well curated reference phylogeny via the fragment insertion plugin also resolves cluster separation but does not require any manual manipulation.
   
-Note: the same effects are observed when sOTU table is rarefied to 5,870 sequences per sample.
+Note: the same effects are observed when the sOTU table is not rarefied.
 
 ### Fragment insertion enables meta-analyses across different variable 16S regions and fragment length.
 
