@@ -18,6 +18,8 @@ Beta diversity was computed for all 599 samples of [this study](https://qiita.uc
   B) Mean path length from root to tips in the denovo tree is 0.94, while the lowest common ancestor for the three *Methanobrevibacter* sOTUs has an outstanding length of 1.43. Manually shortening the grandparent's branch length from 0.82 to 0.4 re-unites clusters.
 
   C) Inserting denovo fragments into a well curated reference phylogeny via the fragment insertion plugin also resolves cluster separation but does not require any manual manipulation.
+  
+Note: the same effects are observed when sOTU table is rarefied to 5,870 sequences per sample.
 
 ### Fragment insertion enables meta-analyses across different variable 16S regions and fragment length.
 
