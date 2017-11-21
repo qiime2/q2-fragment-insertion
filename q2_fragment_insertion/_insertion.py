@@ -220,6 +220,9 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
         lineage_str = np.nan
         try:
             curr_node = tree.find(fragment.metadata['id'])
+        except skbio.tree.MissingNodeError:
+            curr_node = None
+        if curr_node is not None:
             foundOTUs = []
             while len(foundOTUs) == 0:
                 for node in curr_node.postorder():
@@ -242,10 +245,8 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
                 # find the longest common prefix rank-wise and concatenate to
                 # one lineage string, separated by ;
                 lineage_str = "; ".join(os.path.commonprefix(split_lineages))
-        except skbio.tree.MissingNodeError:
-            pass
-        taxonomy.append({'Feature ID': fragment.metadata['id'],
-                         'Taxon': lineage_str})
+            taxonomy.append({'Feature ID': fragment.metadata['id'],
+                             'Taxon': lineage_str})
     pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
     if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
         raise ValueError(
