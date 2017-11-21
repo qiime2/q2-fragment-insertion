@@ -247,11 +247,11 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
                 lineage_str = "; ".join(os.path.commonprefix(split_lineages))
             taxonomy.append({'Feature ID': fragment.metadata['id'],
                              'Taxon': lineage_str})
-    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
+    pd_taxonomy = pd.DataFrame(taxonomy)
     if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
         raise ValueError(
             ("None of the representative-sequences can be found in the "
              "insertion tree. Please double check that both inputs match up, "
              "i.e. are results from the same 'sepp' run."))
 
-    return pd_taxonomy
+    return pd_taxonomy.set_index('Feature ID')
