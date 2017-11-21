@@ -10,6 +10,8 @@ import unittest
 
 from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
+from io import StringIO
+from contextlib import redirect_stderr
 from q2_fragment_insertion._insertion import (sepp,
                                               classify_paths, classify_otus)
 import skbio
@@ -136,10 +138,19 @@ class TestClassify(TestPluginBase):
         # test that missing taxon mappings result in an error
         ar_taxonomy = Artifact.load(
             self.get_data_path('taxonomy_missingotus.qza'))
-        with self.assertRaises(ValueError):
-            classify_otus(ar_repseq.view(DNASequencesDirectoryFormat),
-                          ar_tree.view(NewickFormat),
-                          reference_taxonomy=ar_taxonomy.view(pd.DataFrame))
+
+        # capture stderr message and check if its content is as expected
+        captured_stderr = StringIO()
+        with redirect_stderr(captured_stderr):
+            with self.assertRaises(ValueError):
+                classify_otus(
+                    ar_repseq.view(DNASequencesDirectoryFormat),
+                    ar_tree.view(NewickFormat),
+                    reference_taxonomy=ar_taxonomy.view(pd.DataFrame))
+        self.assertIn('The taxonomy artifact you provided does not cont',
+                      captured_stderr.getvalue())
+        self.assertIn('539572',
+                      captured_stderr.getvalue())
 
 
 if __name__ == '__main__':
