@@ -39,7 +39,7 @@ def _post(obj):
     import os
 
     # using a tagged version from Siavash's repo
-    git_tag = '4.3.4'
+    git_tag = '4.3.4b'
     src_url = ('https://github.com/smirarab/sepp-refs/archive/%s.tar.gz' %
                git_tag)
 
@@ -66,14 +66,9 @@ def _post(obj):
     opened.extractall(path=assets_dir)
     opened.close()
 
-    # copy patch file
-    name_patch = 'passreference.patch'
-    shutil.copy(name_patch, assets_dir)
-
     # copy default taxonomy Greengenes 99%: OTU-ID to lineage
     shutil.copy('taxonomy_gg99.gza', assets_dir)
 
-    obj.execute(_patch_sepp, [assets_dir, name_patch], 'Patch run-sepp.sh')
     obj.execute(_config_sepp, [assets_dir], 'Configuring SEPP')
 
 
