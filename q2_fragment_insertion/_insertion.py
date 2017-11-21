@@ -188,7 +188,9 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
         reference_taxonomy = Artifact.load(
             filename_default_taxonomy).view(pd.DataFrame)
 
-    # ensure feature IDs are strings to match IDs from the tree
+    # convert type of feature IDs to str (depending on pandas type inference
+    # they might come as integers), to make sure they are of the same type as
+    # in the tree.
     reference_taxonomy.index = map(str, reference_taxonomy.index)
 
     # load the insertion tree
@@ -200,8 +202,15 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
     names_fragments = set([fragment.metadata['id']
                            for fragment
                            in representative_sequences.file.view(DNAIterator)])
-    if len((set(names_tips) - set(names_fragments)) -
-            set(reference_taxonomy.index)) > 0:
+    missing_features = (set(names_tips) - set(names_fragments)) -\
+        set(reference_taxonomy.index)
+    if len(missing_features) > 0:
+        # QIIME2 users can run with --verbose and see stderr and stdout.
+        # Thus, we here report more details about the mismatch:
+        sys.stderr.write(
+            ("The taxonomy artifact you provided does not contain lineage "
+             "information for the following %i features:\n%s") %
+            (len(missing_features), "\n".join(missing_features)))
         raise ValueError("Not all OTUs in the provided insertion tree have "
                          "mappings in the provided reference taxonomy.")
 
