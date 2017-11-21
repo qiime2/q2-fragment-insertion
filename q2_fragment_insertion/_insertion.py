@@ -248,7 +248,9 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
             taxonomy.append({'Feature ID': fragment.metadata['id'],
                              'Taxon': lineage_str})
     pd_taxonomy = pd.DataFrame(taxonomy)
-    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
+    # test if dataframe is completely empty, or if no lineages could be found
+    if (len(taxonomy) == 0) or \
+       (pd_taxonomy['Taxon'].dropna().shape[0] == 0):
         raise ValueError(
             ("None of the representative-sequences can be found in the "
              "insertion tree. Please double check that both inputs match up, "
