@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import os
+import sys
 import shutil
 import tempfile
 import subprocess
@@ -184,7 +185,7 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
     if reference_taxonomy is None:
         filename_default_taxonomy = resource_filename(
             Requirement.parse('q2_fragment_insertion'),
-            os.path.join('q2_fragment_insertion/assets/', 'taxonomy_gg99.gza'))
+            os.path.join('q2_fragment_insertion/assets/', 'taxonomy_gg99.qza'))
         reference_taxonomy = Artifact.load(
             filename_default_taxonomy).view(pd.DataFrame)
 
