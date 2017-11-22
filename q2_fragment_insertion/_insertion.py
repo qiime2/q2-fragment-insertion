@@ -218,22 +218,58 @@ def classify_otus_experimental(
 
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
+        # for every inserted fragment we now try to find the closest OTU tip
+        # in the tree and available mapping from the OTU-ID to a lineage
+        # string:
         lineage_str = np.nan
+        # first, let us check if the fragment has been inserted at all ...
         try:
             curr_node = tree.find(fragment.metadata['id'])
         except skbio.tree.MissingNodeError:
             continue
+        # if yes, we start from the inserted node and traverse the tree as less
+        # as possible towards the root and check at every level if one or
+        # several OTU-tips are within the sub-tree.
         if curr_node is not None:
             foundOTUs = []
+            # Traversal is stopped at a certain level, if one or more OTU-tips
+            # have been found in the sub-tree OR ... (see break below)
             while len(foundOTUs) == 0:
+                # SEPP insertion - especially for multiple very similar
+                # sequences - can result in a rather complex topology change
+                # if all those sequences are inserted into the same branch
+                # leading to one OTU-tip. Thus, we cannot simply visit only
+                # all siblings or decendents and rather need to traverse the
+                # whole sub-tree. Average case should be well behaved,
+                # thus I think it is ok.
                 for node in curr_node.postorder():
                     if (node.name is not None) and \
                        (node.name in reference_taxonomy.index):
+                        # if a suitable OTU-tip node is found AND this OTU-ID
+                        # has a mapping in the user provided reference_taxonomy
+                        # we store the OTU-ID in the growing result list
                         foundOTUs.append(node.name)
+                # ... if the whole tree has been traversed without success,
+                # e.g. if user provided reference_taxonomy did not contain any
+                # matching OTU-IDs.
                 if curr_node.is_root():
                     break
+                # prepare next while iteration, by changing to the parent node
                 curr_node = curr_node.parent
+
             if len(foundOTUs) > 0:
+                # If the above method has identified exactly one OTU-tip,
+                # resulting lineage string would simple be the one provided by
+                # the user reference_taxonomy. However, if the inserted
+                # fragment cannot unambiguously places into the reference tree,
+                # the above method will find multiple OTU-IDs, which might have
+                # lineage strings in the user provided reference_taxonomy that
+                # are similar up to a certain rank and differ e.g. for genus
+                # and species.
+                # Thus, we here find the longest common prefix of all lineage
+                # strings. We don't operate per character, but per taxonomic
+                # rank. Therefore, we first "convert" every lineage sting into
+                # a list of taxa, one per rank.
                 split_lineages = []
                 for otu in foundOTUs:
                     # find lineage string for OTU
