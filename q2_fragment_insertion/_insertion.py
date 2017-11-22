@@ -199,11 +199,11 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
 
     # ensure that all reference tips in the tree (those without the inserted
     # fragments) have a mapping in the user provided taxonomy table
-    names_tips = set([node.name for node in tree.tips()])
-    names_fragments = set([fragment.metadata['id']
-                           for fragment
-                           in representative_sequences.file.view(DNAIterator)])
-    missing_features = (set(names_tips) - set(names_fragments)) -\
+    names_tips = {node.name for node in tree.tips()}
+    names_fragments = {fragment.metadata['id']
+                       for fragment
+                       in representative_sequences.file.view(DNAIterator)}
+    missing_features = (names_tips - names_fragments) -\
         set(reference_taxonomy.index)
     if len(missing_features) > 0:
         # QIIME2 users can run with --verbose and see stderr and stdout.
@@ -221,7 +221,7 @@ def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
         try:
             curr_node = tree.find(fragment.metadata['id'])
         except skbio.tree.MissingNodeError:
-            curr_node = None
+            continue
         if curr_node is not None:
             foundOTUs = []
             while len(foundOTUs) == 0:
