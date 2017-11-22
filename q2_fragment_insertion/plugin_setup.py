@@ -74,30 +74,42 @@ plugin.methods.register_function(
 )
 
 
-plugin.methods.register_function(
-    function=q2fi.classify_paths,
-    inputs={'representative_sequences': FeatureData[Sequence],
-            'tree': Phylogeny[Rooted]},
-    input_descriptions={
-        'representative_sequences':
-        "The sequences used for a \'sepp\' run to produce the \'tree\'.",
-        'tree':
-        ('The tree resulting from inserting fragments into a reference '
-         'phylogeny, i.e. the output of function \'sepp\'')},
-    parameters={},
-    parameter_descriptions={},
-    outputs=[('classification', FeatureData[Taxonomy])],
-    output_descriptions={
-        'classification': 'Taxonomic lineages for inserted fragments.'},
-    name=('Obtain taxonomic lineages, by collecting taxonomic labels from '
-          'reference phylogeny.'),
-    description=(
-        ('Use the resulting tree from \'sepp\' and traverse it bottom-up to '
-         'obtain taxonomic lineages for every inserted fragment. Only works '
-         'for Greengenes lines labels, i.e. they need to contain "__" '
-         'infixes. Quality strongly depends on correct placements of taxonomic'
-         ' labels in the provided reference phylogeny.'))
-)
+# text for readme, if we decide to put function 'classify_paths' back in:
+# -----------------------------------------------------------------------
+# Alternatively, you can use the function `classify-paths` to a taxonomy. The
+# lineage strings are obtained by traversing the insertion tree from each
+# fragment tip towards the root and collecting all taxonomic labels in the
+# reference tree along this path. Thus, taxonomy is only as good as provided
+# reference phylogeny. Note, taxonomic labels are identified by containing two
+# underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT
+# encourage the use of this function, since it has not been compared to
+# existing taxonomic assignment methods. Particularly since the default
+# reference tree is not inline with the reference taxonomy.**
+#
+# plugin.methods.register_function(
+#     function=q2fi.classify_paths,
+#     inputs={'representative_sequences': FeatureData[Sequence],
+#             'tree': Phylogeny[Rooted]},
+#     input_descriptions={
+#         'representative_sequences':
+#         "The sequences used for a \'sepp\' run to produce the \'tree\'.",
+#         'tree':
+#         ('The tree resulting from inserting fragments into a reference '
+#          'phylogeny, i.e. the output of function \'sepp\'')},
+#     parameters={},
+#     parameter_descriptions={},
+#     outputs=[('classification', FeatureData[Taxonomy])],
+#     output_descriptions={
+#         'classification': 'Taxonomic lineages for inserted fragments.'},
+#     name=('Obtain taxonomic lineages, by collecting taxonomic labels from '
+#           'reference phylogeny.'),
+#     description=(
+#         ('Use the resulting tree from \'sepp\' and traverse it bottom-up to '
+#          'obtain taxonomic lineages for every inserted fragment. Only works '
+#          'for Greengenes lines labels, i.e. they need to contain "__" '
+#          'infixes. Quality strongly depends on correct placements of'
+#          'taxonomic labels in the provided reference phylogeny.'))
+# )
 
 
 plugin.methods.register_function(
