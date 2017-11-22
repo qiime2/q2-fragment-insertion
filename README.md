@@ -14,18 +14,18 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
 Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the deblur table rarefied to 5,870 sequences per sample with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
 
   A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
-  
+
   B) Mean path length from root to tips in the denovo tree is 0.94, while the lowest common ancestor for the three *Methanobrevibacter* sOTUs has an outstanding length of 1.43. Manually shortening the grandparent's branch length from 0.82 to 0.4 re-unites clusters.
 
   C) Inserting denovo fragments into a well curated reference phylogeny via the fragment insertion plugin also resolves cluster separation but does not require any manual manipulation.
-  
+
 Note: the same effects are observed when the sOTU table is not rarefied.
 
 ### Fragment insertion enables meta-analyses across different variable 16S regions and fragment length.
 
 <img src="Example/metaanalysis.png">
 
-Meta-analyses of two microbiome studies with heterogeneous variable 16S regions. 
+Meta-analyses of two microbiome studies with heterogeneous variable 16S regions.
 Both studies sampled the same three body products: [Study 'Family'](https://qiita.ucsd.edu/study/description/797) contains 854 human and 217 dog samples with 37,181 sOTUs of the first 128nt from V2 [[Song et al.]](http://dx.doi.org/10.7554/eLife.00458), while [study 'Yanomani'](https://qiita.ucsd.edu/study/description/10052) comprises 66 samples of uncontacted Amerindians in Venezuela with 17,249 sOTUs of the first 150nt of V4 [[Clemente et al.]](http://dx.doi.org/10.1126/sciadv.1500183).
 Beta diversity was computed on one non rarefied deblur table combining both studies as unweighted UniFrac distance.
 
@@ -73,20 +73,18 @@ You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha a
 
 ### Assign taxonomy
 
-The *fragment-insertion* plugin provides two alternative methods to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.gza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.gza) of type `FeatureData[Taxonomy]`.
+The *fragment-insertion* plugin provides a method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
 
     qiime fragment-insertion classify-otus \
       --i-representative-sequences rep-seqs.qza \
       --i-tree insertion-tree.qza \
-      --i-reference-taxonomy taxonomy_gg99.gza \
-      --o-classification taxonomy.gza
+      --i-reference-taxonomy taxonomy_gg99.qza \
+      --o-classification taxonomy.qza
 
 Output artifacts:
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
-
-Alternatively, you can use the function `classify-paths` to a taxonomy. The lineage strings are obtained by traversing the insertion tree from each fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT encourage the use of this function, since it has not been compared to existing taxonomic assignment methods. Particularly since the default reference tree is not inline with the reference taxonomy.**
 
 ### Import representative sequencs into QIIME 2 artifact
 
@@ -121,8 +119,10 @@ Remember to do that for both, Linux and OSX.
 
 ## How to import taxonomy tables
 
+The plugin function `classify-otus` allows to pass in *reference taxonomic table* via argument `--i-reference-taxonomy`. You can import a tab-separated two-column table where first column is the OTU-ID and the second column is the ";" separated lineage string via the following command as an QIIME 2 artifact. Make sure your table does **not** contain a header line:
+
     qiime tools import \
     --input-path taxonomy.tsv \
     --source-format HeaderlessTSVTaxonomyFormat \
     --type "FeatureData[Taxonomy]" \
-    --output-path foo.gza
+    --output-path foo.qza
