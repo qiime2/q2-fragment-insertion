@@ -179,9 +179,10 @@ def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
     return _obtain_taxonomy(str(tree), representative_sequences)
 
 
-def classify_otus(representative_sequences: DNASequencesDirectoryFormat,
-                  tree: NewickFormat,
-                  reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
+def classify_otus_experimental(
+        representative_sequences: DNASequencesDirectoryFormat,
+        tree: NewickFormat,
+        reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
     if reference_taxonomy is None:
         filename_default_taxonomy = resource_filename(
             Requirement.parse('q2_fragment_insertion'),

@@ -12,7 +12,7 @@ from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
 from io import StringIO
 from contextlib import redirect_stderr
-from q2_fragment_insertion._insertion import (sepp, classify_otus)
+from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental)
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -105,11 +105,11 @@ class TestClassify(TestPluginBase):
     #         classify_paths(
     #             ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
 
-    def test_classify_otus(self):
+    def test_classify_otus_experimental(self):
         ar_tree = Artifact.load(self.get_data_path('sepp_tree_tiny.qza'))
         ar_repseq = Artifact.load(self.get_data_path('real_data.qza'))
 
-        obs_classification = classify_otus(
+        obs_classification = classify_otus_experimental(
             ar_repseq.view(DNASequencesDirectoryFormat),
             ar_tree.view(NewickFormat))
         exp_classification = pd.read_csv(self.get_data_path(
@@ -119,7 +119,7 @@ class TestClassify(TestPluginBase):
 
         ar_tree_small = Artifact.load(
             self.get_data_path('sepp_tree_small.qza'))
-        obs_classification_small = classify_otus(
+        obs_classification_small = classify_otus_experimental(
             ar_repseq.view(DNASequencesDirectoryFormat),
             ar_tree_small.view(NewickFormat))
 
@@ -132,7 +132,7 @@ class TestClassify(TestPluginBase):
             'reference_phylogeny_tiny.qza'))
         ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
         with self.assertRaises(ValueError):
-            classify_otus(
+            classify_otus_experimental(
                 ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
 
         # test that missing taxon mappings result in an error
@@ -143,7 +143,7 @@ class TestClassify(TestPluginBase):
         captured_stderr = StringIO()
         with redirect_stderr(captured_stderr):
             with self.assertRaises(ValueError):
-                classify_otus(
+                classify_otus_experimental(
                     ar_repseq.view(DNASequencesDirectoryFormat),
                     ar_tree.view(NewickFormat),
                     reference_taxonomy=ar_taxonomy.view(pd.DataFrame))

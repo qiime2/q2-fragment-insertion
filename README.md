@@ -73,9 +73,9 @@ You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha a
 
 ### Assign taxonomy
 
-The *fragment-insertion* plugin provides a method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify-otus` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
+The *fragment-insertion* plugin provides an experimental method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify_otus-experimental` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
 
-    qiime fragment-insertion classify-otus \
+    qiime fragment-insertion classify_otus-experimental \
       --i-representative-sequences rep-seqs.qza \
       --i-tree insertion-tree.qza \
       --i-reference-taxonomy taxonomy_gg99.qza \
@@ -85,6 +85,7 @@ Output artifacts:
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
+This method is experimental as of Nov. 22nd 2017, since we have not yet evaluated the quality / correctness of the returned lineages. Use on your own risk!
 
 ### Import representative sequencs into QIIME 2 artifact
 
@@ -119,7 +120,7 @@ Remember to do that for both, Linux and OSX.
 
 ## How to import taxonomy tables
 
-The plugin function `classify-otus` allows to pass in *reference taxonomic table* via argument `--i-reference-taxonomy`. You can import a tab-separated two-column table where first column is the OTU-ID and the second column is the ";" separated lineage string via the following command as an QIIME 2 artifact. Make sure your table does **not** contain a header line:
+The plugin function `classify_otus-experimental` allows to pass in *reference taxonomic table* via argument `--i-reference-taxonomy`. You can import a tab-separated two-column table where first column is the OTU-ID and the second column is the ";" separated lineage string via the following command as an QIIME 2 artifact. Make sure your table does **not** contain a header line:
 
     qiime tools import \
     --input-path taxonomy.tsv \

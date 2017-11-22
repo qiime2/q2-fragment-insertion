@@ -113,7 +113,7 @@ plugin.methods.register_function(
 
 
 plugin.methods.register_function(
-    function=q2fi.classify_otus,
+    function=q2fi.classify_otus_experimental,
     inputs={'representative_sequences': FeatureData[Sequence],
             'tree': Phylogeny[Rooted],
             'reference_taxonomy': FeatureData[Taxonomy]},
@@ -131,12 +131,12 @@ plugin.methods.register_function(
     outputs=[('classification', FeatureData[Taxonomy])],
     output_descriptions={
         'classification': 'Taxonomic lineages for inserted fragments.'},
-    name=('Obtain taxonomic lineages, by finding closest OTU in reference '
-          'phylogeny.'),
+    name=('Experimental: Obtain taxonomic lineages, by finding closest OTU in '
+          'reference phylogeny.'),
     description=(
-        'Use the resulting tree from \'sepp\' and find closest OTU-ID for '
-        'every inserted fragment. Then, look up the reference lineage string '
-        'in the reference taxonomy.')
+        'Experimental: Use the resulting tree from \'sepp\' and find closest '
+        'OTU-ID for every inserted fragment. Then, look up the reference '
+        'lineage string in the reference taxonomy.')
 )
 
 
