@@ -66,6 +66,9 @@ def _post(obj):
     opened.extractall(path=assets_dir)
     opened.close()
 
+    # copy default taxonomy Greengenes 99%: OTU-ID to lineage
+    shutil.copy('taxonomy_gg99.qza', assets_dir)
+
     obj.execute(_config_sepp, [assets_dir], 'Configuring SEPP')
 
 

@@ -14,18 +14,18 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
 Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the deblur table rarefied to 5,870 sequences per sample with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
 
   A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
-  
+
   B) Mean path length from root to tips in the denovo tree is 0.94, while the lowest common ancestor for the three *Methanobrevibacter* sOTUs has an outstanding length of 1.43. Manually shortening the grandparent's branch length from 0.82 to 0.4 re-unites clusters.
 
   C) Inserting denovo fragments into a well curated reference phylogeny via the fragment insertion plugin also resolves cluster separation but does not require any manual manipulation.
-  
+
 Note: the same effects are observed when the sOTU table is not rarefied.
 
 ### Fragment insertion enables meta-analyses across different variable 16S regions and fragment length.
 
 <img src="Example/metaanalysis.png">
 
-Meta-analyses of two microbiome studies with heterogeneous variable 16S regions. 
+Meta-analyses of two microbiome studies with heterogeneous variable 16S regions.
 Both studies sampled the same three body products: [Study 'Family'](https://qiita.ucsd.edu/study/description/797) contains 854 human and 217 dog samples with 37,181 sOTUs of the first 128nt from V2 [[Song et al.]](http://dx.doi.org/10.7554/eLife.00458), while [study 'Yanomani'](https://qiita.ucsd.edu/study/description/10052) comprises 66 samples of uncontacted Amerindians in Venezuela with 17,249 sOTUs of the first 150nt of V4 [[Clemente et al.]](http://dx.doi.org/10.1126/sciadv.1500183).
 Beta diversity was computed on one non rarefied deblur table combining both studies as unweighted UniFrac distance.
 
@@ -46,10 +46,9 @@ A fragment may be reasonable to insert into multiple locations. However, downstr
 
 ## Files produced
 
-The plugin will generate three files:
+The plugin will generate two files:
   1. A `Phylogeny[Rooted]` type: This is the tree with the sequences placed (which could be inserted), and are identified by their corresponding sequence IDs. You can directly use this tree for phylogenetic diversity computation like UniFrac or Faith's Phylogenetic Diversity.
   2. A `Placements` type: It is a JSON object which, for every input sequence, describes the different possible placements.
-  3. And last a `FeatureData[Taxonomy]` type: This is a table that holds a taxonomic lineage string for every fragment inserted into the tree. The lineage is obtained by traversing the tree from the fragment tip towards the root and collecting all taxonomic labels in the reference tree along this path. Thus, taxonomy is only as good as provided reference phylogeny. Note, taxonomic labels are identified by containing two underscore characters `_` `_` as in Greengenes. **As of Nov 2017: We do NOT encourage the use of this file, since it has not been compared to existing taxonomic assignment methods. Particularly since the default reference tree is not inline with the reference taxonomy.**
 
 ## Example
 
@@ -59,20 +58,34 @@ Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 
    - `rep-seqs.qza`: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2017.10%2Fdata%2Ftutorials%2Fmoving-pictures%2Frep-seqs.qza) | [download](https://docs.qiime2.org/2017.10/data/tutorials/moving-pictures/rep-seqs.qza)
 
-The following single command will produce three outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]`, 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) and 3) `classification.qza` which is a taxonomic classification for every fragment that has been inserted into the reference phylogeny and is of the type `FeatureData[Taxonomy]` (Computation might take some 10 minutes):
+The following single command will produce two outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]` and 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) (Computation might take some 10 minutes):
 ```
 qiime fragment-insertion sepp-16s-greengenes \
   --i-representative-sequences rep-seqs.qza \
   --o-tree insertion-tree.qza \
-  --o-placements insertion-placements.qza \
-  --o-classification insertion-taxonomy.qza
+  --o-placements insertion-placements.qza
 ```
 Output artifacts:
    - `insertion-tree.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-tree.qza?raw=true)
    - `insertion-placements.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-placements.qza?raw=true)
-   - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
+
+### Assign taxonomy
+
+The *fragment-insertion* plugin provides an experimental method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify_otus-experimental` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
+
+    qiime fragment-insertion classify_otus-experimental \
+      --i-representative-sequences rep-seqs.qza \
+      --i-tree insertion-tree.qza \
+      --i-reference-taxonomy taxonomy_gg99.qza \
+      --o-classification taxonomy.qza
+
+Output artifacts:
+   - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
+
+You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
+This method is experimental as of Nov. 22nd 2017, since we have not yet evaluated the quality / correctness of the returned lineages. Use on your own risk!
 
 ### Import representative sequencs into QIIME 2 artifact
 
@@ -104,3 +117,13 @@ Upload the newly created conda package to biocore:
     anaconda upload -u biocore q2-fragment-insertion-0.1.0-py35h3e8d850_1.tar.bz2
 
 Remember to do that for both, Linux and OSX.
+
+## How to import taxonomy tables
+
+The plugin function `classify_otus-experimental` allows to pass in *reference taxonomic table* via argument `--i-reference-taxonomy`. You can import a tab-separated two-column table where first column is the OTU-ID and the second column is the ";" separated lineage string via the following command as an QIIME 2 artifact. Make sure your table does **not** contain a header line:
+
+    qiime tools import \
+    --input-path taxonomy.tsv \
+    --source-format HeaderlessTSVTaxonomyFormat \
+    --type "FeatureData[Taxonomy]" \
+    --output-path foo.qza

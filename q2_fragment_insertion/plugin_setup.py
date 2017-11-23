@@ -39,19 +39,14 @@ _parameter_descriptions = {'threads': 'The number of threads to use'}
 
 
 _output_descriptions = {
-    'tree': 'The tree with inserted feature data',
-    'classification':
-    ('Taxonomic lineages for fragments, obtained by traversing the insertion '
-     'tree bottom up and collecting taxonomic labels. Only works for '
-     'Greengenes lines labels, i.e. they need to contain "__" infixes.')}
+    'tree': 'The tree with inserted feature data'}
 
 
 _parameters = {'threads': qiime2.plugin.Int}
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
-            ('placements', Placements),
-            ('classification', FeatureData[Taxonomy])]
+            ('placements', Placements)]
 
 
 plugin.methods.register_function(
@@ -76,6 +71,60 @@ plugin.methods.register_function(
           'like Greengenes 13_8'),
     description=('Perform fragment insertion of 16S sequences using the SEPP '
                  'algorithm against the Greengenes 13_8 99% tree.')
+)
+
+
+# plugin.methods.register_function(
+#     function=q2fi.classify_paths,
+#     inputs={'representative_sequences': FeatureData[Sequence],
+#             'tree': Phylogeny[Rooted]},
+#     input_descriptions={
+#         'representative_sequences':
+#         "The sequences used for a \'sepp\' run to produce the \'tree\'.",
+#         'tree':
+#         ('The tree resulting from inserting fragments into a reference '
+#          'phylogeny, i.e. the output of function \'sepp\'')},
+#     parameters={},
+#     parameter_descriptions={},
+#     outputs=[('classification', FeatureData[Taxonomy])],
+#     output_descriptions={
+#         'classification': 'Taxonomic lineages for inserted fragments.'},
+#     name=('Obtain taxonomic lineages, by collecting taxonomic labels from '
+#           'reference phylogeny.'),
+#     description=(
+#         ('Use the resulting tree from \'sepp\' and traverse it bottom-up to '
+#          'obtain taxonomic lineages for every inserted fragment. Only works '
+#          'for Greengenes lines labels, i.e. they need to contain "__" '
+#          'infixes. Quality strongly depends on correct placements of'
+#          'taxonomic labels in the provided reference phylogeny.'))
+# )
+
+
+plugin.methods.register_function(
+    function=q2fi.classify_otus_experimental,
+    inputs={'representative_sequences': FeatureData[Sequence],
+            'tree': Phylogeny[Rooted],
+            'reference_taxonomy': FeatureData[Taxonomy]},
+    input_descriptions={
+        'representative_sequences':
+        "The sequences used for a \'sepp\' run to produce the \'tree\'.",
+        'tree':
+        ('The tree resulting from inserting fragments into a reference '
+         'phylogeny, i.e. the output of function \'sepp\''),
+        'reference_taxonomy':
+        ("Reference taxonomic table that maps every OTU-ID into a taxonomic "
+         "lineage string.")},
+    parameters={},
+    parameter_descriptions={},
+    outputs=[('classification', FeatureData[Taxonomy])],
+    output_descriptions={
+        'classification': 'Taxonomic lineages for inserted fragments.'},
+    name=('Experimental: Obtain taxonomic lineages, by finding closest OTU in '
+          'reference phylogeny.'),
+    description=(
+        'Experimental: Use the resulting tree from \'sepp\' and find closest '
+        'OTU-ID for every inserted fragment. Then, look up the reference '
+        'lineage string in the reference taxonomy.')
 )
 
 

@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import os
+import sys
 import shutil
 import tempfile
 import subprocess
@@ -21,6 +22,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
+from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
@@ -95,7 +97,7 @@ def _obtain_taxonomy(filename_tree: str,
                      DNASequencesDirectoryFormat) -> pd.DataFrame:
     """Buttom up traverse tree for nodes that are inserted fragments and
        collect taxonomic labels upon traversal."""
-    tree = skbio.TreeNode.read(filename_tree)
+    tree = skbio.TreeNode.read(str(filename_tree))
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
         lineage = []
@@ -108,7 +110,13 @@ def _obtain_taxonomy(filename_tree: str,
             lineage_str = np.nan
         taxonomy.append({'Feature ID': fragment.metadata['id'],
                          'Taxon': lineage_str})
-    return pd.DataFrame(taxonomy).set_index('Feature ID')
+    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
+    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
+        raise ValueError(
+            ("None of the representative-sequences can be found in the "
+             "insertion tree. Please double check that both inputs match up, "
+             "i.e. are results from the same 'sepp' run."))
+    return pd_taxonomy
 
 
 def _sepp_path():
@@ -135,7 +143,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          threads: int=1,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None
-         ) -> (NewickFormat, PlacementsFormat, pd.DataFrame):
+         ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
     # check if sequences and tips in reference match
@@ -150,7 +158,6 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
 
     placements_result = PlacementsFormat()
     tree_result = NewickFormat()
-    taxonomy = pd.DataFrame()
 
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
@@ -160,9 +167,130 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
         outplacements = os.path.join(tmp, placements)
 
         _add_missing_branch_length(outtree)
-        taxonomy = _obtain_taxonomy(outtree, representative_sequences)
 
         shutil.copyfile(outtree, str(tree_result))
         shutil.copyfile(outplacements, str(placements_result))
 
-    return tree_result, placements_result, taxonomy
+    return tree_result, placements_result
+
+
+def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
+                   tree: NewickFormat) -> pd.DataFrame:
+    return _obtain_taxonomy(str(tree), representative_sequences)
+
+
+def classify_otus_experimental(
+        representative_sequences: DNASequencesDirectoryFormat,
+        tree: NewickFormat,
+        reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
+    if reference_taxonomy is None:
+        filename_default_taxonomy = resource_filename(
+            Requirement.parse('q2_fragment_insertion'),
+            'q2_fragment_insertion/assets/taxonomy_gg99.qza')
+        reference_taxonomy = Artifact.load(
+            filename_default_taxonomy).view(pd.DataFrame)
+
+    # convert type of feature IDs to str (depending on pandas type inference
+    # they might come as integers), to make sure they are of the same type as
+    # in the tree.
+    reference_taxonomy.index = map(str, reference_taxonomy.index)
+
+    # load the insertion tree
+    tree = skbio.TreeNode.read(str(tree))
+
+    # ensure that all reference tips in the tree (those without the inserted
+    # fragments) have a mapping in the user provided taxonomy table
+    names_tips = {node.name for node in tree.tips()}
+    names_fragments = {fragment.metadata['id']
+                       for fragment
+                       in representative_sequences.file.view(DNAIterator)}
+    missing_features = (names_tips - names_fragments) -\
+        set(reference_taxonomy.index)
+    if len(missing_features) > 0:
+        # QIIME2 users can run with --verbose and see stderr and stdout.
+        # Thus, we here report more details about the mismatch:
+        sys.stderr.write(
+            ("The taxonomy artifact you provided does not contain lineage "
+             "information for the following %i features:\n%s") %
+            (len(missing_features), "\n".join(missing_features)))
+        raise ValueError("Not all OTUs in the provided insertion tree have "
+                         "mappings in the provided reference taxonomy.")
+
+    taxonomy = []
+    for fragment in representative_sequences.file.view(DNAIterator):
+        # for every inserted fragment we now try to find the closest OTU tip
+        # in the tree and available mapping from the OTU-ID to a lineage
+        # string:
+        lineage_str = np.nan
+        # first, let us check if the fragment has been inserted at all ...
+        try:
+            curr_node = tree.find(fragment.metadata['id'])
+        except skbio.tree.MissingNodeError:
+            continue
+        # if yes, we start from the inserted node and traverse the tree as less
+        # as possible towards the root and check at every level if one or
+        # several OTU-tips are within the sub-tree.
+        if curr_node is not None:
+            foundOTUs = []
+            # Traversal is stopped at a certain level, if one or more OTU-tips
+            # have been found in the sub-tree OR ... (see break below)
+            while len(foundOTUs) == 0:
+                # SEPP insertion - especially for multiple very similar
+                # sequences - can result in a rather complex topology change
+                # if all those sequences are inserted into the same branch
+                # leading to one OTU-tip. Thus, we cannot simply visit only
+                # all siblings or decendents and rather need to traverse the
+                # whole sub-tree. Average case should be well behaved,
+                # thus I think it is ok.
+                for node in curr_node.postorder():
+                    if (node.name is not None) and \
+                       (node.name in reference_taxonomy.index):
+                        # if a suitable OTU-tip node is found AND this OTU-ID
+                        # has a mapping in the user provided reference_taxonomy
+                        # we store the OTU-ID in the growing result list
+                        foundOTUs.append(node.name)
+                # ... if the whole tree has been traversed without success,
+                # e.g. if user provided reference_taxonomy did not contain any
+                # matching OTU-IDs.
+                if curr_node.is_root():
+                    break
+                # prepare next while iteration, by changing to the parent node
+                curr_node = curr_node.parent
+
+            if len(foundOTUs) > 0:
+                # If the above method has identified exactly one OTU-tip,
+                # resulting lineage string would simple be the one provided by
+                # the user reference_taxonomy. However, if the inserted
+                # fragment cannot unambiguously places into the reference tree,
+                # the above method will find multiple OTU-IDs, which might have
+                # lineage strings in the user provided reference_taxonomy that
+                # are similar up to a certain rank and differ e.g. for genus
+                # and species.
+                # Thus, we here find the longest common prefix of all lineage
+                # strings. We don't operate per character, but per taxonomic
+                # rank. Therefore, we first "convert" every lineage sting into
+                # a list of taxa, one per rank.
+                split_lineages = []
+                for otu in foundOTUs:
+                    # find lineage string for OTU
+                    lineage = reference_taxonomy.loc[otu, 'Taxon']
+                    # necessary to split lineage apart to ensure that
+                    # the longest common prefix operates on atomic ranks
+                    # instead of characters
+                    split_lineages.append(list(
+                        map(str.strip, lineage.split(';'))))
+                # find the longest common prefix rank-wise and concatenate to
+                # one lineage string, separated by ;
+                lineage_str = "; ".join(os.path.commonprefix(split_lineages))
+            taxonomy.append({'Feature ID': fragment.metadata['id'],
+                             'Taxon': lineage_str})
+    pd_taxonomy = pd.DataFrame(taxonomy)
+    # test if dataframe is completely empty, or if no lineages could be found
+    if (len(taxonomy) == 0) or \
+       (pd_taxonomy['Taxon'].dropna().shape[0] == 0):
+        raise ValueError(
+            ("None of the representative-sequences can be found in the "
+             "insertion tree. Please double check that both inputs match up, "
+             "i.e. are results from the same 'sepp' run."))
+
+    return pd_taxonomy.set_index('Feature ID')
