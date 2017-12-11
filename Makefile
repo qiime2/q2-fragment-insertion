@@ -10,4 +10,5 @@ conda: ci/recipe/meta.yaml
 		-c defaults \
 		-c https://conda.anaconda.org/bioconda \
 		-c https://conda.anaconda.org/biocore \
+		-c https://conda.anaconda.org/sjanssen2 \
 		--override-channels ci/recipe/

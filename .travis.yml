@@ -16,6 +16,8 @@ install:
   - conda install -q nose
   - pip install -q https://github.com/qiime2/q2lint/archive/master.zip
   - pip install -q flake8
+  - conda install -c sjanssen2 fragment-insertion
+  - cp taxonomy_gg99.qza $CONDA_PREFIX/share/fragment-insertion/ref/
   - python setup.py install
 script:
   - flake8 setup.py q2_fragment_insertion
