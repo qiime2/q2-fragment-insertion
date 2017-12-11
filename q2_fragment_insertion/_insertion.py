@@ -11,7 +11,6 @@ import sys
 import shutil
 import tempfile
 import subprocess
-from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
 import pandas as pd
@@ -114,10 +113,6 @@ def _obtain_taxonomy(filename_tree: str,
              "insertion tree. Please double check that both inputs match up, "
              "i.e. are results from the same 'sepp' run."))
     return pd_taxonomy
-
-
-def _sepp_path():
-    return resource_filename(*ARGS)
 
 
 def _run(seqs_fp, threads, cwd,
