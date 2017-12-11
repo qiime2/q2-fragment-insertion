@@ -27,16 +27,10 @@ from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
 
-# adapted from q2-state-unifrac
-ARGS = (Requirement.parse('q2_fragment_insertion'),
-        'q2_fragment_insertion/assets/sepp-package/run-sepp.sh')
-
 
 def _sanity():
     if shutil.which('java') is None:
         raise ValueError("java does not appear in $PATH")
-    if not resource_exists(*ARGS):
-        raise ValueError("ssu could not be located!")
 
 
 def _sepp_refs_path():
