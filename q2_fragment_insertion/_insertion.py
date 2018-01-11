@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2017, QIIME 2 development team.
+# Copyright (c) 2016-2018, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -11,7 +11,6 @@ import sys
 import shutil
 import tempfile
 import subprocess
-from pkg_resources import resource_exists, Requirement, resource_filename
 
 import skbio
 import pandas as pd
@@ -27,22 +26,22 @@ from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
 
-# adapted from q2-state-unifrac
-ARGS = (Requirement.parse('q2_fragment_insertion'),
-        'q2_fragment_insertion/assets/sepp-package/run-sepp.sh')
-
 
 def _sanity():
     if shutil.which('java') is None:
         raise ValueError("java does not appear in $PATH")
-    if not resource_exists(*ARGS):
-        raise ValueError("ssu could not be located!")
+
+
+def _sepp_refs_path():
+    return os.path.join(
+        os.path.split(os.path.split(shutil.which('run-sepp.sh'))[0])[0],
+        'share', 'fragment-insertion', 'ref')
 
 
 def _reference_matches(reference_alignment:
                        AlignedDNASequencesDirectoryFormat=None,
                        reference_phylogeny: NewickFormat=None) -> bool:
-    dir_sepp_ref = 'q2_fragment_insertion/assets/sepp-package/ref/'
+    dir_sepp_ref = _sepp_refs_path()
 
     # no check neccessary when user does not provide specific references,
     # because we assume that the default reference matches.
@@ -51,9 +50,8 @@ def _reference_matches(reference_alignment:
 
     # if only phylogeny is provided by the user, load default alignment
     if reference_alignment is None:
-        filename_alignment = resource_filename(
-            Requirement.parse('q2_fragment_insertion'),
-            os.path.join(dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta'))
+        filename_alignment = os.path.join(
+            dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta')
         ids_alignment = {
             row.metadata['id']
             for row in skbio.alignment.TabularMSA.read(
@@ -66,10 +64,8 @@ def _reference_matches(reference_alignment:
 
     # if only alignment is provided by the user, load default phylogeny
     if reference_phylogeny is None:
-        filename_phylogeny = resource_filename(
-            Requirement.parse('q2_fragment_insertion'),
-            os.path.join(dir_sepp_ref,
-                         'reference-gg-raxml-bl-rooted-relabelled.tre'))
+        filename_phylogeny = os.path.join(
+            dir_sepp_ref, 'reference-gg-raxml-bl-rooted-relabelled.tre')
     else:
         filename_phylogeny = str(reference_phylogeny)
     ids_tips = {node.name
@@ -119,14 +115,10 @@ def _obtain_taxonomy(filename_tree: str,
     return pd_taxonomy
 
 
-def _sepp_path():
-    return resource_filename(*ARGS)
-
-
 def _run(seqs_fp, threads, cwd,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None):
-    cmd = [_sepp_path(),
+    cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads)]
@@ -184,9 +176,8 @@ def classify_otus_experimental(
         tree: NewickFormat,
         reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
     if reference_taxonomy is None:
-        filename_default_taxonomy = resource_filename(
-            Requirement.parse('q2_fragment_insertion'),
-            'q2_fragment_insertion/assets/taxonomy_gg99.qza')
+        filename_default_taxonomy = os.path.join(_sepp_refs_path(),
+                                                 'taxonomy_gg99.qza')
         reference_taxonomy = Artifact.load(
             filename_default_taxonomy).view(pd.DataFrame)
 

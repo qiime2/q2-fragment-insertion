@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2017, QIIME 2 development team.
+# Copyright (c) 2016-2018, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -20,10 +20,11 @@ from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
 plugin = qiime2.plugin.Plugin(
     name='fragment-insertion',
     version=q2fi.__version__,
-    website='https://github.com/wasade/q2-fragment-insertion',
+    website='https://github.com/biocore/q2-fragment-insertion',
     short_description='Plugin for extending phylogenies.',
     package='q2_fragment_insertion',
-    user_support_text='https://github.com/wasade/q2-fragment-insertion/issues',
+    user_support_text=('https://github.com/biocore/'
+                       'q2-fragment-insertion/issues'),
     citation_text=('Mirarab, Siavash, Nam Nguyen, and Tandy J. Warnow. "SEPP: '
                    'SATé-enabled phylogenetic placement." Pacific Symposium '
                    'on Biocomputing. 2012."')

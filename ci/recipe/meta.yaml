@@ -1,5 +1,5 @@
-{% set version = '0.3.0' %}
-{% set qiime2release = '2017.10' %}
+{% set version = '0.2017.12' %}
+{% set qiime2release = '2017.12' %}
 
 package:
   name: q2-fragment-insertion
@@ -8,10 +8,12 @@ package:
 source:
   - git_url: https://github.com/biocore/q2-fragment-insertion.git
   #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
+  - path: ../../taxonomy_gg99.qza
 
 build:
   number: 1
   script:
+    - cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/
     - python setup.py install
 
 requirements:
@@ -19,7 +21,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - java-jdk
+    - fragment-insertion ==4.3.4b
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ qiime2release }}.*
     - q2templates {{ qiime2release }}.*
@@ -30,7 +32,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - java-jdk
+    - fragment-insertion ==4.3.4b
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ qiime2release }}.*
     - q2templates {{ qiime2release }}.*
