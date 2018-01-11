@@ -60,7 +60,7 @@ Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
 
 The following single command will produce two outputs: 1) `phylogeny.qza` is the `Phylogeny[Rooted]` and 2) `placements.qza` provides placement distributions for the fragments (you will most likely ignore this output) (Computation might take some 10 minutes):
 ```
-qiime fragment-insertion sepp-16s-greengenes \
+qiime fragment-insertion sepp \
   --i-representative-sequences rep-seqs.qza \
   --o-tree insertion-tree.qza \
   --o-placements insertion-placements.qza
@@ -75,7 +75,7 @@ You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha a
 
 The *fragment-insertion* plugin provides an experimental method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify_otus-experimental` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
 
-    qiime fragment-insertion classify_otus-experimental \
+    qiime fragment-insertion classify-otus-experimental \
       --i-representative-sequences rep-seqs.qza \
       --i-tree insertion-tree.qza \
       --i-reference-taxonomy taxonomy_gg99.qza \
