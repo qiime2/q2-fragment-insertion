@@ -48,7 +48,7 @@ _output_descriptions = {
 
 _parameters = {'threads': qiime2.plugin.Int,
                'alignment_subset_size': qiime2.plugin.Int,
-               'placement subset size': qiime2.plugin.Int}
+               'placement_subset_size': qiime2.plugin.Int}
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
