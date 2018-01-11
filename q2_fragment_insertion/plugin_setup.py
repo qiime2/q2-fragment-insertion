@@ -36,14 +36,19 @@ plugin.register_semantic_types(Placements)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
 
-_parameter_descriptions = {'threads': 'The number of threads to use'}
-
+_parameter_descriptions = {'threads': 'The number of threads to use',
+                           'alignment_subset_size':
+                           'Number of sequences in each alignment per subset.',
+                           'placement_subset_size':
+                           'Number of placements per subset.'}
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
 
 
-_parameters = {'threads': qiime2.plugin.Int}
+_parameters = {'threads': qiime2.plugin.Int,
+               'alignment_subset_size': qiime2.plugin.Int,
+               'placement subset size': qiime2.plugin.Int}
 
 
 _outputs = [('tree', Phylogeny[Rooted]),

@@ -117,11 +117,14 @@ def _obtain_taxonomy(filename_tree: str,
 
 def _run(seqs_fp, threads, cwd,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
-         reference_phylogeny: NewickFormat=None):
+         reference_phylogeny: NewickFormat=None,
+         alignment_subset_size, placement_subset_size):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
-           '-x', str(threads)]
+           '-x', str(threads),
+           '-A', alignment_subset_size,
+           '-P', placement_subset_size]
     if reference_alignment is not None:
         cmd.extend([
             '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
@@ -133,6 +136,8 @@ def _run(seqs_fp, threads, cwd,
 
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
          threads: int=1,
+         alignment_subset_size: int=1000,
+         placement_subset_size: int=5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None
          ) -> (NewickFormat, PlacementsFormat):
@@ -154,7 +159,8 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
-             reference_alignment, reference_phylogeny)
+             reference_alignment, reference_phylogeny,
+             alignment_subset_size, placement_subset_size)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 
