@@ -36,11 +36,21 @@ plugin.register_semantic_types(Placements)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
 
-_parameter_descriptions = {'threads': 'The number of threads to use',
-                           'alignment_subset_size':
-                           'Number of sequences in each alignment per subset.',
-                           'placement_subset_size':
-                           'Number of placements per subset.'}
+_parameter_descriptions = {
+    'threads': 'The number of threads to use',
+    'alignment_subset_size':
+    ('Each placement subset is further broken into subsets of at most these '
+     'many sequences and a separate HMM is trained on each subset. The '
+     'default alignment subset size is set to balance the exhaustiveness of '
+     'the alignment step with the running time.'),
+    'placement_subset_size':
+    ('The tree is divided into subsets such that each subset includes at most '
+     'these many subsets. The placement step places the fragment on only one '
+     'subset, determined based on alignment scores. The default placement '
+     'subset is set to make sure the memory requirement of the pplacer step '
+     'does not become prohibitively large.\nFurther reading: '
+     'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
+     '#sample-datasets-default-parameters')}
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
