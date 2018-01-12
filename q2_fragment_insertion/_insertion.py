@@ -122,8 +122,8 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads),
-           '-A', alignment_subset_size,
-           '-P', placement_subset_size]
+           '-A', str(alignment_subset_size),
+           '-P', str(placement_subset_size)]
     if reference_alignment is not None:
         cmd.extend([
             '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
@@ -158,7 +158,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
-             alignment_subset_size, placement_subset_size,
+             str(alignment_subset_size), str(placement_subset_size),
              reference_alignment, reference_phylogeny)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
