@@ -115,13 +115,15 @@ def _obtain_taxonomy(filename_tree: str,
     return pd_taxonomy
 
 
-def _run(seqs_fp, threads, cwd,
+def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
-           '-x', str(threads)]
+           '-x', str(threads),
+           '-A', str(alignment_subset_size),
+           '-P', str(placement_subset_size)]
     if reference_alignment is not None:
         cmd.extend([
             '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
@@ -131,8 +133,22 @@ def _run(seqs_fp, threads, cwd,
     subprocess.run(cmd, check=True, cwd=cwd)
 
 
+# For future devs: Choice of default values for alignment_subset_size and
+# placement_subset_size was done by Siavash Mirarab (the developer of SEPP).
+# His justification is as follows:
+# SEPP has two main parameters. In the default version used for Greengenes and
+# incorporated into QIIME2, the reference tree is divided into 62 "placement"
+# subsets, each with at most 5000 leaves, and each placement subset is further
+# divided into alignment subsets of at most 1000 leaves to build the HMM
+# ensamples (292 alignment subsets in total). These choices are driven by
+# computational constraints; increasing the placement subset size (which is in
+# theory desirable) puts a high burden on the memory, and reducing the
+# alignment subset could increase the running time with very little
+# improvement in the accuracy of results (Mirarab et al. 2012).
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
          threads: int=1,
+         alignment_subset_size: int=1000,
+         placement_subset_size: int=5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None
          ) -> (NewickFormat, PlacementsFormat):
@@ -154,6 +170,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
     with tempfile.TemporaryDirectory() as tmp:
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
+             str(alignment_subset_size), str(placement_subset_size),
              reference_alignment, reference_phylogeny)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
