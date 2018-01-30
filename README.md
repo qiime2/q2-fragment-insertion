@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/biocore/q2-fragment-insertion.svg?branch=master)](https://travis-ci.org/biocore/q2-fragment-insertion)
+
 ## Installation
 
 Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
