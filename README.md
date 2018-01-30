@@ -4,6 +4,12 @@ Once QIIME2 is [installed](https://docs.qiime2.org/2017.10/install/native/), and
 
     conda install -c https://conda.anaconda.org/biocore q2-fragment-insertion
     qiime dev refresh-cache
+    
+**Troubleshoot 'PackagesNotFoundError':**
+Your conda installation might fail with a 'PackagesNotFoundError' message. This is most likely due to missing channels. Try to re-run the above command with explicit addition of four more channels:
+
+    conda install -c anaconda -c defaults -c conda-forge -c bioconda -c https://conda.anaconda.org/biocore q2-fragment-insertion
+    qiime dev refresh-cache
 
 ## Why you should prefer fragment insertion AKA SEPP over de-novo trees
 
