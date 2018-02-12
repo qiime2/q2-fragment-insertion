@@ -83,18 +83,20 @@ You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha a
 
 We ran ``qiime fragment-insertion sepp`` on four of 32 cores of a Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz server with 265 GB available RAM. Reported "time" is accumulated "user time". Runtime only depends on number of sOTUs, not on number of samples.
 
-| QIITA ID |sOTUs	|samples|sOTU length| memory (max RSS)|time (hh:mm)|wall time (hh:mm)|
+| QIITA ID<sup>[1](#myfootnote1)</sup>|sOTUs	|samples|sOTU length| memory (max RSS)|time (hh:mm)|wall time (hh:mm)|
 |:--------:|-------:|------:|----------:|----------------:|:----------:|:---------------:|
-| 1024	   |21,473	|344	|150 nt	    |10.2 GB	      |06:32	   |01:54            |
-| 10315	   |31,784	|199	|150 nt	    |10.2 GB	      |09:35	   |02:47            |
-| 10343	   |14,245	|389	|150 nt	    |10.3 GB	      |06:10	   |01:45            |
-| 10346	   |108,447	|1,292	|100 nt	    |10.4 GB	      |20:59	   |06:07            |
-| 10422	   |4,702	|647	|150 nt	    |10.4 GB	      |01:37	   |00:31            |
-| 2014	   |23,029	|1,017	|150 nt	    |10.2 GB	      |08:45	   |02:27            |
-| 2136	   |29,702	|504	|150 nt	    |10.4 GB	      |08:48	   |02:33            |
-| 550	   |27,791	|1,967	|100 nt	    |10.4 GB	      |05:49	   |01:43            |
-| 850	   |11,301	|528	|90 nt	    |10.2 GB	      |02:07	   |00:40            |
-| MrOS	   |4,727	|599	|249 nt	    |10.3 GB	      |02:44	   |00:48            |
+| [10422](https://qiita.ucsd.edu/study/description/10422)	   |4,702	|647	|150 nt	    |10.4 GB	      |01:37	   |00:31            |
+| [11274](https://qiita.ucsd.edu/study/description/11274)	   |4,727	|599	|249 nt	    |10.3 GB	      |02:44	   |00:48            |
+| [850](https://qiita.ucsd.edu/study/description/850)	   |11,301	|528	|90 nt	    |10.2 GB	      |02:07	   |00:40            |
+| [10343](https://qiita.ucsd.edu/study/description/10343)	   |14,245	|389	|150 nt	    |10.3 GB	      |06:10	   |01:45            |
+| [1024](https://qiita.ucsd.edu/study/description/1024)	   |21,473	|344	|150 nt	    |10.2 GB	      |06:32	   |01:54            |
+| [2014](https://qiita.ucsd.edu/study/description/2014)	   |23,029	|1,017	|150 nt	    |10.2 GB	      |08:45	   |02:27            |
+| [550](https://qiita.ucsd.edu/study/description/550)	   |27,791	|1,967	|100 nt	    |10.4 GB	      |05:49	   |01:43            |
+| [2136](https://qiita.ucsd.edu/study/description/2136)	   |29,702	|504	|150 nt	    |10.4 GB	      |08:48	   |02:33            |
+| [10315](https://qiita.ucsd.edu/study/description/10315)	   |31,784	|199	|150 nt	    |10.2 GB	      |09:35	   |02:47            |
+| [10346](https://qiita.ucsd.edu/study/description/10346)	   |108,447	|1,292	|100 nt	    |10.4 GB	      |20:59	   |06:07            |
+
+<a name="myfootnote1">1</a>: You need to log into Qiita to access the listed studies.
 
 The sweet spot to execute ``qiime fragment-insertion sepp`` on barnacle is 20 cores with 8 GB memory for each core, i.e. 160 GB in total.
 
