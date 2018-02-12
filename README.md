@@ -79,6 +79,25 @@ Output artifacts:
 
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
 
+### Expected Runtimes
+
+We ran ``qiime fragment-insertion sepp`` on four of 32 cores of a Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz server with 265 GB available RAM. Reported "time" is accumulated "user time". Runtime only depends on number of sOTUs, not on number of samples.
+
+| QIITA ID |sOTUs	|samples|sOTU length| memory (max RSS)|time (hh:mm)|wall time (hh:mm)|
+|:--------:|-------:|------:|----------:|----------------:|:----------:|:---------------:|
+| 1024	   |21,473	|344	|150 nt	    |10.2 GB	      |06:32	   |01:54            |
+| 10315	   |31,784	|199	|150 nt	    |10.2 GB	      |09:35	   |02:47            |
+| 10343	   |14,245	|389	|150 nt	    |10.3 GB	      |06:10	   |01:45            |
+| 10346	   |108,447	|1,292	|100 nt	    |10.4 GB	      |20:59	   |06:07            |
+| 10422	   |4,702	|647	|150 nt	    |10.4 GB	      |01:37	   |00:31            |
+| 2014	   |23,029	|1,017	|150 nt	    |10.2 GB	      |08:45	   |02:27            |
+| 2136	   |29,702	|504	|150 nt	    |10.4 GB	      |08:48	   |02:33            |
+| 550	   |27,791	|1,967	|100 nt	    |10.4 GB	      |05:49	   |01:43            |
+| 850	   |11,301	|528	|90 nt	    |10.2 GB	      |02:07	   |00:40            |
+| MrOS	   |4,727	|599	|249 nt	    |10.3 GB	      |02:44	   |00:48            |
+
+The sweet spot to execute ``qiime fragment-insertion sepp`` on barnacle is 20 cores with 8 GB memory for each core, i.e. 160 GB in total.
+
 ### Assign taxonomy
 
 The *fragment-insertion* plugin provides an experimental method to assign a taxonomic lineage to every fragment. Assume the tips of your reference phylogeny are e.g. OTU-IDs from Greengenes (which is the case when you use the default reference). If you have a taxonomic mapping for every OTU-ID to a lineage string, as provided by Greengenes, function `classify_otus-experimental` will detect the closest OTU-IDs for every fragment in the insertion tree and report this OTU-IDs lineage string for the fragment. Thus, the function expects two required input artifacts: 1) the representative-sequences of type `FeatureData[Sequence]` and 2) the resulting tree of a previous `sepp` run which is of type `Phylogeny[Rooted]`. For the example, we also specify a third, optional input [taxonomy_gg99.qza](https://raw.githubusercontent.com/biocore/q2-fragment-insertion/master/taxonomy_gg99.qza) of type `FeatureData[Taxonomy]`.
