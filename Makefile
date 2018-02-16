@@ -5,10 +5,9 @@ conda: ci/recipe/meta.yaml
 
 	# build the conda package
 	conda build \
-		-c https://conda.anaconda.org/qiime2/label/r2017.12 \
+		-c https://conda.anaconda.org/qiime2/label/r2018.2 \
 		-c https://conda.anaconda.org/conda-forge \
 		-c defaults \
 		-c https://conda.anaconda.org/bioconda \
 		-c https://conda.anaconda.org/biocore \
-		-c https://conda.anaconda.org/sjanssen2 \
 		--override-channels ci/recipe/

@@ -1,4 +1,4 @@
-{% set version = '0.2017.12' %}
+{% set version = '0.2018.2' %}
 {% set qiime2release = '2017.12' %}
 
 package:
@@ -18,28 +18,28 @@ build:
 
 requirements:
   build:
-    - python 3.5*
+    - python
     - setuptools
     - nodejs
-    - fragment-insertion ==4.3.4b
+    - fragment-insertion
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 {{ qiime2release }}.*
-    - q2templates {{ qiime2release }}.*
-    - q2-types {{ qiime2release }}.*
-    - q2-feature-table {{ qiime2release }}.*
+    - qiime2 >={{ qiime2release }}.*
+    - q2templates >={{ qiime2release }}.*
+    - q2-types >={{ qiime2release }}.*
+    - q2-feature-table >={{ qiime2release }}.*
 
   run:
-    - python 3.5*
+    - python
     - setuptools
     - nodejs
-    - fragment-insertion ==4.3.4b
+    - fragment-insertion
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 {{ qiime2release }}.*
-    - q2templates {{ qiime2release }}.*
-    - q2-types {{ qiime2release }}.*
-    - q2-feature-table {{ qiime2release }}.*
-    - q2cli {{ qiime2release }}.*
-    - q2-types {{ qiime2release }}.*
+    - qiime2 >={{ qiime2release }}.*
+    - q2templates >={{ qiime2release }}.*
+    - q2-types >={{ qiime2release }}.*
+    - q2-feature-table >={{ qiime2release }}.*
+    - q2cli >={{ qiime2release }}.*
+    - q2-types >={{ qiime2release }}.*
 
 test:
   source_files:
