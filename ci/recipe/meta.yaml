@@ -18,7 +18,7 @@ build:
 
 requirements:
   build:
-    - python
+    - python 3.5*
     - setuptools
     - nodejs
     - fragment-insertion
@@ -29,7 +29,7 @@ requirements:
     - q2-feature-table >={{ qiime2release }}.*
 
   run:
-    - python
+    - python 3.5*
     - setuptools
     - nodejs
     - fragment-insertion
