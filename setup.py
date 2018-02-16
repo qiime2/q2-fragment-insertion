@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="q2-fragment-insertion",
-    version="2017.5.0.dev0",
+    version="2018.2.0.dev0",
     packages=find_packages(),
     author="Daniel McDonald",
     author_email="wasade@gmail.com",
