@@ -1,4 +1,4 @@
-{% set version = '0.2018.2' %}
+{% set version = '2018.2.0' %}
 {% set qiime2release = '2017.12' %}
 
 package:
@@ -9,12 +9,18 @@ source:
   - git_url: https://github.com/biocore/q2-fragment-insertion.git
   #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
   - path: ../../taxonomy_gg99.qza
+  - path: ../../silva12.8.taxonomy.qza
 
 build:
   number: 1
   script:
     - cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/
+    - cp silva12.8.taxonomy.qza $PREFIX/share/fragment-insertion/ref/
     - python setup.py install
+    - mkdir -p $PREFIX/share/q2-fragment-insertion/ref/
+    # Silva 12.8 reference files are provided with "fragment-insetion" conda package and are here imported into qiime2 archived for convenience of end users
+    - qiime tools import --type "Phylogeny[Rooted]" --input-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tre --output-path $PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
+    - qiime tools import --type "FeatureData[AlignedSequence]" --input-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.fasta --output-path $PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
 
 requirements:
   build:
@@ -27,6 +33,7 @@ requirements:
     - q2templates >={{ qiime2release }}.*
     - q2-types >={{ qiime2release }}.*
     - q2-feature-table >={{ qiime2release }}.*
+    - q2cli >={{ qiime2release }}.*
 
   run:
     - python 3.5*
