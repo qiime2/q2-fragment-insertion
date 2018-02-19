@@ -50,7 +50,12 @@ _parameter_descriptions = {
      'subset is set to make sure the memory requirement of the pplacer step '
      'does not become prohibitively large.\nFurther reading: '
      'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
-     '#sample-datasets-default-parameters')}
+     '#sample-datasets-default-parameters'),
+    'reference_info':
+    ('File path to the reference info file, which is a RAxML information file,'
+     ' storing model details about the created phylogenetic tree from the '
+     'alignment. Specify only, if not using default Greengenes 13.8 '
+     'reference!')}
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
@@ -58,7 +63,8 @@ _output_descriptions = {
 
 _parameters = {'threads': qiime2.plugin.Int,
                'alignment_subset_size': qiime2.plugin.Int,
-               'placement_subset_size': qiime2.plugin.Int}
+               'placement_subset_size': qiime2.plugin.Int,
+               'reference_info': qiime2.plugin.Str}
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
