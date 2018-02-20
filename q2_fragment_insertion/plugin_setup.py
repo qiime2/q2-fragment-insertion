@@ -89,10 +89,11 @@ plugin.methods.register_function(
          'with reference-alignment, i.e. each tip name must'
          ' have exactly one corresponding record.'),
         'reference_info':
-        ('File path to the reference info file, which is a RAxML information'
-         ' file, storing model details about the created phylogenetic tree'
-         ' from the alignment. Specify only, if not using default Greengenes'
-         ' 13.8 reference!')},
+        ('The RAxMLinfo that stores model specific information about the '
+         'reference phylogeny built from the reference alignment. This '
+         'information is used by sepp to correctly estimate branch length for '
+         'newly placed tipps into the reference phylogeny. By default, it '
+         'uses a RAxMLinfo about the Greengenes 13.8 reference.')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
     name=('Insert fragment sequences using SEPP into reference phylogenies '
