@@ -21,6 +21,7 @@ build:
     # Silva 12.8 reference files are provided with "fragment-insetion" conda package and are here imported into qiime2 archived for convenience of end users
     - qiime tools import --type "Phylogeny[Rooted]" --input-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tre --output-path $PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
     - qiime tools import --type "FeatureData[AlignedSequence]" --input-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.fasta --output-path $PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
+    - qiime tools import --type "RAxMLinfo" --input-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.info --output-path $PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
 
 requirements:
   build:
