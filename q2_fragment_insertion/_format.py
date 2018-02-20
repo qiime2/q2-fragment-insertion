@@ -19,3 +19,22 @@ class PlacementsFormat(model.TextFileFormat):
 
 PlacementsDirFmt = model.SingleFileDirectoryFormat(
     'PlacementsDirFmt', 'placements.json', PlacementsFormat)
+
+
+class RAxMLinfoFormat(model.TextFileFormat):
+    def sniff(self):
+        with open(str(self), 'r') as f:
+            for line in f.readlines():
+                # in Greengenes and Silva cases, file starts with a lot of
+                # those warnings which we can use to "sniff" the file format
+                if line.startswith('IMPORTANT WARNING: Sequences '):
+                    return True
+                # however, the more stable method is to watch out for the
+                # following line, which should be included in all cases.
+                elif line.startswith('RAxML was called as follows:'):
+                    return True
+        return False
+
+
+RAxMLinfoDirFmt = model.SingleFileDirectoryFormat(
+    'RAxMLinfoDirFmt', 'raxml_info.txt', RAxMLinfoFormat)

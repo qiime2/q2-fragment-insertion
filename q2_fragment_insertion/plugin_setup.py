@@ -13,8 +13,9 @@ from q2_types.feature_data import (FeatureData, Sequence, AlignedSequence,
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
-from q2_fragment_insertion._type import Placements
-from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
+from q2_fragment_insertion._type import Placements, RAxMLinfo
+from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt,
+                                           RAxMLinfoFormat, RAxMLinfoDirFmt)
 
 
 plugin = qiime2.plugin.Plugin(
@@ -32,10 +33,13 @@ plugin = qiime2.plugin.Plugin(
 
 
 plugin.register_formats(PlacementsFormat, PlacementsDirFmt)
+plugin.register_formats(RAxMLinfoFormat, RAxMLinfoDirFmt)
 plugin.register_semantic_types(Placements)
+plugin.register_semantic_types(RAxMLinfo)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
-
+plugin.register_semantic_type_to_format(RAxMLinfo,
+                                        artifact_format=RAxMLinfoDirFmt)
 _parameter_descriptions = {
     'threads': 'The number of threads to use',
     'alignment_subset_size':
@@ -51,11 +55,7 @@ _parameter_descriptions = {
      'does not become prohibitively large.\nFurther reading: '
      'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
      '#sample-datasets-default-parameters'),
-    'reference_info':
-    ('File path to the reference info file, which is a RAxML information file,'
-     ' storing model details about the created phylogenetic tree from the '
-     'alignment. Specify only, if not using default Greengenes 13.8 '
-     'reference!')}
+    }
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
@@ -63,8 +63,8 @@ _output_descriptions = {
 
 _parameters = {'threads': qiime2.plugin.Int,
                'alignment_subset_size': qiime2.plugin.Int,
-               'placement_subset_size': qiime2.plugin.Int,
-               'reference_info': qiime2.plugin.Str}
+               'placement_subset_size': qiime2.plugin.Int
+               }
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
@@ -75,7 +75,8 @@ plugin.methods.register_function(
     function=q2fi.sepp,
     inputs={'representative_sequences': FeatureData[Sequence],
             'reference_alignment': FeatureData[AlignedSequence],
-            'reference_phylogeny': Phylogeny[Rooted]},
+            'reference_phylogeny': Phylogeny[Rooted],
+            'reference_info': RAxMLinfo},
     parameters=_parameters,
     outputs=_outputs,
     input_descriptions={
@@ -86,7 +87,12 @@ plugin.methods.register_function(
         'reference_phylogeny':
         ('The rooted reference phylogeny. Must be in sync '
          'with reference-alignment, i.e. each tip name must'
-         ' have exactly one corresponding record.')},
+         ' have exactly one corresponding record.'),
+        'reference_info':
+        ('File path to the reference info file, which is a RAxML information'
+         ' file, storing model details about the created phylogenetic tree'
+         ' from the alignment. Specify only, if not using default Greengenes'
+         ' 13.8 reference!')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
     name=('Insert fragment sequences using SEPP into reference phylogenies '

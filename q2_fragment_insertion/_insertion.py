@@ -24,7 +24,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
 from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
-from q2_fragment_insertion._format import PlacementsFormat
+from q2_fragment_insertion._format import PlacementsFormat, RAxMLinfoFormat
 
 
 def _sanity():
@@ -118,7 +118,7 @@ def _obtain_taxonomy(filename_tree: str,
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None,
-         reference_info: str=None):
+         reference_info: RAxMLinfoFormat=None):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
@@ -131,7 +131,7 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
     if reference_phylogeny is not None:
         cmd.extend(['-t', str(reference_phylogeny)])
     if reference_info is not None:
-        cmd.extend(['-r', reference_info])
+        cmd.extend(['-r', str(reference_info)])
 
     subprocess.run(cmd, check=True, cwd=cwd)
 
@@ -154,7 +154,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          placement_subset_size: int=5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
          reference_phylogeny: NewickFormat=None,
-         reference_info: str=None,
+         reference_info: RAxMLinfoFormat=None,
          ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
@@ -164,16 +164,11 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
             ('Reference alignment and phylogeny do not match up. Please ensure'
              ' that all sequences in the alignment correspond to exactly one '
              'tip name in the phylogeny.'))
-    if reference_info is not None:
-        if not os.path.exists(reference_info):
-            raise ValueError(('The specified file path for the reference info'
-                              ' file "%s" does not exist.') % reference_info)
-    else:
-        if reference_alignment is not None or reference_phylogeny is not None:
-            print(("You specified a non-default reference alignment and/or "
-                   "tree, but did not provide an alternative reference info "
-                   "file (RAxML model information). This might lead to pplacer"
-                   " errors."))
+    if reference_alignment is not None or reference_phylogeny is not None:
+        print(("You specified a non-default reference alignment and/or "
+               "tree, but did not provide an alternative reference info "
+               "file (RAxML model information). This might lead to pplacer"
+               " errors."))
 
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
