@@ -9,7 +9,8 @@
 import json
 
 from .plugin_setup import plugin
-from ._format import PlacementsFormat
+from ._format import PlacementsFormat, RAxMLinfoFormat
+from typing import List
 
 
 @plugin.register_transformer
@@ -23,3 +24,18 @@ def _1(data: dict) -> PlacementsFormat:
 @plugin.register_transformer
 def _2(ff: PlacementsFormat) -> dict:
     return json.load(str(ff))
+
+
+@plugin.register_transformer
+def _3(data: List[str]) -> RAxMLinfoFormat:
+    ff = RAxMLinfoFormat()
+    with open(str(ff), 'w') as fp:
+        for line in data:
+            fp.write(line)
+    return ff
+
+
+@plugin.register_transformer
+def _4(ff: RAxMLinfoFormat) -> List[str]:
+    with open(str(ff), 'r') as fp:
+        return fp.readlines()
