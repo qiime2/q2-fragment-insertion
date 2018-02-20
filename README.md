@@ -165,10 +165,10 @@ The three artifacts for the Silva 12.8 reference are shipped with the conda pack
 
 You can place fragment of `rep-seqs.qza` into Silva 12.8 via the following command:
 
-qiime fragment-insertion sepp \
-  --i-representative-sequences rep-seqs.qza \
-  --o-tree insertion-tree-silva.qza \
-  --o-placements insertion-placements.qza \
-  --i-reference-alignment $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
-  --i-reference-phylogeny $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
-  --i-reference-info $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
+    qiime fragment-insertion sepp \
+      --i-representative-sequences rep-seqs.qza \
+      --o-tree insertion-tree-silva.qza \
+      --o-placements insertion-placements.qza \
+      --i-reference-alignment $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
+      --i-reference-phylogeny $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
+      --i-reference-info $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
