@@ -164,11 +164,12 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
             ('Reference alignment and phylogeny do not match up. Please ensure'
              ' that all sequences in the alignment correspond to exactly one '
              'tip name in the phylogeny.'))
-    if reference_alignment is not None or reference_phylogeny is not None:
-        print(("You specified a non-default reference alignment and/or "
-               "tree, but did not provide an alternative reference info "
-               "file (RAxML model information). This might lead to pplacer"
-               " errors."))
+    if (reference_info is None):
+        if reference_alignment is not None or reference_phylogeny is not None:
+            print(("You specified a non-default reference alignment and/or "
+                   "tree, but did not provide an alternative reference info "
+                   "file (RAxML model information). This might lead to pplacer"
+                   " errors."))
 
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
