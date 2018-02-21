@@ -14,16 +14,10 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
-from io import StringIO
-from contextlib import redirect_stderr
 from q2_fragment_insertion._format import RAxMLinfoDirFmt
-from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental)
-import skbio
-import pandas as pd
-from pandas.testing import assert_frame_equal
+from q2_fragment_insertion._insertion import sepp
 from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
-                                   DNASequencesDirectoryFormat,
-                                   DNAIterator)
+                                   DNASequencesDirectoryFormat)
 from q2_types.tree import NewickFormat
 from subprocess import CalledProcessError
 
