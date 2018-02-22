@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import qiime2.plugin.model as model
+import re
 
 
 class PlacementsFormat(model.TextFileFormat):
@@ -23,6 +24,7 @@ PlacementsDirFmt = model.SingleFileDirectoryFormat(
 
 class RAxMLinfoFormat(model.TextFileFormat):
     def sniff(self):
+        pplacer_pattern = '.* RAxML version ([^ ]+)'
         with open(str(self), 'r') as f:
             for line in f.readlines():
                 # in Greengenes and Silva cases, file starts with a lot of
@@ -31,7 +33,10 @@ class RAxMLinfoFormat(model.TextFileFormat):
                     return True
                 # however, the more stable method is to watch out for the
                 # following line, which should be included in all cases.
-                elif line.startswith('RAxML was called as follows:'):
+                # the regex is copy and pasted from pplacers code:
+                # https://github.com/matsen/pplacer/blob/1189285ce98de64cfa8c
+                # 4f121c3afc5d8d03893f/pplacer_src/parse_stats.ml#L64
+                elif len(re.findall(pplacer_pattern, line)) > 0:
                     return True
         return False
 
