@@ -156,3 +156,12 @@ The plugin function `classify_otus-experimental` allows to pass in *reference ta
     --source-format HeaderlessTSVTaxonomyFormat \
     --type "FeatureData[Taxonomy]" \
     --output-path foo.qza
+
+## How to cite
+
+If you use this plugin for any published research, please include the following citation:
+
+[Phylogenetic Placement of Exact Amplicon Sequences Improves Associations with Clinical Information.](https://doi.org/10.1128/mSystems.00021-18)
+Stefan Janssen, Daniel McDonald, Antonio Gonzalez, Jose A. Navas-Molina, Lingjing Jiang, Zhenjiang Zech Xu, Kevin Winker, Deborah M. Kado, Eric Orwoll, Mark Manary, Siavash Mirarab, Rob Knight.
+mSystems 2018.
+doi: https://doi.org/10.1128/mSystems.00021-18
