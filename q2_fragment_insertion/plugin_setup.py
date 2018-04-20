@@ -26,9 +26,13 @@ plugin = qiime2.plugin.Plugin(
     package='q2_fragment_insertion',
     user_support_text=('https://github.com/biocore/'
                        'q2-fragment-insertion/issues'),
-    citation_text=('Mirarab, Siavash, Nam Nguyen, and Tandy J. Warnow. "SEPP: '
-                   'SATé-enabled phylogenetic placement." Pacific Symposium '
-                   'on Biocomputing. 2012."')
+    citation_text=('Stefan Janssen, Daniel McDonald, Antonio Gonzalez, '
+                   'Jose A. Navas-Molina, Lingjing Jiang, '
+                   'Zhenjiang Zech Xu, Kevin Winker, Deborah M. Kado, '
+                   'Eric Orwoll, Mark Manary, Siavash Mirarab, Rob Knight.'
+                   ' "Phylogenetic Placement of Exact Amplicon Sequences '
+                   'Improves Associations with Clinical Information." '
+                   'mSystems. 2018.')
 )
 
 

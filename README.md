@@ -19,7 +19,7 @@ Your conda installation might fail with a 'PackagesNotFoundError' message. This 
 
 <img src="Example/denovoArtifacts.png">
 
-Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the deblur table rarefied to 5,870 sequences per sample with 4,727 sOTUs total as unweighted unifrac distance with three alternative phylogenetic trees:
+Beta diversity was computed for all 599 samples of [this study](https://qiita.ucsd.edu/study/description/10422) (manuscript in preparation) on the deblur table rarefied to 5,870 sequences per sample with 4,727 sub-operational-taxonomic-units ([sOTU](http://msystems.asm.org/content/2/2/e00191-16)) total as unweighted unifrac distance with three alternative phylogenetic trees:
 
   A) De-novo by aligning 249nt long fragments via mafft and inferring a tree via fasttree - as suggested in the QIIME 2 "moving pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses). Strong separation between observed clusters cannot be explained by any metadata, but the relative abundance of three sOTUs belonging to the genus *Methanobrevibacter*: not detectable in lower gray cluster, very low abundant in upper coloured cluster.
 
@@ -172,3 +172,12 @@ You can place fragment of `rep-seqs.qza` into Silva 12.8 via the following comma
       --i-reference-alignment $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
       --i-reference-phylogeny $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
       --i-reference-info $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
+
+## How to cite
+
+If you use this plugin for any published research, please include the following citation:
+
+[Phylogenetic Placement of Exact Amplicon Sequences Improves Associations with Clinical Information.](https://doi.org/10.1128/mSystems.00021-18)
+Stefan Janssen, Daniel McDonald, Antonio Gonzalez, Jose A. Navas-Molina, Lingjing Jiang, Zhenjiang Zech Xu, Kevin Winker, Deborah M. Kado, Eric Orwoll, Mark Manary, Siavash Mirarab, Rob Knight.
+mSystems 2018.
+doi: https://doi.org/10.1128/mSystems.00021-18
