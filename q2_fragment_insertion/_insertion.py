@@ -13,6 +13,7 @@ import tempfile
 import subprocess
 
 import skbio
+import biom
 import pandas as pd
 import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
@@ -21,6 +22,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
+from q2_types.feature_table import (FeatureTable, Frequency, BIOMV210Format)
 from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
@@ -302,3 +304,28 @@ def classify_otus_experimental(
              "i.e. are results from the same 'sepp' run."))
 
     return pd_taxonomy.set_index('Feature ID')
+
+
+def filter_features(table: biom.Table,
+                    tree: NewickFormat) -> (biom.Table, biom.Table):
+
+    # load the insertion tree
+    tree = skbio.TreeNode.read(str(tree))
+    # collect all tips=inserted fragments+reference taxa names
+    fragments_tree = {
+        str(tip.name)
+        for tip in tree.tips()
+        if tip.name is not None}
+
+    # collect all fragments/features from table
+    fragments_table = set(map(str, table.ids(axis='observation')))
+
+    if len(fragments_table & fragments_tree) <= 0:
+        raise ValueError(('Not a single fragment of your table is part of your'
+                          ' tree. The resulting table would be empty.'))
+
+    keep = lambda values, id_, md: id_ in fragments_table & fragments_tree
+    remove = lambda values, id_, md: id_ in fragments_table - fragments_tree
+
+    return (table.filter(keep, axis='observation', inplace=False),
+            table.filter(remove, axis='observation', inplace=False))
