@@ -326,6 +326,17 @@ def filter_features(table: biom.Table,
 
     keep = lambda values, id_, md: id_ in fragments_table & fragments_tree
     remove = lambda values, id_, md: id_ in fragments_table - fragments_tree
+    tbl_positive = table.filter(keep, axis='observation', inplace=False)
+    tbl_negative = table.filter(remove, axis='observation', inplace=False)
 
-    return (table.filter(keep, axis='observation', inplace=False),
-            table.filter(remove, axis='observation', inplace=False))
+    # print some information for quality control,
+    # which user can request via --verbose
+    results = pd.DataFrame(
+        data={'kept_reads': tbl_positive.sum(axis='sample'),
+              'removed_reads': tbl_negative.sum(axis='sample')},
+        index=tbl_positive.ids())
+    results['removed_ratio'] = results['removed_reads'] / \
+        (results['kept_reads'] + results['removed_reads'])
+    print(results)
+
+    return (tbl_positive, tbl_negative)
