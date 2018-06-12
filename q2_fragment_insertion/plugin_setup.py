@@ -10,6 +10,7 @@ import importlib
 import qiime2.plugin
 from q2_types.feature_data import (FeatureData, Sequence, AlignedSequence,
                                    Taxonomy)
+from q2_types.feature_table import (FeatureTable, Frequency)
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
@@ -145,6 +146,47 @@ plugin.methods.register_function(
         'Experimental: Use the resulting tree from \'sepp\' and find closest '
         'OTU-ID for every inserted fragment. Then, look up the reference '
         'lineage string in the reference taxonomy.')
+)
+
+
+plugin.methods.register_function(
+    function=q2fi.filter_features,
+    inputs={'table': FeatureTable[Frequency],
+            'tree': Phylogeny[Rooted]},
+    input_descriptions={
+        'table':
+        ("A feature-table which needs to filtered down to those fragments that"
+         " are contained in the tree, e.g. result of a Deblur or DADA2 run."),
+        'tree':
+        ('The tree resulting from inserting fragments into a reference '
+         'phylogeny, i.e. the output of function \'sepp\''),
+        },
+    parameters={},
+    parameter_descriptions={},
+    outputs=[('filtered_table', FeatureTable[Frequency]),
+             ('removed_table', FeatureTable[Frequency])],
+    output_descriptions={
+        'filtered_table':
+        ('The input table minus those fragments that were not part of the tree'
+         '. This feature-table can be used for downstream analyses like '
+         'phylogenetic alpha- or beta- diversity computation.'),
+        'removed_table':
+        ('Those fragments that got removed from the input table, because they '
+         'were not part of the tree. This table is mainly used for quality '
+         'control, e.g. to inspect the ratio of removed reads per sample from'
+         ' the input table. You can ignore this table for downstream '
+         'analyses.')},
+    name=("Filter fragments in tree from table."),
+    description=(
+        'Filteres fragments not inserted into a phylogenetic tree from a featu'
+        're-table. Some fragments computed by e.g. Deblur or DADA2 are too rem'
+        'ote to get inserted by SEPP into a reference phylogeny. To be able to'
+        ' use the feature-table for downstream analyses like computing Faith\''
+        's PD or UniFrac, the feature-table must be cleared of fragments that '
+        'are not part of the phylogenetic tree, because their path length can '
+        'otherwise not be determined. Typically, the number of rejected fragme'
+        'nts is low (<= 10), but it might be worth to inspect the ratio of rea'
+        'ds assigned to those rejected fragments.')
 )
 
 
