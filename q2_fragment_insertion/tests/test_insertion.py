@@ -12,7 +12,8 @@ from qiime2.sdk import Artifact
 from qiime2.plugin.testing import TestPluginBase
 from io import StringIO
 from contextlib import redirect_stderr
-from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental)
+from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental,
+                                              filter_features)
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -20,6 +21,7 @@ from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
                                    DNASequencesDirectoryFormat,
                                    DNAIterator)
 from q2_types.tree import NewickFormat
+import biom
 
 
 class TestSepp(TestPluginBase):
@@ -151,6 +153,45 @@ class TestClassify(TestPluginBase):
                       captured_stderr.getvalue())
         self.assertIn('539572',
                       captured_stderr.getvalue())
+
+
+class TestFilter(TestPluginBase):
+    package = 'q2_fragment_insertion.tests'
+
+    def test_filter_features(self):
+        ar_tree = Artifact.load(self.get_data_path('tree_reject.qza'))
+        ar_table = Artifact.load(self.get_data_path('counts_reject.biom.qza'))
+
+        tbl_positive, tbl_negative = filter_features(
+            table=ar_table.view(biom.Table),
+            tree=ar_tree.view(NewickFormat)
+        )
+        self.assertEqual(tbl_positive.sum(), 715)
+        self.assertEqual(tbl_negative.sum(), 133)
+
+        exp_sample_ids = set(['sample_a', 'sample_b', 'sample_c', 'sample_d'])
+        self.assertEqual(set(tbl_positive.ids()) ^ exp_sample_ids, set())
+        self.assertEqual(set(tbl_negative.ids()) ^ exp_sample_ids, set())
+
+        exp_pos_feature_ids = set(['testseqa', 'testseqb', 'testseqc',
+            'testseqd', 'testseqe', 'testseqf', 'testseqg', 'testseqh',
+            'testseqi', 'testseqj'])
+        self.assertEqual(set(tbl_positive.ids(
+            axis='observation')) ^ exp_pos_feature_ids, set())
+        exp_neg_feature_ids = set(['testseq_reject_1', 'testseq_reject_2'])
+        self.assertEqual(set(tbl_negative.ids(
+            axis='observation')) ^ exp_neg_feature_ids, set())
+
+    def test_filter_features_nooverlap(self):
+        ar_tree = Artifact.load(self.get_data_path('tree_reject.qza'))
+        ar_table = Artifact.load(self.get_data_path(
+            'counts_nooverlap.biom.qza'))
+
+        with self.assertRaises(ValueError):
+            tbl_positive, tbl_negative = filter_features(
+                table=ar_table.view(biom.Table),
+                tree=ar_tree.view(NewickFormat)
+            )
 
 
 if __name__ == '__main__':
