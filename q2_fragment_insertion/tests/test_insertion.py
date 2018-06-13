@@ -173,9 +173,9 @@ class TestFilter(TestPluginBase):
         self.assertEqual(set(tbl_positive.ids()) ^ exp_sample_ids, set())
         self.assertEqual(set(tbl_negative.ids()) ^ exp_sample_ids, set())
 
-        exp_pos_feature_ids = set(['testseqa', 'testseqb', 'testseqc',
-            'testseqd', 'testseqe', 'testseqf', 'testseqg', 'testseqh',
-            'testseqi', 'testseqj'])
+        exp_pos_feature_ids = set([
+            'testseqa', 'testseqb', 'testseqc', 'testseqd', 'testseqe',
+            'testseqf', 'testseqg', 'testseqh', 'testseqi', 'testseqj'])
         self.assertEqual(set(tbl_positive.ids(
             axis='observation')) ^ exp_pos_feature_ids, set())
         exp_neg_feature_ids = set(['testseq_reject_1', 'testseq_reject_2'])
