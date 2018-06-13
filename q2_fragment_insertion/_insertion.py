@@ -22,7 +22,6 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
-from q2_types.feature_table import (FeatureTable, Frequency, BIOMV210Format)
 from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
@@ -324,10 +323,14 @@ def filter_features(table: biom.Table,
         raise ValueError(('Not a single fragment of your table is part of your'
                           ' tree. The resulting table would be empty.'))
 
-    keep = lambda values, id_, md: id_ in fragments_table & fragments_tree
-    remove = lambda values, id_, md: id_ in fragments_table - fragments_tree
-    tbl_positive = table.filter(keep, axis='observation', inplace=False)
-    tbl_negative = table.filter(remove, axis='observation', inplace=False)
+    def _keep(values, id_, md):
+        return id_ in fragments_table & fragments_tree
+
+    def _remove(values, id_, md):
+        return id_ in fragments_table - fragments_tree
+
+    tbl_positive = table.filter(_keep, axis='observation', inplace=False)
+    tbl_negative = table.filter(_remove, axis='observation', inplace=False)
 
     # print some information for quality control,
     # which user can request via --verbose
