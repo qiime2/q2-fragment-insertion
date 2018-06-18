@@ -1,6 +1,6 @@
 # q2-fragment-insertion changelog
 
-## Version 0.2.0 (changes since 0.1.0 go here)
+## Version 2018.4.0 (changes since 0.1.0 go here)
 
 * added function `filter-features` which takes a feature-table and a phylogeny and filters the table down to those features also included in the phylogeny. This becomes a standard tasks, since e.g. Deblur produces fragments that do not get inserted into the reference phylogeny by SEPP, but those features would cause errors in downstream diversity computation. Also see [QIIME2 forum discussion](https://forum.qiime2.org/t/filter-feature-table-phylogenetically/4462)
 
