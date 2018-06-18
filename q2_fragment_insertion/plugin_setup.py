@@ -178,7 +178,7 @@ plugin.methods.register_function(
          'analyses.')},
     name=("Filter fragments in tree from table."),
     description=(
-        'Filteres fragments not inserted into a phylogenetic tree from a featu'
+        'Filters fragments not inserted into a phylogenetic tree from a featu'
         're-table. Some fragments computed by e.g. Deblur or DADA2 are too rem'
         'ote to get inserted by SEPP into a reference phylogeny. To be able to'
         ' use the feature-table for downstream analyses like computing Faith\''
