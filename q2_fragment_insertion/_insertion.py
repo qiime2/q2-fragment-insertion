@@ -323,14 +323,10 @@ def filter_features(table: biom.Table,
         raise ValueError(('Not a single fragment of your table is part of your'
                           ' tree. The resulting table would be empty.'))
 
-    def _keep(values, id_, md):
-        return id_ in fragments_table & fragments_tree
-
-    def _remove(values, id_, md):
-        return id_ in fragments_table - fragments_tree
-
-    tbl_positive = table.filter(_keep, axis='observation', inplace=False)
-    tbl_negative = table.filter(_remove, axis='observation', inplace=False)
+    tbl_positive = table.filter(fragments_table & fragments_tree,
+                                axis='observation', inplace=False)
+    tbl_negative = table.filter(fragments_table - fragments_tree,
+                                axis='observation', inplace=False)
 
     # print some information for quality control,
     # which user can request via --verbose
