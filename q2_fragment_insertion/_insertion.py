@@ -13,6 +13,7 @@ import tempfile
 import subprocess
 
 import skbio
+import biom
 import pandas as pd
 import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
@@ -302,3 +303,39 @@ def classify_otus_experimental(
              "i.e. are results from the same 'sepp' run."))
 
     return pd_taxonomy.set_index('Feature ID')
+
+
+def filter_features(table: biom.Table,
+                    tree: NewickFormat) -> (biom.Table, biom.Table):
+
+    # load the insertion tree
+    tree = skbio.TreeNode.read(str(tree))
+    # collect all tips=inserted fragments+reference taxa names
+    fragments_tree = {
+        str(tip.name)
+        for tip in tree.tips()
+        if tip.name is not None}
+
+    # collect all fragments/features from table
+    fragments_table = set(map(str, table.ids(axis='observation')))
+
+    if len(fragments_table & fragments_tree) <= 0:
+        raise ValueError(('Not a single fragment of your table is part of your'
+                          ' tree. The resulting table would be empty.'))
+
+    tbl_positive = table.filter(fragments_table & fragments_tree,
+                                axis='observation', inplace=False)
+    tbl_negative = table.filter(fragments_table - fragments_tree,
+                                axis='observation', inplace=False)
+
+    # print some information for quality control,
+    # which user can request via --verbose
+    results = pd.DataFrame(
+        data={'kept_reads': tbl_positive.sum(axis='sample'),
+              'removed_reads': tbl_negative.sum(axis='sample')},
+        index=tbl_positive.ids())
+    results['removed_ratio'] = results['removed_reads'] / \
+        (results['kept_reads'] + results['removed_reads'])
+    print(results)
+
+    return (tbl_positive, tbl_negative)

@@ -79,6 +79,29 @@ Output artifacts:
 
 You can then use `insertion-tree.qza` for all downstream analyses, e.g. "Alpha and beta diversity analysis", instead of `rooted-tree.qza`.
 
+#### Filter feature-tables
+
+After you created the insertion tree, which can be used for phylogenetic diversity computation, e.g. Faith's PD or UniFrac, a typical next step is to filter a feature-table such that it only contains fragments that are in the insertion tree. This becomes necessary, since SEPP might reject insertion of fragments that are too remotely related to everything in the reference alignment/phylogeny. Those rows in your feature-table for fragments not in the phylogeny, will cause diversity computation to fail, since branch lengths cannot be determined.
+
+Use function `filter-features` to filter your input feature-table down to fragments included in your phylogeny:
+```
+qiime fragment-insertion filter-features \
+  --i-table table.qza \
+  --i-tree insertion-tree.qza \
+  --o-filtered-table filtered_table.qza \
+  --o-removed-table removed_table.qza
+```
+This function will in fact return two outputs: `filtered_table.qza` and `removed_table.qza`. Feature-table `filtered_table.qza` contains all fragments that are part of `insertion-tree.qza`, while `removed_table.qza` is the opposite and contains all fragments that are **not** part of `insertion-tree.qza`. This second feature-table is mainly for quality control. You can get some statistics about the number of reads lost per sample during this filtering, by adding the flag `--verbose` to the above command.
+
+(***Note:** All fragments in this example are inserted as tips in `insertion-tree.qza`, thus `filtered_table.qza` is identical to `table.qza`*)
+
+Input artifacts:
+   - `table.gzq`: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2018.4%2Fdata%2Ftutorials%2Ffiltering%2Ftable.qza) | [download](https://data.qiime2.org/2018.4/tutorials/filtering/table.qza)
+
+Output artifacts:
+   - `filtered_table.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/filtered_table.qza?raw=true)
+   - `removed_table.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/removed_table.qza?raw=true)
+
 ### Expected Runtimes
 
 We ran ``qiime fragment-insertion sepp`` on four of 32 cores of a Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz server with 265 GB available RAM. Reported "time" is accumulated "user time". Runtime only depends on number of sOTUs, not on number of samples.
