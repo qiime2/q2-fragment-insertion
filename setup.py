@@ -21,6 +21,6 @@ setup(
     },
     license='BSD-3-Clause',
     package_data={
-        'q2_fragment_insertion.tests': ['data/*']}
-        'q2_fragment_insertion': ['citations.bib'],
+        'q2_fragment_insertion.tests': ['data/*'],
+        'q2_fragment_insertion': ['citations.bib']}
 )
