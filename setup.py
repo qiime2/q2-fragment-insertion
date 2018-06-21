@@ -12,8 +12,8 @@ setup(
     name="q2-fragment-insertion",
     version="2018.6.0",
     packages=find_packages(),
-    author="Daniel McDonald",
-    author_email="wasade@gmail.com",
+    author="Stefan Janssen",
+    author_email="stefan.m.janssen@gmail.com",
     description="Fragment insertion into existing phylogenies",
     entry_points={
         "qiime2.plugins":
