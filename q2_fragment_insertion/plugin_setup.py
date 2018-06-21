@@ -17,6 +17,7 @@ import q2_fragment_insertion as q2fi
 from q2_fragment_insertion._type import Placements
 from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
 
+
 plugin = qiime2.plugin.Plugin(
     name='fragment-insertion',
     version=q2fi.__version__,

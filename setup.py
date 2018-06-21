@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 from setuptools import setup, find_packages
 
+
 setup(
     name="q2-fragment-insertion",
     version="2018.6.0",
