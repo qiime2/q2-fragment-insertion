@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="q2-fragment-insertion",
-    version="2018.6.0",
+    version="2018.4.0",
     packages=find_packages(),
     author="Daniel McDonald",
     author_email="wasade@gmail.com",
@@ -19,7 +19,6 @@ setup(
         "qiime2.plugins":
         ["q2-fragment-insertion=q2_fragment_insertion.plugin_setup:plugin"]
     },
-    url="https://github.com/biocore/q2-fragment-insertion",
     license='BSD-3-Clause',
     package_data={
         'q2_fragment_insertion': ['citations.bib'],
