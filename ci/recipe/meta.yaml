@@ -21,7 +21,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - fragment-insertion >=4.3.5
+    - fragment-insertion
     - biom-format >=2.1.5,<2.2.0
     - qiime2 >={{ qiime2release }}.*
     - q2templates >={{ qiime2release }}.*
@@ -32,7 +32,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - fragment-insertion >=4.3.5
+    - fragment-insertion
     - biom-format >=2.1.5,<2.2.0
     - qiime2 >={{ qiime2release }}.*
     - q2templates >={{ qiime2release }}.*

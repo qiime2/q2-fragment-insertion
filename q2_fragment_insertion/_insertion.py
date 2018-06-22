@@ -151,7 +151,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          alignment_subset_size: int=1000,
          placement_subset_size: int=5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat=None,
-         reference_phylogeny: NewickFormat=None,
+         reference_phylogeny: NewickFormat=None
          ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
