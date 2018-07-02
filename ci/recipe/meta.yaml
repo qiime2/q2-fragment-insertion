@@ -1,4 +1,4 @@
-{% set version = '2018.2.1' %}
+{% set version = '2018.4.0' %}
 {% set qiime2release = '2017.12' %}
 
 package:
