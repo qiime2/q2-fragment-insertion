@@ -30,6 +30,9 @@ import skbio
               required=True)
 @click.option('--reference_phylogeny', type=click.Path(exists=True),
               required=True)
+@click.option('--reference_info', type=click.Path(exists=True),
+              required=False, default=None,
+              help='raxml info file for references other than GG13.8')
 # this is a dummy to allow tax-credit's framework to record reference name as
 # a parameter
 @click.option('--reference_name', default=None, required=False)
@@ -41,7 +44,7 @@ import skbio
                     '.'))
 def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
              reference_alignment, reference_phylogeny, reference_name,
-             cross_validate):
+             reference_info, cross_validate):
     clear_tmpdir = False
 
     if tmpdir is None:
@@ -124,7 +127,8 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
             threads=cores,
             reference_alignment=ar_ref_aln.view(
                 AlignedDNASequencesDirectoryFormat),
-            reference_phylogeny=ar_ref_tree.view(NewickFormat))
+            reference_phylogeny=ar_ref_tree.view(NewickFormat),
+            reference_info=reference_info)
         # save tree to file
         ar_tree = Artifact.import_data(Phylogeny[Rooted], ar_tree)
         ar_tree.save(fp_insertion_tree)
