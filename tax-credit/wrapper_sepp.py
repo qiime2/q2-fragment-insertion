@@ -42,9 +42,18 @@ import skbio
                     'erform a cross validation check, i.e. how well can inputs'
                     ' inserted into a reference where those inputs are unknown'
                     '.'))
+@click.option('--novel_taxa_keep', default=None, type=click.Path(exists=True),
+              required=False,
+              help=('For tax-credit novel taxa analysis: fasta file that defin'
+                    'es the set of sequences for the reference, i.e. all other'
+                    's must be removed from reference.'))
+@click.option('--novel_taxa_level', default=None,
+              type=click.IntRange(2, 6, clamp=False), required=False,
+              help="For tax-credit novel taxa analysis: taxonomic rank.")
 def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
              reference_alignment, reference_phylogeny, reference_name,
-             reference_info, cross_validate):
+             reference_info, cross_validate,
+             novel_taxa_keep, novel_taxa_level):
     clear_tmpdir = False
 
     if tmpdir is None:
@@ -75,6 +84,8 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
             ar_ref_tree = qiime2.Artifact.import_data(
                 "Phylogeny[Rooted]", reference_phylogeny)
 
+        ids_to_keep = None
+
         if cross_validate:
             ids_input = {seq.metadata['id']
                          for seq
@@ -90,7 +101,22 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
                     (len(ids_missing), "\n".join(ids_missing)))
             print("cross-validate: removing %i / %i sequences from reference."
                   % (len(ids_input & ids_reference), len(ids_reference)))
+            ids_to_keep = ids_reference - ids_input
 
+        if novel_taxa_keep is not None:
+            # load trimmed reference sequences
+            if str(novel_taxa_keep).endswith('qza'):
+                ar_novel = Artifact.load(novel_taxa_keep)
+            else:
+                ar_novel = qiime2.Artifact.import_data(
+                    "FeatureData[Sequence]", novel_taxa_keep)
+            ids_to_keep = {seq.metadata['id']
+                           for seq
+                           in ar_novel.view(DNAIterator)}
+            print("novel-taxa: reducing reference to %i sequences."
+                  % (len(ids_to_keep)))
+
+        if ids_to_keep is not None:
             # substract input seqs from reference alignment
             fp_crossval_alignment = join(
                 tmpdir, 'cross-validate_reference_alignment.qza')
@@ -99,7 +125,7 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
                 skbio_ref_aln.index = [seq.metadata['id']
                                        for seq
                                        in skbio_ref_aln]
-                skbio_ref_aln = skbio_ref_aln.loc[ids_reference - ids_input]
+                skbio_ref_aln = skbio_ref_aln.loc[ids_to_keep]
                 ar_ref_aln = qiime2.Artifact.import_data(
                     "FeatureData[AlignedSequence]", skbio_ref_aln)
                 ar_ref_aln.save(fp_crossval_alignment)
@@ -110,8 +136,7 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
                 tmpdir, 'cross-validate_reference_tree.qza')
             if not os.path.exists(fp_crossval_tree):
                 skbio_ref_tree = ar_ref_tree.view(skbio.TreeNode)
-                skbio_ref_tree = skbio_ref_tree.shear(
-                    ids_reference - ids_input)
+                skbio_ref_tree = skbio_ref_tree.shear(ids_to_keep)
                 # correct topology, i.e. merge one child internal nodes due to
                 # tip removal
                 skbio_ref_tree.prune()
@@ -128,7 +153,8 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
             reference_alignment=ar_ref_aln.view(
                 AlignedDNASequencesDirectoryFormat),
             reference_phylogeny=ar_ref_tree.view(NewickFormat),
-            reference_info=reference_info)
+            # reference_info=reference_info
+            )
         # save tree to file
         ar_tree = Artifact.import_data(Phylogeny[Rooted], ar_tree)
         ar_tree.save(fp_insertion_tree)
@@ -155,6 +181,10 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
     taxonomy.rename(columns={'Taxon': 'taxonomy'}, inplace=True)
     taxonomy['confidence'] = 1.0
     taxonomy['num hits'] = 1
+
+    if novel_taxa_level is not None:
+        taxonomy['taxonomy'] = taxonomy['taxonomy'].apply(
+            lambda l: "; ".join(l.split("; ")[:novel_taxa_level]))
 
     # write results to file
     if os.path.dirname(output_file) != "":
