@@ -8,6 +8,7 @@ import tempfile
 import sys
 import multiprocessing
 from shutil import rmtree
+import pandas as pd
 
 import qiime2
 from qiime2.sdk import Artifact
@@ -33,6 +34,9 @@ import skbio
 @click.option('--reference_info', type=click.Path(exists=True),
               required=False, default=None,
               help='raxml info file for references other than GG13.8')
+@click.option('--reference_taxonomy', type=click.Path(exists=True),
+              required=False, default=None,
+              help='OTU to lineage tabular file')
 # this is a dummy to allow tax-credit's framework to record reference name as
 # a parameter
 @click.option('--reference_name', default=None, required=False)
@@ -52,7 +56,7 @@ import skbio
               help="For tax-credit novel taxa analysis: taxonomic rank.")
 def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
              reference_alignment, reference_phylogeny, reference_name,
-             reference_info, cross_validate,
+             reference_info, reference_taxonomy, cross_validate,
              novel_taxa_keep, novel_taxa_level):
     clear_tmpdir = False
 
@@ -163,11 +167,20 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
 
     taxonomy = None
     if method == 'otus':
+        ar_taxonomy = None
+        if reference_taxonomy is not None:
+            if str(reference_taxonomy).endswith('qza'):
+                ar_taxonomy = Artifact.load(reference_taxonomy)
+            else:
+                ar_taxonomy = qiime2.Artifact.import_data(
+                    "FeatureData[Taxonomy]", reference_taxonomy)
+
         # determine lineage for each rep-seq by finding closest OTU in
         # insertion-tree
         taxonomy = q2_fragment_insertion.classify_otus_experimental(
             ar_repseq.view(DNASequencesDirectoryFormat),
-            ar_tree.view(NewickFormat))
+            ar_tree.view(NewickFormat),
+            ar_taxonomy.view(pd.DataFrame) if ar_taxonomy is not None else None)
     elif method == 'path':
         # determine lineage for each rep-seq by traversing from inserted tip
         # towards root
