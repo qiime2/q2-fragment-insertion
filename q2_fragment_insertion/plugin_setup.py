@@ -8,6 +8,7 @@
 import importlib
 
 import qiime2.plugin
+from qiime2.plugin import Citations
 from q2_types.feature_data import (FeatureData, Sequence, AlignedSequence,
                                    Taxonomy)
 from q2_types.feature_table import (FeatureTable, Frequency)
@@ -17,7 +18,7 @@ import q2_fragment_insertion as q2fi
 from q2_fragment_insertion._type import Placements
 from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
 
-
+citations = Citations.load('citations.bib', package='q2_fragment_insertion')
 plugin = qiime2.plugin.Plugin(
     name='fragment-insertion',
     version=q2fi.__version__,
@@ -91,7 +92,8 @@ plugin.methods.register_function(
     name=('Insert fragment sequences using SEPP into reference phylogenies '
           'like Greengenes 13_8'),
     description=('Perform fragment insertion of 16S sequences using the SEPP '
-                 'algorithm against the Greengenes 13_8 99% tree.')
+                 'algorithm against the Greengenes 13_8 99% tree.'),
+    citations=[citations['SEPP']]
 )
 
 
