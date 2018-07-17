@@ -55,7 +55,11 @@ _parameter_descriptions = {
      'subset is set to make sure the memory requirement of the pplacer step '
      'does not become prohibitively large.\nFurther reading: '
      'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
-     '#sample-datasets-default-parameters')}
+     '#sample-datasets-default-parameters'),
+    'debug':
+    ('Print additional run information to STDOUT for debugging. '
+     'Run together with --verbose to actually see the information on STDOUT. '
+     'Temporary directories will not be removed if run fails.')}
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
@@ -63,7 +67,9 @@ _output_descriptions = {
 
 _parameters = {'threads': qiime2.plugin.Int,
                'alignment_subset_size': qiime2.plugin.Int,
-               'placement_subset_size': qiime2.plugin.Int}
+               'placement_subset_size': qiime2.plugin.Int,
+               'debug': qiime2.plugin.Bool
+               }
 
 
 _outputs = [('tree', Phylogeny[Rooted]),
