@@ -25,5 +25,5 @@ setup(
         'q2_fragment_insertion': ['citations.bib'],
         'q2_fragment_insertion.tests': ['data/*']
     },
-    zip_safe=False
+    zip_safe=False,
 )
