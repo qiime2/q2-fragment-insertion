@@ -1,4 +1,5 @@
-{% set version = '2018.4.0' %}
+{% set data = load_setup_py_data() %}
+{% set version = data.get('version') or 'placehold' %}
 {% set qiime2release = '2017.12' %}
 
 package:
@@ -21,7 +22,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - fragment-insertion
+    - fragment-insertion >=4.3.5
     - biom-format >=2.1.5,<2.2.0
     - qiime2 >={{ qiime2release }}.*
     - q2templates >={{ qiime2release }}.*
@@ -32,7 +33,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
-    - fragment-insertion
+    - fragment-insertion >=4.3.5
     - biom-format >=2.1.5,<2.2.0
     - qiime2 >={{ qiime2release }}.*
     - q2templates >={{ qiime2release }}.*
@@ -47,9 +48,16 @@ test:
     - q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza
     - q2_fragment_insertion/tests/data/real_data.qza
   commands:
-    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/
+    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/ --verbose > stdout
     - qiime tools export --output-dir ./test_conda_tmp/ ./test_conda_tmp/tree.qza
     - ls test_conda_tmp/tree.nwk
+    # test that citation is included in produced artifacts
+    - qiime tools citations ./test_conda_tmp/tree.qza | grep "Phylogenetic Placement of Exact Amplicon Sequences"
+    # test that stdout does not contain any DEBUG information from SEPP
+    - grep DEBUG stdout -c && [[ $? != 0 ]]
+    # now, test that stdout has DEBUG info
+    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp2/ --verbose --p-debug  > stdout
+    - grep DEBUG stdout -c
   imports:
     - q2_fragment_insertion
 
@@ -57,3 +65,4 @@ about:
   home: https://github.com/biocore/q2-fragment-insertion
   license: BSD-3-Clause
   license_family: BSD
+  license_file: LICENSE
