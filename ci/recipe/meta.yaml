@@ -51,7 +51,7 @@ test:
     - qiime tools export --output-dir ./test_conda_tmp/ ./test_conda_tmp/tree.qza
     - ls test_conda_tmp/tree.nwk
     # test that citation is included in produced artifacts
-    - qiime tools citations ./test_conda_tmp/tree.qza | grep "Phylogenetic Placement of Exact Amplicon Sequences"
+    # - qiime tools citations ./test_conda_tmp/tree.qza | grep "Phylogenetic Placement of Exact Amplicon Sequences"
     # test that stdout does not contain any DEBUG information from SEPP
     - grep DEBUG stdout -c; [[ $? != 0 ]];
     # now, test that stdout has DEBUG info
@@ -64,3 +64,4 @@ about:
   home: https://github.com/biocore/q2-fragment-insertion
   license: BSD-3-Clause
   license_family: BSD
+  license_file: LICENSE
