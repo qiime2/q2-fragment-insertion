@@ -24,5 +24,6 @@ setup(
     package_data={
         'q2_fragment_insertion': ['citations.bib'],
         'q2_fragment_insertion.tests': ['data/*']
-    }
+    },
+    zip_safe=False
 )
