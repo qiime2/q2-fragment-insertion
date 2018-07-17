@@ -9,6 +9,7 @@ import sys
 import multiprocessing
 from shutil import rmtree
 import pandas as pd
+import subprocess
 
 import qiime2
 from qiime2.sdk import Artifact
@@ -18,6 +19,54 @@ from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator)
 from q2_types.tree import NewickFormat, Phylogeny, Rooted
 import skbio
+
+
+def load_taxonomy(reference_taxonomy):
+    if reference_taxonomy is not None:
+        if str(reference_taxonomy).endswith('qza'):
+            return Artifact.load(reference_taxonomy)
+        else:
+            return qiime2.Artifact.import_data(
+                "FeatureData[Taxonomy]", reference_taxonomy)
+
+
+def tax2tree(tmpdir, skbio_ref_tree, fp_taxonomy):
+    """
+    Re-decorate phylogeny with given taxonomy.
+
+    Parameters
+    ----------
+    tmpdir : str
+        Filepath to temporary working directory.
+    skbio_ref_tree : skbio.TreeNode
+        Input phylogenetic tree that shall be decorated.
+    fp_taxonomy : str
+        Filepath to taxonomy as two column tab separated table.
+
+    Returns
+    -------
+    Qiime.Artifact(Phylogeny[Rooted]) : new decorated phylogeny.
+    """
+    # prepare inputs for tax2tree
+    fp_phylogeny = join(tmpdir, 'phlyogeny.newick')
+    skbio_ref_tree.write(fp_phylogeny)
+
+    fp_tmp_taxonomy = join(tmpdir, 'taxonomy.tsv')
+    load_taxonomy(fp_taxonomy).view(pd.DataFrame).to_csv(
+        fp_tmp_taxonomy, sep="\t", header=False)
+
+    fp_output_t2t = join(tmpdir, 'phylogeny_t2t.newick')
+    print("Running tax2tree")
+    with subprocess.Popen(
+        "t2t decorate --consensus-map %s --tree %s --output %s --no-suffix" % (
+         fp_tmp_taxonomy, fp_phylogeny, fp_output_t2t),
+        shell=True,
+        stdout=subprocess.PIPE) as env_present:
+            if (env_present.wait() != 0):
+                raise ValueError("Something went wrong")
+
+    ar_output = qiime2.Artifact.import_data("Phylogeny[Rooted]", fp_output_t2t)
+    return ar_output
 
 
 @click.command()
@@ -144,8 +193,9 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
                 # correct topology, i.e. merge one child internal nodes due to
                 # tip removal
                 skbio_ref_tree.prune()
-                ar_ref_tree = qiime2.Artifact.import_data(
-                    "Phylogeny[Rooted]", skbio_ref_tree)
+
+                ar_ref_tree = tax2tree(
+                    tmpdir, skbio_ref_tree, reference_taxonomy)
                 ar_ref_tree.save(fp_crossval_tree)
             else:
                 ar_ref_tree = Artifact.load(fp_crossval_tree)
@@ -167,13 +217,7 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
 
     taxonomy = None
     if method == 'otus':
-        ar_taxonomy = None
-        if reference_taxonomy is not None:
-            if str(reference_taxonomy).endswith('qza'):
-                ar_taxonomy = Artifact.load(reference_taxonomy)
-            else:
-                ar_taxonomy = qiime2.Artifact.import_data(
-                    "FeatureData[Taxonomy]", reference_taxonomy)
+        ar_taxonomy = load_taxonomy(reference_taxonomy)
 
         # determine lineage for each rep-seq by finding closest OTU in
         # insertion-tree
