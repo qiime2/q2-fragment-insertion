@@ -100,13 +100,10 @@ def tax2tree(tmpdir, skbio_ref_tree, fp_taxonomy):
               help=('For tax-credit novel taxa analysis: fasta file that defin'
                     'es the set of sequences for the reference, i.e. all other'
                     's must be removed from reference.'))
-@click.option('--novel_taxa_level', default=None,
-              type=click.IntRange(2, 6, clamp=False), required=False,
-              help="For tax-credit novel taxa analysis: taxonomic rank.")
 def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
              reference_alignment, reference_phylogeny, reference_name,
              reference_info, reference_taxonomy, cross_validate,
-             novel_taxa_keep, novel_taxa_level):
+             novel_taxa_keep):
     clear_tmpdir = False
 
     if tmpdir is None:
@@ -238,10 +235,6 @@ def run_sepp(input_fragment_file, output_file, method, tmpdir, cores,
     taxonomy.rename(columns={'Taxon': 'taxonomy'}, inplace=True)
     taxonomy['confidence'] = 1.0
     taxonomy['num hits'] = 1
-
-    if novel_taxa_level is not None:
-        taxonomy['taxonomy'] = taxonomy['taxonomy'].apply(
-            lambda l: "; ".join(l.split("; ")[:novel_taxa_level]))
 
     # write results to file
     if os.path.dirname(output_file) != "":
