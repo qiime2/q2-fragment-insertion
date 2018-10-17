@@ -4,12 +4,6 @@
 
 Once QIIME2 is [installed](https://docs.qiime2.org/2018.2/install/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
 
-    conda install -c https://conda.anaconda.org/biocore q2-fragment-insertion
-    qiime dev refresh-cache
-    
-**Troubleshoot 'PackagesNotFoundError':**
-Your conda installation might fail with a 'PackagesNotFoundError' message. This is most likely due to missing channels. Try to re-run the above command with explicit addition of four more channels:
-
     conda install -c anaconda -c defaults -c conda-forge -c bioconda -c https://conda.anaconda.org/biocore q2-fragment-insertion
     qiime dev refresh-cache
 
