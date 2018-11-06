@@ -1,11 +1,4 @@
-[![Build Status](https://travis-ci.org/biocore/q2-fragment-insertion.svg?branch=master)](https://travis-ci.org/biocore/q2-fragment-insertion)
-
-## Installation
-
-Once QIIME2 is [installed](https://docs.qiime2.org/2018.2/install/), and you activated your QIIME2 environment, it should be possible to install `q2-fragment-insertion` with:
-
-    conda install -c anaconda -c defaults -c conda-forge -c bioconda -c https://conda.anaconda.org/biocore q2-fragment-insertion
-    qiime dev refresh-cache
+[![Build Status](https://travis-ci.org/qiime2/q2-fragment-insertion.svg?branch=master)](https://travis-ci.org/qiime2/q2-fragment-insertion)
 
 ## Why you should prefer fragment insertion AKA SEPP over de-novo trees
 
@@ -56,7 +49,7 @@ The plugin will generate two files:
 
 QIIME 2's "Moving Pictures" [tutorial](https://docs.qiime2.org/2017.10/tutorials/moving-pictures/#generate-a-tree-for-phylogenetic-diversity-analyses) suggests constructing a de-novo phylogeny for the fragments, i.e `FeatureData[Sequence]`, to obtain a `Phylogeny[Rooted]` that can be used for phylogenetic diversity computation. "Fragment insertion" via this plugin provides an alternative way to acquire the `Phylogeny[Rooted]` by inserting sequences of `FeatureData[Sequence]` into a high quality reference phylogeny and thus provides multiple advantages over de-novo phylogenies, e.g. accurate branch lengths, multi-study meta-analyses, mixed region meta-analyses (e.g. V4 and V2).
 
-Let us use the `FeatureData[Sequence]` from QIIME's tutorial as our input:
+Let us use the `FeatureData[Sequence]` from QIIME 2's tutorial as our input:
 
    - `rep-seqs.qza`: [view](https://view.qiime2.org/?src=https%3A%2F%2Fdocs.qiime2.org%2F2017.10%2Fdata%2Ftutorials%2Fmoving-pictures%2Frep-seqs.qza) | [download](https://docs.qiime2.org/2017.10/data/tutorials/moving-pictures/rep-seqs.qza)
 
