@@ -9,8 +9,11 @@ import pkg_resources
 
 from ._insertion import (sepp, classify_paths, classify_otus_experimental,
                          filter_features)
+from ._version import get_versions
 
 
-__version__ = pkg_resources.get_distribution('q2-fragment-insertion').version
+__version__ = get_versions()['version']
+del get_versions
+
 __all__ = ['sepp', 'classify_paths', 'classify_otus_experimental',
            'filter_features']

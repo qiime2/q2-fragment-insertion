@@ -1,68 +1,39 @@
 {% set data = load_setup_py_data() %}
 {% set version = data.get('version') or 'placehold' %}
-{% set qiime2release = '2017.12' %}
+{% set release = '.'.join(version.split('.')[:2]) %}
 
 package:
   name: q2-fragment-insertion
   version: {{ version }}
 
 source:
-  - git_url: https://github.com/biocore/q2-fragment-insertion.git
-  #~ git_rev: {{ version }}  # use a tagged version once the recipe is merged into master and a tag has been created
-  - path: ../../taxonomy_gg99.qza
+  - path: ../..
 
 build:
-  number: 1
   script:
     - cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/
-    - python setup.py install
+    - make install
 
 requirements:
   build:
     - python 3.5*
     - setuptools
-    - nodejs
-    - fragment-insertion >=4.3.5
-    - biom-format >=2.1.5,<2.2.0
-    - qiime2 >={{ qiime2release }}.*
-    - q2templates >={{ qiime2release }}.*
-    - q2-types >={{ qiime2release }}.*
-    - q2-feature-table >={{ qiime2release }}.*
 
   run:
     - python 3.5*
     - setuptools
-    - nodejs
     - fragment-insertion >=4.3.5
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 >={{ qiime2release }}.*
-    - q2templates >={{ qiime2release }}.*
-    - q2-types >={{ qiime2release }}.*
-    - q2-feature-table >={{ qiime2release }}.*
-    - q2cli >={{ qiime2release }}.*
-    - q2-types >={{ qiime2release }}.*
+    - qiime2 {{ version }}.*
+    - q2-types {{ version }}.*
+    - q2-feature-table {{ version }}.*
 
 test:
-  source_files:
-    - q2_fragment_insertion/tests/data/reference_alignment_tiny.qza
-    - q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza
-    - q2_fragment_insertion/tests/data/real_data.qza
-  commands:
-    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp/ --verbose > stdout
-    - qiime tools export --output-dir ./test_conda_tmp/ ./test_conda_tmp/tree.qza
-    - ls test_conda_tmp/tree.nwk
-    # test that citation is included in produced artifacts
-    - qiime tools citations ./test_conda_tmp/tree.qza | grep "Phylogenetic Placement of Exact Amplicon Sequences"
-    # test that stdout does not contain any DEBUG information from SEPP
-    - grep DEBUG stdout -c && [[ $? != 0 ]]
-    # now, test that stdout has DEBUG info
-    - qiime fragment-insertion sepp --i-representative-sequences q2_fragment_insertion/tests/data/real_data.qza --i-reference-alignment q2_fragment_insertion/tests/data/reference_alignment_tiny.qza --i-reference-phylogeny q2_fragment_insertion/tests/data/reference_phylogeny_tiny.qza --output-dir ./test_conda_tmp2/ --verbose --p-debug  > stdout
-    - grep DEBUG stdout -c
   imports:
     - q2_fragment_insertion
+    - qiime2.plugins.fragment_insertion
 
 about:
-  home: https://github.com/biocore/q2-fragment-insertion
+  home: https://qiime2.org
   license: BSD-3-Clause
   license_family: BSD
-  license_file: LICENSE
