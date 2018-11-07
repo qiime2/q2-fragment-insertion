@@ -16,6 +16,8 @@ requirements:
   build:
     - python 3.5*
     - setuptools
+    # Need this in build so that the ref path above exists
+    - fragment-insertion >=4.3.5
 
   run:
     - python 3.5*
