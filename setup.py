@@ -5,21 +5,25 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
+
 from setuptools import setup, find_packages
+import versioneer
 
 
 setup(
     name="q2-fragment-insertion",
-    version="2018.6.17",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     packages=find_packages(),
     author="Stefan Janssen",
     author_email="stefan.m.janssen@gmail.com",
     description="Fragment insertion into existing phylogenies",
+    license='BSD-3-Clause',
     entry_points={
         "qiime2.plugins":
         ["q2-fragment-insertion=q2_fragment_insertion.plugin_setup:plugin"]
     },
-    url="https://github.com/biocore/q2-fragment-insertion",
+    url="https://qiime2.org",
     license='BSD-3-Clause',
     package_data={
         'q2_fragment_insertion': ['citations.bib'],
