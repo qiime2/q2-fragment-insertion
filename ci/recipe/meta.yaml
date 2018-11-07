@@ -7,12 +7,10 @@ package:
   version: {{ version }}
 
 source:
-  - path: ../..
+  path: ../..
 
 build:
-  script:
-    - cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/
-    - make install
+  script: cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/ && make install
 
 requirements:
   build:
