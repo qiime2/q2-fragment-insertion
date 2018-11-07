@@ -24,7 +24,6 @@ requirements:
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
-    - q2-feature-table {{ release }}.*
 
 test:
   imports:
