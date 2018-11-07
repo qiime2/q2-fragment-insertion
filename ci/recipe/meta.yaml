@@ -24,9 +24,9 @@ requirements:
     - setuptools
     - fragment-insertion >=4.3.5
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 {{ version }}.*
-    - q2-types {{ version }}.*
-    - q2-feature-table {{ version }}.*
+    - qiime2 {{ release }}.*
+    - q2-types {{ release }}.*
+    - q2-feature-table {{ release }}.*
 
 test:
   imports:
