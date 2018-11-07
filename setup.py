@@ -18,7 +18,6 @@ setup(
     author="Stefan Janssen",
     author_email="stefan.m.janssen@gmail.com",
     description="Fragment insertion into existing phylogenies",
-    license='BSD-3-Clause',
     entry_points={
         "qiime2.plugins":
         ["q2-fragment-insertion=q2_fragment_insertion.plugin_setup:plugin"]
