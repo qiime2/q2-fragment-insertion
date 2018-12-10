@@ -124,7 +124,7 @@ Output artifacts:
    - `insertion-taxonomy.qza`: ~[view]()~ | [download](https://github.com/biocore/q2-fragment-insertion/blob/master/Example/insertion-taxonomy.qza?raw=true)
 
 You need to make sure, that the `--i-reference-taxonomy` matches the reference phylogeny used with function `sepp`.
-This method is experimental as of Nov. 22nd 2017, since we have not yet evaluated the quality / correctness of the returned lineages. Use on your own risk!
+This method is experimental as of Dec. 10th 2018. We started evaluating this method via the [tax-credit](https://github.com/caporaso-lab/tax-credit-data/) repository. Use on your own risk!
 
 ### Import representative sequencs into QIIME 2 artifact
 
@@ -163,7 +163,6 @@ The plugin function `classify_otus-experimental` allows to pass in *reference ta
 
     qiime tools import \
     --input-path taxonomy.tsv \
-    --source-format HeaderlessTSVTaxonomyFormat \
     --type "FeatureData[Taxonomy]" \
     --output-path foo.qza
 
