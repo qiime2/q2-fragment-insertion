@@ -13,13 +13,13 @@ source:
 
 requirements:
   build:
-    - python 3.5*
+    - python {{ python }}
     - setuptools
     # TODO: Necessary?
     - java-jdk
 
   run:
-    - python 3.5*
+    - python
     - setuptools
     # TODO: Necessary?
     - java-jdk
@@ -31,6 +31,19 @@ test:
   imports:
     - q2_fragment_insertion
     - qiime2.plugins.fragment_insertion
+  files:
+    - ./input_fragments.fasta
+    - ./reference_alignment_tiny.fasta
+    - ./reference_phylogeny_tiny.nwk
+  commands:
+    # test with extra small reference files
+    - run-sepp.sh input_fragments.fasta testrun_tiny -a reference_alignment_tiny.fasta -t reference_phylogeny_tiny.nwk -x 1
+    - grep "f__Halomonadaceae" testrun_tiny_placement.tog.relabelled.tre
+    - grep "testseqd" testrun_tiny_placement.tog.relabelled.tre
+    # test if new Silva reference files are copied to the right location
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tre
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.info
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.fasta
 
 about:
   home: https://qiime2.org

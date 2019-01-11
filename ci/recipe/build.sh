@@ -4,9 +4,9 @@ set -e
 set -x
 
 # extract Silva reference files
-tar xjvf ../../vendor/sepp-refs/silva/sepp-package-silva.tar.bz sepp-package-silva/ref/
-tar xjvf ../../vendor/sepp-refs/silva/sepp-package-silva-2.tar.bz sepp-package-silva/ref/
-tar xjvf ../../vendor/sepp-refs/gg/sepp-package.tar.bz sepp-package/
+tar xjvf vendor/sepp-refs/silva/sepp-package-silva.tar.bz sepp-package-silva/ref/
+tar xjvf vendor/sepp-refs/silva/sepp-package-silva-2.tar.bz sepp-package-silva/ref/
+tar xjvf vendor/sepp-refs/gg/sepp-package.tar.bz sepp-package/
 # we have an indent error in one of the sepp python source files, which gets fixed here
 patch sepp-package/sepp/sepp/algorithm.py < indent.patch
 # # there seems to be an issue with condas otool parsing lib if binaries are not osx
@@ -21,9 +21,9 @@ patch sepp-package/run-sepp.sh < reloc.patch
 mkdir -p $PREFIX/share/
 mv sepp-package $PREFIX/share/fragment-insertion
 # configure SEPP
-cd $PREFIX/share/fragment-insertion/sepp/ && python setup.py config -c
+cd $PREFIX/share/fragment-insertion/sepp/ && python setup.py config -c ; cd -
 # move SEPP binary into PREFIX/bin and update reference location
 mkdir -p $PREFIX/bin/
-mv ../run-sepp.sh $PREFIX/bin
+mv $PREFIX/share/fragment-insertion/run-sepp.sh $PREFIX/bin
 cp `cat $PREFIX/share/fragment-insertion/sepp/.sepp/main.config | grep "^path" -m 1 | cut -d "=" -f 2 | xargs dirname`/* $PREFIX/bin/
 cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/ && make install
