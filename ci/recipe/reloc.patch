@@ -1,0 +1,11 @@
+--- run-sepp.sh	2018-06-19 14:19:06.000000000 -0700
++++ run-sepp.sh.reloc	2018-06-20 00:01:16.570464485 -0700
+@@ -107,7 +107,7 @@
+ done
+ 
+ 
+-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
++DIR=/opt/anaconda1anaconda2anaconda3/share/fragment-insertion/
+ 
+ # Reference tree
+ if [ -z $t ]; then

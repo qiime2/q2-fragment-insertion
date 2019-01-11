@@ -1,0 +1,3 @@
+[submodule "vendor/sepp-refs"]
+	path = vendor/sepp-refs
+	url = https://github.com/smirarab/sepp-refs.git

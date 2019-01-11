@@ -1,0 +1,69 @@
+package:
+  name: fragment-insertion
+  version: "4.3.5"
+
+source:
+  - git_url: https://github.com/smirarab/sepp-refs.git
+  - git_rev: 4.3.5
+  - md5: 0eb27cf575689635c779c07ac3156cc3
+  - path: reloc.patch
+  - path: indent.patch
+
+build:
+  number: 0
+  script:
+    # extract Silva reference files
+    - tar xjvf silva/sepp-package-silva.tar.bz sepp-package-silva/ref/
+    - tar xjvf silva/sepp-package-silva-2.tar.bz sepp-package-silva/ref/
+    # unpack SEPP package
+    - cd gg && tar xjvf sepp-package.tar.bz
+    # we have an indent error in one of the sepp python source files, which gets fixed here
+    - patch sepp-package/sepp/sepp/algorithm.py < ../indent.patch
+    # there seems to be an issue with condas otool parsing lib if binaries are not osx
+    # thus, I explicitly remove linux binaries here.
+    - rm -rf sepp-package/sepp/tools/bundled/Linux [osx]
+    # copy unpacked Silva references
+    - mv ../sepp-package-silva/ref/reference-99_otus_aligned_masked1977.fasta-rooted.tre sepp-package/ref/silva12.8_99otus_aligned_masked1977.tre
+    - mv ../sepp-package-silva/ref/RAxML_info.99_otus_aligned_masked1977.fasta           sepp-package/ref/silva12.8_99otus_aligned_masked1977.info
+    - mv ../sepp-package-silva/ref/99_otus_aligned_masked1977.fasta                      sepp-package/ref/silva12.8_99otus_aligned_masked1977.fasta
+    # change DIR in SEPP wrapper to be relocatable
+    - patch sepp-package/run-sepp.sh < ../reloc.patch
+    # move SEPP to PREFIX
+    - mkdir -p $PREFIX/share/
+    - mv sepp-package $PREFIX/share/fragment-insertion
+    # configure SEPP
+    - cd $PREFIX/share/fragment-insertion/sepp/ && python setup.py config -c
+    # move SEPP binary into PREFIX/bin and update reference location
+    - mkdir -p $PREFIX/bin/
+    - mv ../run-sepp.sh $PREFIX/bin
+    # copy bundled binaries into $PREFIX/bin/ to 
+    - cp `cat $PREFIX/share/fragment-insertion/sepp/.sepp/main.config | grep "^path" -m 1 | cut -d "=" -f 2 | xargs dirname`/* $PREFIX/bin/
+
+requirements:
+  build:
+    - python 3.5*
+    - setuptools
+    - java-jdk
+  run:
+    - python 3.5*
+    - setuptools
+    - java-jdk
+
+test:
+  files:
+    - ./input_fragments.fasta
+    - ./reference_alignment_tiny.fasta
+    - ./reference_phylogeny_tiny.nwk
+  commands:
+    # test with extra small reference files
+    - run-sepp.sh input_fragments.fasta testrun_tiny -a reference_alignment_tiny.fasta -t reference_phylogeny_tiny.nwk -x 1
+    - grep "f__Halomonadaceae" testrun_tiny_placement.tog.relabelled.tre
+    - grep "testseqd" testrun_tiny_placement.tog.relabelled.tre
+    # test if new Silva reference files are copied to the right location
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tre
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.info
+    - ls $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.fasta
+
+about:
+  summary: Insert Deblur fragments into GreenGenes phylogeny.
+  home: https://github.com/smirarab/sepp-refs
