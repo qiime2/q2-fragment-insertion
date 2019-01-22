@@ -22,4 +22,4 @@ install:
   - python setup.py install
 script:
   - make lint
-  - make test-cov
+  - make test
