@@ -137,26 +137,6 @@ Assume you have a collection of representative sequences as a multiple fasta fil
 
 The command will produce a new file with the name `reference-hit.seqs.qza`, which you can use as input `--i-representative-sequences` for the *fragment-insertion* plugin.
 
-## Create conda packages (Developers only)
-
-Obtain latest sources from this git repository:
-
-    git clone https://github.com/biocore/q2-fragment-insertion.git
-
-Move into newly cloned directory:
-
-    cd q2-fragment-insertion
-
-Execute the build command via a Makefile target:
-
-    make conda
-
-Upload the newly created conda package to biocore:
-
-    anaconda upload -u biocore q2-fragment-insertion-0.1.0-py35h3e8d850_1.tar.bz2
-
-Remember to do that for both, Linux and OSX.
-
 ## How to import taxonomy tables
 
 The plugin function `classify_otus-experimental` allows to pass in *reference taxonomic table* via argument `--i-reference-taxonomy`. You can import a tab-separated two-column table where first column is the OTU-ID and the second column is the ";" separated lineage string via the following command as an QIIME 2 artifact. Make sure your table does **not** contain a header line:

@@ -5,8 +5,6 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
-import pkg_resources
-
 from ._insertion import (sepp, classify_paths, classify_otus_experimental,
                          filter_features)
 from ._version import get_versions
