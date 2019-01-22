@@ -40,8 +40,8 @@ def _sepp_refs_path():
 
 
 def _reference_matches(reference_alignment:
-                       AlignedDNASequencesDirectoryFormat=None,
-                       reference_phylogeny: NewickFormat=None) -> bool:
+                       AlignedDNASequencesDirectoryFormat = None,
+                       reference_phylogeny: NewickFormat = None) -> bool:
     dir_sepp_ref = _sepp_refs_path()
 
     # no check neccessary when user does not provide specific references,
@@ -117,9 +117,9 @@ def _obtain_taxonomy(filename_tree: str,
 
 
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
-         reference_alignment: AlignedDNASequencesDirectoryFormat=None,
-         reference_phylogeny: NewickFormat=None,
-         debug: bool=False):
+         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
+         reference_phylogeny: NewickFormat = None,
+         debug: bool = False):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
@@ -150,12 +150,12 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
 # alignment subset could increase the running time with very little
 # improvement in the accuracy of results (Mirarab et al. 2012).
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
-         threads: int=1,
-         alignment_subset_size: int=1000,
-         placement_subset_size: int=5000,
-         reference_alignment: AlignedDNASequencesDirectoryFormat=None,
-         reference_phylogeny: NewickFormat=None,
-         debug: bool=False,
+         threads: int = 1,
+         alignment_subset_size: int = 1000,
+         placement_subset_size: int = 5000,
+         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
+         reference_phylogeny: NewickFormat = None,
+         debug: bool = False,
          ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
@@ -196,7 +196,7 @@ def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
 def classify_otus_experimental(
         representative_sequences: DNASequencesDirectoryFormat,
         tree: NewickFormat,
-        reference_taxonomy: pd.DataFrame=None) -> pd.DataFrame:
+        reference_taxonomy: pd.DataFrame = None) -> pd.DataFrame:
     if reference_taxonomy is None:
         filename_default_taxonomy = os.path.join(_sepp_refs_path(),
                                                  'taxonomy_gg99.qza')
