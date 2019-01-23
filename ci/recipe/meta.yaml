@@ -7,22 +7,21 @@ package:
   version: {{ version }}
 
 source:
-  path: ../..
-
-build:
-  script: cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/ && make install
+  - path: ../..
+  # Not using the built-in patching mechanism of conda-build, since we aren't
+  # actually patching q2-fragment-insertion, but rather sepp-refs.
+  - path: reloc.patch
+  - path: indent.patch
 
 requirements:
   build:
-    - python 3.5*
+    - python {{ python }}
     - setuptools
-    # Need this in build so that the ref path above exists
-    - fragment-insertion >=4.3.5
+    - java-jdk
 
   run:
-    - python 3.5*
-    - setuptools
-    - fragment-insertion >=4.3.5
+    - python {{ python }}
+    - java-jdk
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
