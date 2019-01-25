@@ -14,14 +14,14 @@ source:
   - path: indent.patch
 
 requirements:
-  build:
+  host:
     - python {{ python }}
     - setuptools
-    - java-jdk
+    - openjdk
 
   run:
     - python {{ python }}
-    - java-jdk
+    - openjdk
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
