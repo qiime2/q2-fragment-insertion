@@ -66,7 +66,7 @@ _parameter_descriptions = {
     ('Print additional run information to STDOUT for debugging. '
      'Run together with --verbose to actually see the information on STDOUT. '
      'Temporary directories will not be removed if run fails.')}
-    }
+
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
