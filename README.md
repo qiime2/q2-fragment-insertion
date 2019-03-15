@@ -146,6 +146,22 @@ The plugin function `classify_otus-experimental` allows to pass in *reference ta
     --type "FeatureData[Taxonomy]" \
     --output-path foo.qza
 
+## How to use alternative references, e.g. Silva 12.8
+
+Fragment insertion strives to insert short sequence fragments, like sOTU nucleotide sequences, into a given reference phylogeny which has been build from an according reference multiple sequence alignment. In order to do that, branch length of the phylogeny have been re-estimated via a specific RAxML run. More details about this process can be found in the [github repositiory](https://github.com/smirarab/sepp-refs) where all available references are collected, currently Greengenes 13.8 and Silva 12.8.
+Thus, you need to provide three input artifacts if you want to run `sepp` against a non-default (which is Greengenes 13.8) reference: 1) the phylogeny 2) the alignment and 3) the RAxMLinfo. It is your obligation to ensure those three artifacts match.
+The three artifacts for the Silva 12.8 reference are shipped with the conda package for the q2-fragment-insertion plugin and are deposited in the following directory: `$CONDA_PREFIX/share/q2-fragment-insertion/ref`, where `$CONDA_PREFIX` points to the actual file path on your system, assuming that you installed QIIME2 and q2-fragment-insertion via conda.
+
+You can place fragment of `rep-seqs.qza` into Silva 12.8 via the following command:
+
+    qiime fragment-insertion sepp \
+      --i-representative-sequences rep-seqs.qza \
+      --o-tree insertion-tree-silva.qza \
+      --o-placements insertion-placements.qza \
+      --i-reference-alignment $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
+      --i-reference-phylogeny $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
+      --i-reference-info $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
+
 ## How to cite
 
 If you use this plugin for any published research, please include the following citation:

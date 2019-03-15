@@ -15,8 +15,9 @@ from q2_types.feature_table import (FeatureTable, Frequency)
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
-from q2_fragment_insertion._type import Placements
-from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
+from q2_fragment_insertion._type import Placements, RAxMLinfo
+from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt,
+                                           RAxMLinfoFormat, RAxMLinfoDirFmt)
 
 
 citations = Citations.load('citations.bib', package='q2_fragment_insertion')
@@ -39,10 +40,13 @@ plugin = qiime2.plugin.Plugin(
 
 
 plugin.register_formats(PlacementsFormat, PlacementsDirFmt)
+plugin.register_formats(RAxMLinfoFormat, RAxMLinfoDirFmt)
 plugin.register_semantic_types(Placements)
+plugin.register_semantic_types(RAxMLinfo)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
-
+plugin.register_semantic_type_to_format(RAxMLinfo,
+                                        artifact_format=RAxMLinfoDirFmt)
 _parameter_descriptions = {
     'threads': 'The number of threads to use',
     'alignment_subset_size':
@@ -62,6 +66,7 @@ _parameter_descriptions = {
     ('Print additional run information to STDOUT for debugging. '
      'Run together with --verbose to actually see the information on STDOUT. '
      'Temporary directories will not be removed if run fails.')}
+    }
 
 _output_descriptions = {
     'tree': 'The tree with inserted feature data'}
@@ -82,7 +87,8 @@ plugin.methods.register_function(
     function=q2fi.sepp,
     inputs={'representative_sequences': FeatureData[Sequence],
             'reference_alignment': FeatureData[AlignedSequence],
-            'reference_phylogeny': Phylogeny[Rooted]},
+            'reference_phylogeny': Phylogeny[Rooted],
+            'reference_info': RAxMLinfo},
     parameters=_parameters,
     outputs=_outputs,
     input_descriptions={
@@ -93,7 +99,13 @@ plugin.methods.register_function(
         'reference_phylogeny':
         ('The rooted reference phylogeny. Must be in sync '
          'with reference-alignment, i.e. each tip name must'
-         ' have exactly one corresponding record.')},
+         ' have exactly one corresponding record.'),
+        'reference_info':
+        ('The RAxMLinfo that stores model specific information about the '
+         'reference phylogeny built from the reference alignment. This '
+         'information is used by sepp to correctly estimate branch length for '
+         'newly placed tipps into the reference phylogeny. By default, it '
+         'uses a RAxMLinfo about the Greengenes 13.8 reference.')},
     parameter_descriptions=_parameter_descriptions,
     output_descriptions=_output_descriptions,
     name=('Insert fragment sequences using SEPP into reference phylogenies '
