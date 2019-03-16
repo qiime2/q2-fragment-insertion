@@ -120,7 +120,7 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
          reference_alignment: AlignedDNASequencesDirectoryFormat = None,
          reference_phylogeny: NewickFormat = None,
          debug: bool = False,
-         reference_info: RAxMLinfoFormat=None):
+         reference_info: RAxMLinfoFormat = None):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
@@ -158,7 +158,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          placement_subset_size: int = 5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat = None,
          reference_phylogeny: NewickFormat = None,
-         reference_info: RAxMLinfoFormat=None,
+         reference_info: RAxMLinfoFormat = None,
          debug: bool = False
          ) -> (NewickFormat, PlacementsFormat):
 
