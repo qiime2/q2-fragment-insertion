@@ -8,10 +8,6 @@ package:
 
 source:
   - path: ../..
-  # Not using the built-in patching mechanism of conda-build, since we aren't
-  # actually patching q2-fragment-insertion, but rather sepp-refs.
-  - path: reloc.patch
-  - path: indent.patch
 
 requirements:
   host:
@@ -25,6 +21,7 @@ requirements:
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
+    - sepp
 
 test:
   imports:
