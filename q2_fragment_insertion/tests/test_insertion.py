@@ -14,6 +14,7 @@ from io import StringIO
 from contextlib import redirect_stderr
 from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental,
                                               filter_features)
+from q2_fragment_insertion._format import RAxMLinfoDirFmt
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -39,10 +40,15 @@ class TestSepp(TestPluginBase):
             'reference_alignment_small.qza'))
         ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
 
+        ar_refinfo = Artifact.load(self.get_data_path(
+            'RAxML_info-reference-gg-raxml-bl.info.qza'))
+        ref_info = ar_refinfo.view(RAxMLinfoDirFmt)
+
         obs_tree, obs_placements = sepp(
             view,
             reference_alignment=ref_aln_small,
-            reference_phylogeny=ref_phylo_small)
+            reference_phylogeny=ref_phylo_small,
+            reference_info=ref_info)
 
         tree = skbio.TreeNode.read(str(obs_tree))
         obs = {n.name for n in tree.tips()}

@@ -25,7 +25,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
 from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
-from q2_fragment_insertion._format import PlacementsFormat
+from q2_fragment_insertion._format import PlacementsFormat, RAxMLinfoFormat
 
 
 def _sanity():
@@ -119,7 +119,8 @@ def _obtain_taxonomy(filename_tree: str,
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
          reference_alignment: AlignedDNASequencesDirectoryFormat = None,
          reference_phylogeny: NewickFormat = None,
-         debug: bool = False):
+         debug: bool = False,
+         reference_info: RAxMLinfoFormat = None):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
@@ -133,6 +134,8 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
         cmd.extend(['-t', str(reference_phylogeny)])
     if debug:
         cmd.extend(['-b', '1'])
+    if reference_info is not None:
+        cmd.extend(['-r', str(reference_info)])
 
     subprocess.run(cmd, check=True, cwd=cwd)
 
@@ -155,7 +158,8 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          placement_subset_size: int = 5000,
          reference_alignment: AlignedDNASequencesDirectoryFormat = None,
          reference_phylogeny: NewickFormat = None,
-         debug: bool = False,
+         reference_info: RAxMLinfoFormat = None,
+         debug: bool = False
          ) -> (NewickFormat, PlacementsFormat):
 
     _sanity()
@@ -165,6 +169,12 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
             ('Reference alignment and phylogeny do not match up. Please ensure'
              ' that all sequences in the alignment correspond to exactly one '
              'tip name in the phylogeny.'))
+    if (reference_info is None):
+        if reference_alignment is not None or reference_phylogeny is not None:
+            print(("You specified a non-default reference alignment and/or "
+                   "tree, but did not provide an alternative reference info "
+                   "file (RAxML model information). This might lead to pplacer"
+                   " errors."))
 
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
@@ -176,7 +186,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
              str(alignment_subset_size), str(placement_subset_size),
-             reference_alignment, reference_phylogeny, debug)
+             reference_alignment, reference_phylogeny, reference_info, debug)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 
