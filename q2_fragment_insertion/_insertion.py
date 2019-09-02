@@ -186,7 +186,7 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
              str(alignment_subset_size), str(placement_subset_size),
-             reference_alignment, reference_phylogeny, reference_info, debug)
+             reference_alignment, reference_phylogeny, debug, reference_info)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 
