@@ -4,19 +4,9 @@ set -e
 set -x
 
 # extract Greengenes 13.8 reference files
-<<<<<<< HEAD
 tar xjvf vendor/sepp-refs/gg/sepp-package.tar.bz sepp-package/ref/
 rm -f sepp-package/ref/reference-gg-raxml-bl.tre
 rm -f sepp-package/ref/reference-gg-raxml-bl-rooted.tre
-=======
-tar xjvf vendor/sepp-refs/gg/sepp-package.tar.bz sepp-package-gg/ref/
-
-mkdir -p sepp-package/ref/
-mv sepp-package-gg/ref/99_otu_taxonomy.txt                         sepp-package/ref/
-mv sepp-package-gg/ref/gg_13_5_ssu_align_99_pfiltered.fasta        sepp-package/ref/
-mv sepp-package-gg/ref/RAxML_info-reference-gg-raxml-bl.info       sepp-package/ref/
-mv sepp-package-gg/ref/reference-gg-raxml-bl-rooted-relabelled.tre sepp-package/ref/
->>>>>>> 50b64428c7fad6a41e7b128b28b8830945ceb039
 
 # extract Silva reference files
 tar xjvf vendor/sepp-refs/silva/sepp-package-silva.tar.bz sepp-package-silva/ref/
