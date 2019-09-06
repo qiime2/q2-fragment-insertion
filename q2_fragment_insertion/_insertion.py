@@ -7,7 +7,6 @@
 # ----------------------------------------------------------------------------
 
 import os
-import sys
 import shutil
 import tempfile
 import subprocess
@@ -22,7 +21,6 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    AlignedDNASequencesDirectoryFormat,
                                    AlignedDNAIterator,
                                    AlignedDNAFASTAFormat)
-from qiime2.sdk import Artifact
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat
@@ -33,42 +31,18 @@ def _sanity():
         raise ValueError("java does not appear in $PATH")
 
 
-def _sepp_refs_path():
-    return os.path.join(
-        os.path.split(os.path.split(shutil.which('run-sepp.sh'))[0])[0],
-        'share', 'fragment-insertion', 'ref')
-
-
-def _reference_matches(reference_alignment:
-                       AlignedDNASequencesDirectoryFormat = None,
-                       reference_phylogeny: NewickFormat = None) -> bool:
-    dir_sepp_ref = _sepp_refs_path()
-
+def _reference_matches(reference_alignment: AlignedDNASequencesDirectoryFormat,
+                       reference_phylogeny: NewickFormat) -> bool:
     # no check neccessary when user does not provide specific references,
     # because we assume that the default reference matches.
     if (reference_alignment is None) and (reference_phylogeny is None):
         return True
 
-    # if only phylogeny is provided by the user, load default alignment
-    if reference_alignment is None:
-        filename_alignment = os.path.join(
-            dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta')
-        ids_alignment = {
-            row.metadata['id']
-            for row in skbio.alignment.TabularMSA.read(
-                filename_alignment,
-                format='fasta', constructor=skbio.sequence.DNA)}
-    else:
-        ids_alignment = {
-            row.metadata['id']
-            for row in reference_alignment.file.view(AlignedDNAIterator)}
+    ids_alignment = {
+        row.metadata['id']
+        for row in reference_alignment.file.view(AlignedDNAIterator)}
 
-    # if only alignment is provided by the user, load default phylogeny
-    if reference_phylogeny is None:
-        filename_phylogeny = os.path.join(
-            dir_sepp_ref, 'reference-gg-raxml-bl-rooted-relabelled.tre')
-    else:
-        filename_phylogeny = str(reference_phylogeny)
+    filename_phylogeny = str(reference_phylogeny)
     ids_tips = {node.name
                 for node in skbio.TreeNode.read(filename_phylogeny).tips()}
 
@@ -117,44 +91,29 @@ def _obtain_taxonomy(filename_tree: str,
 
 
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
-         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
-         reference_phylogeny: NewickFormat = None,
+         reference_alignment: AlignedDNASequencesDirectoryFormat,
+         reference_phylogeny: NewickFormat,
          debug: bool = False):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads),
            '-A', str(alignment_subset_size),
-           '-P', str(placement_subset_size)]
-    if reference_alignment is not None:
-        cmd.extend([
-            '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
-    if reference_phylogeny is not None:
-        cmd.extend(['-t', str(reference_phylogeny)])
+           '-P', str(placement_subset_size),
+           '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat)),
+           '-t', str(reference_phylogeny)]
     if debug:
         cmd.extend(['-b', '1'])
 
     subprocess.run(cmd, check=True, cwd=cwd)
 
 
-# For future devs: Choice of default values for alignment_subset_size and
-# placement_subset_size was done by Siavash Mirarab (the developer of SEPP).
-# His justification is as follows:
-# SEPP has two main parameters. In the default version used for Greengenes and
-# incorporated into QIIME2, the reference tree is divided into 62 "placement"
-# subsets, each with at most 5000 leaves, and each placement subset is further
-# divided into alignment subsets of at most 1000 leaves to build the HMM
-# ensamples (292 alignment subsets in total). These choices are driven by
-# computational constraints; increasing the placement subset size (which is in
-# theory desirable) puts a high burden on the memory, and reducing the
-# alignment subset could increase the running time with very little
-# improvement in the accuracy of results (Mirarab et al. 2012).
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
+         reference_alignment: AlignedDNASequencesDirectoryFormat,
+         reference_phylogeny: NewickFormat,
+         alignment_subset_size: int,
+         placement_subset_size: int,
          threads: int = 1,
-         alignment_subset_size: int = 1000,
-         placement_subset_size: int = 5000,
-         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
-         reference_phylogeny: NewickFormat = None,
          debug: bool = False,
          ) -> (NewickFormat, PlacementsFormat):
 
@@ -196,12 +155,7 @@ def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
 def classify_otus_experimental(
         representative_sequences: DNASequencesDirectoryFormat,
         tree: NewickFormat,
-        reference_taxonomy: pd.DataFrame = None) -> pd.DataFrame:
-    if reference_taxonomy is None:
-        filename_default_taxonomy = os.path.join(_sepp_refs_path(),
-                                                 'taxonomy_gg99.qza')
-        reference_taxonomy = Artifact.load(
-            filename_default_taxonomy).view(pd.DataFrame)
+        reference_taxonomy: pd.DataFrame) -> pd.DataFrame:
 
     # convert type of feature IDs to str (depending on pandas type inference
     # they might come as integers), to make sure they are of the same type as
@@ -220,14 +174,11 @@ def classify_otus_experimental(
     missing_features = (names_tips - names_fragments) -\
         set(reference_taxonomy.index)
     if len(missing_features) > 0:
-        # QIIME2 users can run with --verbose and see stderr and stdout.
-        # Thus, we here report more details about the mismatch:
-        sys.stderr.write(
-            ("The taxonomy artifact you provided does not contain lineage "
-             "information for the following %i features:\n%s") %
-            (len(missing_features), "\n".join(missing_features)))
         raise ValueError("Not all OTUs in the provided insertion tree have "
-                         "mappings in the provided reference taxonomy.")
+                         "mappings in the provided reference taxonomy. "
+                         "Taxonomy missing for the following %i feature(s):"
+                         "\n%s" % (len(missing_features),
+                                   "\n".join(missing_features)))
 
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):

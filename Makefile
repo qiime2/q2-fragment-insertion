@@ -7,7 +7,7 @@ lint:
 	flake8
 
 test: all
-	nosetests
+	py.test
 
 install: all
 	python setup.py install

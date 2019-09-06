@@ -47,20 +47,17 @@ _parameter_descriptions = {
     'threads': 'The number of threads to use',
     'alignment_subset_size':
     ('Each placement subset is further broken into subsets of at most these '
-     'many sequences and a separate HMM is trained on each subset. The '
-     'default alignment subset size is set to balance the exhaustiveness of '
-     'the alignment step with the running time.'),
+     'many sequences and a separate HMM is trained on each subset. If using '
+     'Greengenes, the recommended value is `1000`.'),
     'placement_subset_size':
     ('The tree is divided into subsets such that each subset includes at most '
      'these many subsets. The placement step places the fragment on only one '
-     'subset, determined based on alignment scores. The default placement '
-     'subset is set to make sure the memory requirement of the pplacer step '
-     'does not become prohibitively large.\nFurther reading: '
+     'subset, determined based on alignment scores. If using Greengenes, the '
+     'recomended value is `5000`.\nFurther reading: '
      'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
      '#sample-datasets-default-parameters'),
     'debug':
     ('Print additional run information to STDOUT for debugging. '
-     'Run together with --verbose to actually see the information on STDOUT. '
      'Temporary directories will not be removed if run fails.')}
 
 _output_descriptions = {
@@ -102,32 +99,6 @@ plugin.methods.register_function(
                  'algorithm against the Greengenes 13_8 99% tree.'),
     citations=[citations['SEPP']]
 )
-
-
-# plugin.methods.register_function(
-#     function=q2fi.classify_paths,
-#     inputs={'representative_sequences': FeatureData[Sequence],
-#             'tree': Phylogeny[Rooted]},
-#     input_descriptions={
-#         'representative_sequences':
-#         "The sequences used for a \'sepp\' run to produce the \'tree\'.",
-#         'tree':
-#         ('The tree resulting from inserting fragments into a reference '
-#          'phylogeny, i.e. the output of function \'sepp\'')},
-#     parameters={},
-#     parameter_descriptions={},
-#     outputs=[('classification', FeatureData[Taxonomy])],
-#     output_descriptions={
-#         'classification': 'Taxonomic lineages for inserted fragments.'},
-#     name=('Obtain taxonomic lineages, by collecting taxonomic labels from '
-#           'reference phylogeny.'),
-#     description=(
-#         ('Use the resulting tree from \'sepp\' and traverse it bottom-up to '
-#          'obtain taxonomic lineages for every inserted fragment. Only works '
-#          'for Greengenes lines labels, i.e. they need to contain "__" '
-#          'infixes. Quality strongly depends on correct placements of'
-#          'taxonomic labels in the provided reference phylogeny.'))
-# )
 
 
 plugin.methods.register_function(
