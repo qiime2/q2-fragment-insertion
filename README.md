@@ -158,9 +158,9 @@ You can place fragment of `rep-seqs.qza` into Silva 12.8 via the following comma
       --i-representative-sequences rep-seqs.qza \
       --o-tree insertion-tree-silva.qza \
       --o-placements insertion-placements.qza \
-      --i-reference-alignment $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.alignment.qza
-      --i-reference-phylogeny $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.tree.qza
-      --i-reference-info $CONDA_PREFIX/share/q2-fragment-insertion/ref/silva12.8.raxmlinfo.qza
+      --i-reference-alignment $CONDA_PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.msa.qza
+      --i-reference-phylogeny $CONDA_PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tree.qza
+      --i-reference-info $CONDA_PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.info.qza
 
 ## How to cite
 
