@@ -3,25 +3,19 @@
 set -e
 set -x
 
-# extract Greengenes 13.8 reference files
-tar xjvf vendor/sepp-refs/gg/sepp-package.tar.bz sepp-package/ref/
-rm -f sepp-package/ref/reference-gg-raxml-bl.tre
-rm -f sepp-package/ref/reference-gg-raxml-bl-rooted.tre
+# create share directory
+mkdir -p $PREFIX/share/fragment-insertion/ref/
 
-# extract Silva reference files
-tar xjvf vendor/sepp-refs/silva/sepp-package-silva.tar.bz sepp-package-silva/ref/
-tar xjvf vendor/sepp-refs/silva/sepp-package-silva-2.tar.bz sepp-package-silva/ref/
+# create soft link for Greengenes 13.8 reference files
+ln -s $PREFIX/share/sepp/ref/99_otu_taxonomy.txt $PREFIX/share/fragment-insertion/ref/
+ln -s $PREFIX/share/sepp/ref/gg_13_5_ssu_align_99_pfiltered.fasta $PREFIX/share/fragment-insertion/ref/
+ln -s $PREFIX/share/sepp/ref/RAxML_info-reference-gg-raxml-bl.info $PREFIX/share/fragment-insertion/ref/
+ln -s $PREFIX/share/sepp/ref/reference-gg-raxml-bl-rooted-relabelled.tre $PREFIX/share/fragment-insertion/ref/
 
 # convert non-default Silva reference into qiime2 artifacts
-qiime tools import --type "Phylogeny[Rooted]"            --input-path sepp-package-silva/ref/reference-99_otus_aligned_masked1977.fasta-rooted.tre --output-path sepp-package/ref/silva12.8_99otus_aligned_masked1977.tree.qza
-qiime tools import --type "FeatureData[AlignedSequence]" --input-path sepp-package-silva/ref/99_otus_aligned_masked1977.fasta                      --output-path sepp-package/ref/silva12.8_99otus_aligned_masked1977.msa.qza
-# need to merge Silve PR first
-# qiime tools import --type "RAxMLinfoFormat"              --input-path sepp-package-silva/ref/RAxML_info.99_otus_aligned_masked1977.fasta           --output-path sepp-package/ref/silva12.8_99otus_aligned_masked1977.info.qza
+qiime tools import --type "Phylogeny[Rooted]"            --input-path $PREFIX/share/sepp/ref/reference-99_otus_aligned_masked1977.fasta-rooted.tre --output-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.tree.qza
+qiime tools import --type "FeatureData[AlignedSequence]" --input-path $PREFIX/share/sepp/ref/99_otus_aligned_masked1977.fasta                      --output-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.msa.qza
+qiime tools import --type "RAxMLinfoFormat"              --input-path $PREFIX/share/sepp/ref/RAxML_info.99_otus_aligned_masked1977.fasta           --output-path $PREFIX/share/fragment-insertion/ref/silva12.8_99otus_aligned_masked1977.info.qza
 
 # move reference files into correct conda directory
-mkdir -p $PREFIX/share/fragment-insertion/ref/
-mv sepp-package/ref/ $PREFIX/share/fragment-insertion/ref/
 cp taxonomy_gg99.qza $PREFIX/share/fragment-insertion/ref/
-
-# clean up
-rm -rf sepp-package-silva/ref/

@@ -14,6 +14,7 @@ requirements:
     - python {{ python }}
     - setuptools
     - openjdk
+    - sepp-refsilva128
 
   run:
     - python {{ python }}
@@ -22,6 +23,7 @@ requirements:
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
     - sepp
+    - sepp-refgg138
 
 test:
   imports:
