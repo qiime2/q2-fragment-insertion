@@ -60,7 +60,7 @@ class TestSepp(TestPluginBase):
 
         with self.assertRaisesRegex(ValueError, 'Reference.*do not match'):
             self.action(self.input_sequences, self.reference_align, tree,
-            alignment_subset_size=1000, placement_subset_size=5000)
+                        alignment_subset_size=1000, placement_subset_size=5000)
 
 
 class TestClassify(TestPluginBase):
