@@ -15,8 +15,9 @@ from q2_types.feature_table import (FeatureTable, Frequency)
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion as q2fi
-from q2_fragment_insertion._type import Placements
-from q2_fragment_insertion._format import (PlacementsFormat, PlacementsDirFmt)
+from q2_fragment_insertion._type import Placements, SeppReferenceDatabase
+from q2_fragment_insertion._format import (
+    PlacementsFormat, PlacementsDirFmt, SeppReferenceFormat, RAxMLinfoFormat)
 
 
 citations = Citations.load('citations.bib', package='q2_fragment_insertion')
@@ -26,8 +27,7 @@ plugin = qiime2.plugin.Plugin(
     website='https://github.com/biocore/q2-fragment-insertion',
     short_description='Plugin for extending phylogenies.',
     package='q2_fragment_insertion',
-    user_support_text=('https://github.com/biocore/'
-                       'q2-fragment-insertion/issues'),
+    user_support_text='https://github.com/qiime2/q2-fragment-insertion/issues',
     citation_text=('Stefan Janssen, Daniel McDonald, Antonio Gonzalez, '
                    'Jose A. Navas-Molina, Lingjing Jiang, '
                    'Zhenjiang Zech Xu, Kevin Winker, Deborah M. Kado, '
@@ -38,22 +38,24 @@ plugin = qiime2.plugin.Plugin(
 )
 
 
-plugin.register_formats(PlacementsFormat, PlacementsDirFmt)
-plugin.register_semantic_types(Placements)
+plugin.register_formats(PlacementsFormat, PlacementsDirFmt, RAxMLinfoFormat,
+                        SeppReferenceFormat)
+plugin.register_semantic_types(Placements, SeppReferenceDatabase)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
+plugin.register_semantic_type_to_format(SeppReferenceDatabase,
+                                        artifact_format=SeppReferenceFormat)
+
 
 _parameter_descriptions = {
     'threads': 'The number of threads to use',
     'alignment_subset_size':
     ('Each placement subset is further broken into subsets of at most these '
-     'many sequences and a separate HMM is trained on each subset. If using '
-     'Greengenes, the recommended value is `1000`.'),
+     'many sequences and a separate HMM is trained on each subset.'),
     'placement_subset_size':
     ('The tree is divided into subsets such that each subset includes at most '
      'these many subsets. The placement step places the fragment on only one '
-     'subset, determined based on alignment scores. If using Greengenes, the '
-     'recomended value is `5000`.\nFurther reading: '
+     'subset, determined based on alignment scores.\nFurther reading: '
      'https://github.com/smirarab/sepp/blob/master/tutorial/sepp-tutorial.md'
      '#sample-datasets-default-parameters'),
     'debug':
