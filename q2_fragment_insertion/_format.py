@@ -10,7 +10,6 @@ import re
 
 import qiime2.plugin.model as model
 
-
 from q2_types.feature_data import AlignedDNAFASTAFormat
 from q2_types.tree import NewickFormat
 
