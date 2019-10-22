@@ -28,7 +28,6 @@ class TestSepp(TestPluginBase):
         shutil.copy(self.get_data_path(frm),
                     os.path.join(self.temp_dir.name, to))
 
-
     def setUp(self):
         super().setUp()
         self.action = self.plugin.actions['sepp']
@@ -62,12 +61,6 @@ class TestSepp(TestPluginBase):
 
     # TODO: cover this in fmt validation tests
     # def test_ref_mismatch(self):
-    #     tree_fp = self.get_data_path('another-ref-tree.nwk')
-    #     tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
-    #     with self.assertRaisesRegex(ValueError, 'Reference.*do not match'):
-    #         self.action(self.input_sequences, self.reference_db, tree,
-    #                     alignment_subset_size=1000, placement_subset_size=5000)
 
 
 class TestClassify(TestPluginBase):

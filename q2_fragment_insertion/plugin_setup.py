@@ -9,9 +9,8 @@ import importlib
 
 import qiime2.plugin
 from qiime2.plugin import Citations
-from q2_types.feature_data import (FeatureData, Sequence, AlignedSequence,
-                                   Taxonomy)
-from q2_types.feature_table import (FeatureTable, Frequency)
+from q2_types.feature_data import FeatureData, Sequence, Taxonomy
+from q2_types.feature_table import FeatureTable, Frequency
 from q2_types.tree import Phylogeny, Rooted
 
 import q2_fragment_insertion

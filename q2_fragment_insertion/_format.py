@@ -6,8 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import re
-
 import qiime2.plugin.model as model
 
 from q2_types.feature_data import AlignedDNAFASTAFormat

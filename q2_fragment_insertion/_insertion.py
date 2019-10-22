@@ -17,32 +17,10 @@ import pandas as pd
 import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
-                                   DNAIterator,
-                                   AlignedDNASequencesDirectoryFormat,
-                                   AlignedDNAIterator,
-                                   AlignedDNAFASTAFormat)
+                                   DNAIterator)
 from q2_types.tree import NewickFormat
 
 from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceFormat
-
-
-def _reference_matches(reference_alignment: AlignedDNASequencesDirectoryFormat,
-                       reference_phylogeny: NewickFormat) -> bool:
-    # no check neccessary when user does not provide specific references,
-    # because we assume that the default reference matches.
-    if (reference_alignment is None) and (reference_phylogeny is None):
-        return True
-
-    ids_alignment = {
-        row.metadata['id']
-        for row in reference_alignment.file.view(AlignedDNAIterator)}
-
-    filename_phylogeny = str(reference_phylogeny)
-    ids_tips = {node.name
-                for node in skbio.TreeNode.read(filename_phylogeny).tips()}
-
-    # both id sets need to match
-    return ids_alignment == ids_tips
 
 
 def _add_missing_branch_length(filename_tree):
