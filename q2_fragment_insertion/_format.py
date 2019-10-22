@@ -29,6 +29,7 @@ class PlacementsFormat(model.TextFileFormat):
                 if prefix.startswith('placements') \
                         or prefix.startswith('tree'):
                     continue
+                # TODO: probably need to restrict this to root-level keys
                 if event == 'map_key':
                     keys_found.add(value)
 
