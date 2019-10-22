@@ -25,7 +25,8 @@ PlacementsDirFmt = model.SingleFileDirectoryFormat(
 
 # TODO: Format tests
 class RAxMLinfoFormat(model.TextFileFormat):
-    # TODO https://github.com/smirarab/sepp/blob/master/sepp-package/buildref/reformat-info.py
+    # TODO https://github.com/smirarab/sepp/blob/master/sepp-package/buildref/
+    # reformat-info.py
     def _validate_(self, level):
         pass
 

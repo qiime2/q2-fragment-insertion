@@ -23,44 +23,15 @@ from q2_types.tree import NewickFormat
 from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceFormat
 
 
-def _add_missing_branch_length(filename_tree):
-    """Beta-diversity computation with Qiime2 requires every branch to have a
-       length, which is not necessarily true for SEPP produced insertion trees.
-       Thus we add zero branch length information for branches without an
-       explicit length."""
-
-    tree = skbio.TreeNode.read(filename_tree)
+# Beta-diversity computation often requires every branch to have a length,
+# which is not necessarily true for SEPP produced insertion trees. We add zero
+# branch length information for branches without an explicit length.
+def _add_missing_branch_length(tree_fp):
+    tree = skbio.TreeNode.read(tree_fp)
     for node in tree.preorder():
         if node.length is None:
             node.length = 0
-    tree.write(filename_tree)
-
-
-def _obtain_taxonomy(filename_tree: str,
-                     representative_sequences:
-                     DNASequencesDirectoryFormat) -> pd.DataFrame:
-    """Buttom up traverse tree for nodes that are inserted fragments and
-       collect taxonomic labels upon traversal."""
-    tree = skbio.TreeNode.read(str(filename_tree))
-    taxonomy = []
-    for fragment in representative_sequences.file.view(DNAIterator):
-        lineage = []
-        try:
-            for ancestor in tree.find(fragment.metadata['id']).ancestors():
-                if (ancestor.name is not None) and ('__' in ancestor.name):
-                    lineage.append(ancestor.name)
-            lineage_str = '; '.join(reversed(lineage))
-        except skbio.tree.MissingNodeError:
-            lineage_str = np.nan
-        taxonomy.append({'Feature ID': fragment.metadata['id'],
-                         'Taxon': lineage_str})
-    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
-    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
-        raise ValueError(
-            ("None of the representative-sequences can be found in the "
-             "insertion tree. Please double check that both inputs match up, "
-             "i.e. are results from the same 'sepp' run."))
-    return pd_taxonomy
+    tree.write(tree_fp)
 
 
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
@@ -117,7 +88,28 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
 
 def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
                    tree: NewickFormat) -> pd.DataFrame:
-    return _obtain_taxonomy(str(tree), representative_sequences)
+    # Traverse trees from bottom-up for nodes that are inserted fragments and
+    # collect taxonomic labels upon traversal.
+    tree = skbio.TreeNode.read(str(tree))
+    taxonomy = []
+    for fragment in representative_sequences.file.view(DNAIterator):
+        lineage = []
+        try:
+            for ancestor in tree.find(fragment.metadata['id']).ancestors():
+                if (ancestor.name is not None) and ('__' in ancestor.name):
+                    lineage.append(ancestor.name)
+            lineage_str = '; '.join(reversed(lineage))
+        except skbio.tree.MissingNodeError:
+            lineage_str = np.nan
+        taxonomy.append({'Feature ID': fragment.metadata['id'],
+                         'Taxon': lineage_str})
+    pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
+    if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
+        raise ValueError(
+            ('None of the representative-sequences can be found in the '
+             'insertion tree. Please double check that both inputs match up, '
+             'i.e. are results from the same \'sepp\' run.'))
+    return pd_taxonomy
 
 
 def classify_otus_experimental(
