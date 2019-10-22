@@ -25,6 +25,7 @@ requirements:
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
     - sepp
+    - ijson
 
 test:
   imports:

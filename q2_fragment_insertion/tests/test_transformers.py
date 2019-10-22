@@ -11,6 +11,7 @@ import pathlib
 from q2_fragment_insertion._format import PlacementsFormat
 
 from qiime2.plugin.testing import TestPluginBase
+from qiime2.plugin import ValidationError
 
 
 class TestTransformers(TestPluginBase):
@@ -21,8 +22,10 @@ class TestTransformers(TestPluginBase):
 
         obs = transformer({'foo': 1})
 
-        obs.validate(level='max')
-        self.assertTrue(True)
+        with self.assertRaisesRegex(ValidationError, 'found {\'foo\'}'):
+            # A bit of a cop-out, but this means we were able to parse the
+            # JSON document.
+            obs.validate(level='max')
 
     def test_placements_format_to_dict(self):
         transformer = self.get_transformer(PlacementsFormat, dict)
@@ -31,7 +34,10 @@ class TestTransformers(TestPluginBase):
         fp.write_text('{"foo": 1}')
 
         input_ = PlacementsFormat(str(fp), mode='r')
-        input_.validate()
+        with self.assertRaisesRegex(ValidationError, 'found {\'foo\'}'):
+            # A bit of a cop-out, but this means we were able to parse the
+            # JSON document.
+            input_.validate(level='max')
 
         obs = transformer(input_)
         self.assertEqual(obs, {'foo': 1})

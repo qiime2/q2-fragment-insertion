@@ -6,7 +6,10 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import ijson
+
 import qiime2.plugin.model as model
+from qiime2.plugin import ValidationError
 
 from q2_types.feature_data import AlignedDNAFASTAFormat
 from q2_types.tree import NewickFormat
@@ -14,10 +17,24 @@ from q2_types.tree import NewickFormat
 
 # TODO: Format tests
 class PlacementsFormat(model.TextFileFormat):
-    # TODO
-    def _validate_(self, level):
-        pass
+    fields = {'tree', 'placements', 'metadata', 'invocation',
+              'version', 'fields'}
 
+    def _validate_(self, level):
+        keys_found = set()
+
+        # Can't self.open(mode='rb'), so we defer to the backing pathlib object
+        with self.path.open(mode='rb') as fh:
+            for prefix, event, value in ijson.parse(fh):
+                if prefix.startswith('placements') \
+                        or prefix.startswith('tree'):
+                    continue
+                if event == 'map_key':
+                    keys_found.add(value)
+
+        if keys_found != self.fields:
+            raise ValidationError('Expected the following fields: %s, found '
+                                  '%s.' % (self.fields, keys_found))
 
 PlacementsDirFmt = model.SingleFileDirectoryFormat(
     'PlacementsDirFmt', 'placements.json', PlacementsFormat)
