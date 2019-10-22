@@ -12,9 +12,6 @@ from .plugin_setup import plugin
 from ._format import PlacementsFormat
 
 
-# TODO: tests
-
-
 @plugin.register_transformer
 def _1(data: dict) -> PlacementsFormat:
     ff = PlacementsFormat()
