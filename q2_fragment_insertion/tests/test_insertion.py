@@ -6,20 +6,28 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import os.path
+import shutil
 import unittest
-
-from qiime2.sdk import Artifact
-from qiime2.plugin.testing import TestPluginBase
 
 import biom
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
+
+from qiime2.sdk import Artifact
+from qiime2.plugin.testing import TestPluginBase
+
 from q2_types.feature_data import DNAIterator
 
 
 class TestSepp(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
+
+    def _cp_fp(self, frm, to):
+        shutil.copy(self.get_data_path(frm),
+                    os.path.join(self.temp_dir.name, to))
+
 
     def setUp(self):
         super().setUp()
@@ -29,19 +37,17 @@ class TestSepp(TestPluginBase):
         self.input_sequences = Artifact.import_data('FeatureData[Sequence]',
                                                     input_sequences_fp)
 
-        ref_tree_fp = self.get_data_path('ref-tree.nwk')
-        self.reference_tree = Artifact.import_data('Phylogeny[Rooted]',
-                                                   ref_tree_fp)
+        self._cp_fp('ref-tree.nwk', 'tree.nwk')
+        self._cp_fp('ref-seqs-aligned.fasta', 'aligned-dna-sequences.fasta')
+        self._cp_fp('ref-raxml-info.txt', 'raxml-info.txt')
 
-        ref_align_fp = self.get_data_path('ref-seqs-aligned.fasta')
-        self.reference_align = Artifact.import_data(
-            'FeatureData[AlignedSequence]', ref_align_fp)
+        self.reference_db = Artifact.import_data('SeppReferenceDatabase',
+                                                 self.temp_dir.name)
 
     def test_exercise_sepp(self):
         obs_tree_artifact, obs_placements_artifact = self.action(
-            self.input_sequences, self.reference_align,
-            self.reference_tree, alignment_subset_size=1000,
-            placement_subset_size=5000)
+            self.input_sequences, self.reference_db,
+            alignment_subset_size=1000, placement_subset_size=5000)
 
         tree = obs_tree_artifact.view(skbio.TreeNode)
         obs_tree = {n.name for n in tree.tips()}
@@ -54,13 +60,14 @@ class TestSepp(TestPluginBase):
                          {'tree', 'placements', 'metadata', 'version',
                           'fields'})
 
-    def test_ref_mismatch(self):
-        tree_fp = self.get_data_path('another-ref-tree.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
+    # TODO: cover this in fmt validation tests
+    # def test_ref_mismatch(self):
+    #     tree_fp = self.get_data_path('another-ref-tree.nwk')
+    #     tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        with self.assertRaisesRegex(ValueError, 'Reference.*do not match'):
-            self.action(self.input_sequences, self.reference_align, tree,
-                        alignment_subset_size=1000, placement_subset_size=5000)
+    #     with self.assertRaisesRegex(ValueError, 'Reference.*do not match'):
+    #         self.action(self.input_sequences, self.reference_db, tree,
+    #                     alignment_subset_size=1000, placement_subset_size=5000)
 
 
 class TestClassify(TestPluginBase):

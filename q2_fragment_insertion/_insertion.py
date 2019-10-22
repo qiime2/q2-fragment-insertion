@@ -23,12 +23,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    AlignedDNAFASTAFormat)
 from q2_types.tree import NewickFormat
 
-from q2_fragment_insertion._format import PlacementsFormat
-
-
-def _sanity():
-    if shutil.which('java') is None:
-        raise ValueError("java does not appear in $PATH")
+from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceFormat
 
 
 def _reference_matches(reference_alignment: AlignedDNASequencesDirectoryFormat,
@@ -91,17 +86,18 @@ def _obtain_taxonomy(filename_tree: str,
 
 
 def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
-         reference_alignment: AlignedDNASequencesDirectoryFormat,
-         reference_phylogeny: NewickFormat,
-         debug: bool = False):
+         reference_alignment, reference_phylogeny,
+         reference_info, debug=False):
     cmd = ['run-sepp.sh',
            seqs_fp,
            'q2-fragment-insertion',
            '-x', str(threads),
            '-A', str(alignment_subset_size),
            '-P', str(placement_subset_size),
-           '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat)),
-           '-t', str(reference_phylogeny)]
+           '-a', reference_alignment,
+           '-t', reference_phylogeny,
+           '-r', reference_info,
+           ]
     if debug:
         cmd.extend(['-b', '1'])
 
@@ -109,21 +105,12 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
 
 
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
-         reference_alignment: AlignedDNASequencesDirectoryFormat,
-         reference_phylogeny: NewickFormat,
+         reference_database: SeppReferenceFormat,
          alignment_subset_size: int,
          placement_subset_size: int,
          threads: int = 1,
          debug: bool = False,
          ) -> (NewickFormat, PlacementsFormat):
-
-    _sanity()
-    # check if sequences and tips in reference match
-    if not _reference_matches(reference_alignment, reference_phylogeny):
-        raise ValueError(
-            ('Reference alignment and phylogeny do not match up. Please ensure'
-             ' that all sequences in the alignment correspond to exactly one '
-             'tip name in the phylogeny.'))
 
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
@@ -135,7 +122,10 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
         _run(str(representative_sequences.file.view(DNAFASTAFormat)),
              str(threads), tmp,
              str(alignment_subset_size), str(placement_subset_size),
-             reference_alignment, reference_phylogeny, debug)
+             str(reference_database.alignment.path_maker()),
+             str(reference_database.phylogeny.path_maker()),
+             str(reference_database.raxml_info.path_maker()),
+             debug)
         outtree = os.path.join(tmp, tree)
         outplacements = os.path.join(tmp, placements)
 

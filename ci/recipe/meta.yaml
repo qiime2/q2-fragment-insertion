@@ -25,7 +25,6 @@ requirements:
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
     - sepp
-    # TODO: raxml?
 
 test:
   imports:

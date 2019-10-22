@@ -37,8 +37,7 @@ plugin.methods.register_function(
     function=q2_fragment_insertion.sepp,
     inputs={
         'representative_sequences': FeatureData[Sequence],
-        'reference_alignment': FeatureData[AlignedSequence],
-        'reference_phylogeny': Phylogeny[Rooted],
+        'reference_database': SeppReferenceDatabase,
     },
     parameters={
         'threads': qiime2.plugin.Int,
@@ -52,12 +51,8 @@ plugin.methods.register_function(
     ],
     input_descriptions={
         'representative_sequences': 'The sequences to insert',
-        'reference_alignment': 'The reference multiple nucleotide alignment '
-                               'used to construct the reference phylogeny.',
-        'reference_phylogeny': 'The rooted reference phylogeny. Must be in '
-                               'sync with reference-alignment, i.e. each tip '
-                               'name must have exactly one corresponding '
-                               'record.',
+        # TODO: description text
+        'reference_database': 'LOREM IPSUM',
     },
     parameter_descriptions={
         'threads': 'The number of threads to use',
@@ -77,12 +72,13 @@ plugin.methods.register_function(
                  'Temporary directories will not be removed if run fails.'
     },
     output_descriptions={
-        'tree': 'The tree with inserted feature data'
+        'tree': 'The tree with inserted feature data',
+        # TODO: description text
+        'placements': 'LOREM IPSUM',
     },
-    name='Insert fragment sequences using SEPP into reference phylogenies '
-         'like Greengenes 13_8',
+    name='Insert fragment sequences using SEPP into reference phylogenies.',
     description='Perform fragment insertion of 16S sequences using the SEPP '
-                'algorithm against the Greengenes 13_8 99% tree.',
+                'algorithm..',
     citations=[citations['SEPP']],
 )
 
