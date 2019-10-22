@@ -15,7 +15,6 @@ from q2_types.feature_data import AlignedDNAFASTAFormat
 from q2_types.tree import NewickFormat
 
 
-# TODO: Format tests
 class PlacementsFormat(model.TextFileFormat):
     fields = {'tree', 'placements', 'metadata', 'invocation',
               'version', 'fields'}
@@ -26,6 +25,7 @@ class PlacementsFormat(model.TextFileFormat):
         # Can't self.open(mode='rb'), so we defer to the backing pathlib object
         with self.path.open(mode='rb') as fh:
             for prefix, event, value in ijson.parse(fh):
+                # TODO: check that root structure is a map
                 if prefix.startswith('placements') \
                         or prefix.startswith('tree'):
                     continue
@@ -35,6 +35,7 @@ class PlacementsFormat(model.TextFileFormat):
         if keys_found != self.fields:
             raise ValidationError('Expected the following fields: %s, found '
                                   '%s.' % (self.fields, keys_found))
+
 
 PlacementsDirFmt = model.SingleFileDirectoryFormat(
     'PlacementsDirFmt', 'placements.json', PlacementsFormat)
