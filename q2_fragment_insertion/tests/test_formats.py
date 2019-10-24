@@ -9,7 +9,8 @@
 import os
 import shutil
 
-from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceFormat
+from q2_fragment_insertion._format import (
+    PlacementsFormat, SeppReferenceFormat, RAxMLinfoFormat)
 
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugin import ValidationError
@@ -78,4 +79,22 @@ class TestSeppReferenceFormat(TestPluginBase):
 
         with self.assertRaisesRegex(ValidationError,
                                     'missing in the alignment.*b.*c'):
+            fmt.validate()
+
+
+class TestRAxMLinfoFormat(TestPluginBase):
+    package = 'q2_fragment_insertion.tests'
+
+    def test_validate_positive(self):
+        filepath = self.get_data_path('ref-raxml-info.txt')
+        fmt = RAxMLinfoFormat(filepath, mode='r')
+
+        fmt.validate()
+        self.assertTrue(True)
+
+    def test_validate_negative_array(self):
+        filepath = self.get_data_path('root-array.json')
+        fmt = RAxMLinfoFormat(filepath, mode='r')
+
+        with self.assertRaisesRegex(ValidationError, 'Missing.*RAxML'):
             fmt.validate()

@@ -6,15 +6,16 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import re
+
 import ijson
+import skbio
 
 import qiime2.plugin.model as model
 from qiime2.plugin import ValidationError
 
 from q2_types.feature_data import AlignedDNAFASTAFormat
 from q2_types.tree import NewickFormat
-
-import skbio
 
 
 class PlacementsFormat(model.TextFileFormat):
@@ -53,12 +54,18 @@ PlacementsDirFmt = model.SingleFileDirectoryFormat(
     'PlacementsDirFmt', 'placements.json', PlacementsFormat)
 
 
-# TODO: Format tests
 class RAxMLinfoFormat(model.TextFileFormat):
-    # TODO https://github.com/smirarab/sepp/blob/master/sepp-package/buildref/
-    # reformat-info.py
     def _validate_(self, level):
-        pass
+        sigs = ['This is RAxML version', 'Base frequencies',
+                'Final GAMMA likelihood']
+
+        info = self.path.read_text()
+
+        for sig in sigs:
+            new_sig = sig.replace(r' ', r'\W+')
+            if not re.search(new_sig, info):
+                raise ValidationError('Missing structured content: "%s".'
+                                      % sig)
 
 
 class SeppReferenceFormat(model.DirectoryFormat):
@@ -74,9 +81,6 @@ class SeppReferenceFormat(model.DirectoryFormat):
         seqs.reassign_index(minter='id')
         alignment_ids = set(seqs.index)
         phylogeny_ids = {t.name for t in tree.tips()}
-
-        print(alignment_ids)
-        print(phylogeny_ids)
 
         if alignment_ids != phylogeny_ids:
             raise ValidationError('IDs found in the alignment file that are '

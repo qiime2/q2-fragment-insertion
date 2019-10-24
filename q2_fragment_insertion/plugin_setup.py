@@ -30,7 +30,6 @@ plugin = qiime2.plugin.Plugin(
     user_support_text='https://github.com/qiime2/q2-fragment-insertion/issues',
 )
 
-# TODO: Whole sentences in descriptions.
 
 plugin.methods.register_function(
     function=q2_fragment_insertion.sepp,
@@ -49,12 +48,13 @@ plugin.methods.register_function(
         ('placements', Placements),
     ],
     input_descriptions={
-        'representative_sequences': 'The sequences to insert',
-        # TODO: description text
-        'reference_database': 'LOREM IPSUM',
+        'representative_sequences': 'The sequences to insert into the '
+                                    'reference tree.',
+        'reference_database': 'The reference database to insert the '
+                              'representative sequences into.',
     },
     parameter_descriptions={
-        'threads': 'The number of threads to use',
+        'threads': 'The number of threads to use.',
         'alignment_subset_size': 'Each placement subset is further broken '
                                  'into subsets of at most these many '
                                  'sequences and a separate HMM is trained on '
@@ -66,18 +66,18 @@ plugin.methods.register_function(
                                  'based on alignment scores.\nFurther '
                                  'reading: https://github.com/smirarab/sepp/'
                                  'blob/master/tutorial/sepp-tutorial.md#sample'
-                                 '-datasets-default-parameters',
-        'debug': 'Print additional run information to STDOUT for debugging. '
+                                 '-datasets-default-parameters.',
+        'debug': 'Collect additional run information to STDOUT for debugging. '
                  'Temporary directories will not be removed if run fails.'
     },
     output_descriptions={
-        'tree': 'The tree with inserted feature data',
-        # TODO: description text
-        'placements': 'LOREM IPSUM',
+        'tree': 'The tree with inserted feature data.',
+        'placements': 'Information about the feature placements within the '
+                      'reference tree.',
     },
     name='Insert fragment sequences using SEPP into reference phylogenies.',
-    description='Perform fragment insertion of 16S sequences using the SEPP '
-                'algorithm..',
+    description='Perform fragment insertion of sequences using the SEPP '
+                'algorithm.',
     citations=[citations['SEPP']],
 )
 
@@ -160,7 +160,6 @@ plugin.methods.register_function(
 
 
 # TODO: rough in method to merge database components
-
 # TODO: rough in method to destructure database components
 
 
