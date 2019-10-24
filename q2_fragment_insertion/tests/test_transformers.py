@@ -22,7 +22,7 @@ class TestTransformers(TestPluginBase):
 
         obs = transformer({'foo': 1})
 
-        with self.assertRaisesRegex(ValidationError, 'found {\'foo\'}'):
+        with self.assertRaisesRegex(ValidationError, 'found \[\'foo\'\]'):
             # A bit of a cop-out, but this means we were able to parse the
             # JSON document.
             obs.validate(level='max')
@@ -34,7 +34,7 @@ class TestTransformers(TestPluginBase):
         fp.write_text('{"foo": 1}')
 
         input_ = PlacementsFormat(str(fp), mode='r')
-        with self.assertRaisesRegex(ValidationError, 'found {\'foo\'}'):
+        with self.assertRaisesRegex(ValidationError, 'found \[\'foo\'\]'):
             # A bit of a cop-out, but this means we were able to parse the
             # JSON document.
             input_.validate(level='max')

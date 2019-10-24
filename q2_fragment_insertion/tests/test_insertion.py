@@ -59,9 +59,6 @@ class TestSepp(TestPluginBase):
                          {'tree', 'placements', 'metadata', 'version',
                           'fields'})
 
-    # TODO: cover this in fmt validation tests
-    # def test_ref_mismatch(self):
-
 
 class TestClassify(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
