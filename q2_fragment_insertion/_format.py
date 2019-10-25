@@ -68,8 +68,7 @@ class RAxMLinfoFormat(model.TextFileFormat):
                 raise ValidationError('Missing structured content: "%s".'
                                       % sig)
 
-
-class SeppReferenceFormat(model.DirectoryFormat):
+class SeppReferenceDirFmt(model.DirectoryFormat):
     alignment = model.File(r'aligned-dna-sequences.fasta',
                            format=AlignedDNAFASTAFormat)
     phylogeny = model.File(r'tree.nwk', format=NewickFormat)

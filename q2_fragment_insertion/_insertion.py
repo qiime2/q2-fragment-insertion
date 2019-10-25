@@ -20,7 +20,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAIterator)
 from q2_types.tree import NewickFormat
 
-from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceFormat
+from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceDirFmt
 
 
 # Beta-diversity computation often requires every branch to have a length,
@@ -54,7 +54,7 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
 
 
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
-         reference_database: SeppReferenceFormat,
+         reference_database: SeppReferenceDirFmt,
          alignment_subset_size: int,
          placement_subset_size: int,
          threads: int = 1,

@@ -16,7 +16,7 @@ from q2_types.tree import Phylogeny, Rooted
 import q2_fragment_insertion
 from q2_fragment_insertion._type import Placements, SeppReferenceDatabase
 from q2_fragment_insertion._format import (
-    PlacementsFormat, PlacementsDirFmt, SeppReferenceFormat, RAxMLinfoFormat)
+    PlacementsFormat, PlacementsDirFmt, SeppReferenceDirFmt, RAxMLinfoFormat)
 
 
 citations = Citations.load('citations.bib', package='q2_fragment_insertion')
@@ -153,8 +153,8 @@ plugin.methods.register_function(
                 'the feature-table must be cleared of fragments that are not '
                 'part of the phylogenetic tree, because their path length can '
                 'otherwise not be determined. Typically, the number of '
-                'rejected fragme' 'nts is low (<= 10), but it might be worth '
-                'to inspect the ratio of rea' 'ds assigned to those rejected '
+                'rejected fragments is low (<= 10), but it might be worth to '
+                'inspect the ratio of rea' 'ds assigned to those rejected '
                 'fragments.',
 )
 
@@ -167,9 +167,9 @@ importlib.import_module('q2_fragment_insertion._transformer')
 
 
 plugin.register_formats(PlacementsFormat, PlacementsDirFmt, RAxMLinfoFormat,
-                        SeppReferenceFormat)
+                        SeppReferenceDirFmt)
 plugin.register_semantic_types(Placements, SeppReferenceDatabase)
 plugin.register_semantic_type_to_format(Placements,
                                         artifact_format=PlacementsDirFmt)
 plugin.register_semantic_type_to_format(SeppReferenceDatabase,
-                                        artifact_format=SeppReferenceFormat)
+                                        artifact_format=SeppReferenceDirFmt)
