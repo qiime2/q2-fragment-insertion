@@ -28,6 +28,7 @@ plugin = qiime2.plugin.Plugin(
     short_description='Plugin for extending phylogenies.',
     package='q2_fragment_insertion',
     user_support_text='https://github.com/qiime2/q2-fragment-insertion/issues',
+    citations=citations,
 )
 
 
@@ -78,7 +79,6 @@ plugin.methods.register_function(
     name='Insert fragment sequences using SEPP into reference phylogenies.',
     description='Perform fragment insertion of sequences using the SEPP '
                 'algorithm.',
-    citations=[citations['SEPP']],
 )
 
 

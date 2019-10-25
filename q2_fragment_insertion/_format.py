@@ -22,6 +22,7 @@ class PlacementsFormat(model.TextFileFormat):
     fields = {'tree', 'placements', 'metadata', 'version', 'fields'}
 
     def _validate_(self, level):
+        # doi.org/10.1371/journal.pone.0031009
         keys_found = set()
 
         # Can't self.open(mode='rb'), so we defer to the backing pathlib object
@@ -89,3 +90,8 @@ class SeppReferenceFormat(model.DirectoryFormat):
                                   'missing in the alignment file: %s.'
                                   % (sorted(alignment_ids - phylogeny_ids),
                                      sorted(phylogeny_ids - alignment_ids)))
+
+        # NOTE: not worrying about validating raxml info file at present. In
+        # the future we will have a method that will _run_ raxml as part of the
+        # database construction process, which will guarantee that the tree
+        # matches the raxml info file.
