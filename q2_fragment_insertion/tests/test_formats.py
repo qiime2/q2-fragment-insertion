@@ -10,7 +10,7 @@ import os
 import shutil
 
 from q2_fragment_insertion._format import (
-    PlacementsFormat, SeppReferenceFormat, RAxMLinfoFormat)
+    PlacementsFormat, SeppReferenceDirFmt, RAxMLinfoFormat)
 
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugin import ValidationError
@@ -42,7 +42,7 @@ class TestPlacementFormat(TestPluginBase):
             fmt.validate()
 
 
-class TestSeppReferenceFormat(TestPluginBase):
+class TestSeppReferenceDirFmt(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
 
     def _cp_fp(self, frm, to):
@@ -54,7 +54,7 @@ class TestSeppReferenceFormat(TestPluginBase):
         self._cp_fp('ref-seqs-aligned.fasta', 'aligned-dna-sequences.fasta')
         self._cp_fp('ref-raxml-info.txt', 'raxml-info.txt')
 
-        fmt = SeppReferenceFormat(self.temp_dir.name, mode='r')
+        fmt = SeppReferenceDirFmt(self.temp_dir.name, mode='r')
 
         fmt.validate()
         self.assertTrue(True)
@@ -64,7 +64,7 @@ class TestSeppReferenceFormat(TestPluginBase):
         self._cp_fp('seqs-to-query.fasta', 'aligned-dna-sequences.fasta')
         self._cp_fp('ref-raxml-info.txt', 'raxml-info.txt')
 
-        fmt = SeppReferenceFormat(self.temp_dir.name, mode='r')
+        fmt = SeppReferenceDirFmt(self.temp_dir.name, mode='r')
 
         with self.assertRaisesRegex(ValidationError,
                                     'missing in the phylogeny.*testseqa'):
@@ -75,7 +75,7 @@ class TestSeppReferenceFormat(TestPluginBase):
         self._cp_fp('ref-seqs-aligned.fasta', 'aligned-dna-sequences.fasta')
         self._cp_fp('ref-raxml-info.txt', 'raxml-info.txt')
 
-        fmt = SeppReferenceFormat(self.temp_dir.name, mode='r')
+        fmt = SeppReferenceDirFmt(self.temp_dir.name, mode='r')
 
         with self.assertRaisesRegex(ValidationError,
                                     'missing in the alignment.*b.*c'):

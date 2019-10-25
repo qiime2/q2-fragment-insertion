@@ -55,8 +55,8 @@ def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
 
 def sepp(representative_sequences: DNASequencesDirectoryFormat,
          reference_database: SeppReferenceDirFmt,
-         alignment_subset_size: int,
-         placement_subset_size: int,
+         alignment_subset_size: int = 1000,
+         placement_subset_size: int = 5000,
          threads: int = 1,
          debug: bool = False,
          ) -> (NewickFormat, PlacementsFormat):
@@ -251,6 +251,5 @@ def filter_features(table: biom.Table,
         index=tbl_positive.ids())
     results['removed_ratio'] = results['removed_reads'] / \
         (results['kept_reads'] + results['removed_reads'])
-    print(results)
 
     return (tbl_positive, tbl_negative)

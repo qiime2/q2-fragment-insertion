@@ -24,24 +24,32 @@ def mkdir(fp):
 
 if __name__ == '__main__':
     GG = {
-        'url': 'https://anaconda.org/bioconda/sepp-refgg138/4.3.6/download/noarch/sepp-refgg138-4.3.6-0.tar.bz2',
+        'url': 'https://anaconda.org/bioconda/sepp-refgg138/4.3.6/download/'
+               'noarch/sepp-refgg138-4.3.6-0.tar.bz2',
         'basename': 'gg',
         'md5sum': '2ed56bf7d9c1dbc98905b9812a8c53e8',
         'files': {
-            'aligned-dna-sequences.fasta': 'share/sepp/ref/gg_13_5_ssu_align_99_pfiltered.fasta',
-            'tree.nwk': 'share/sepp/ref/reference-gg-raxml-bl-rooted-relabelled.tre',
-            'raxml-info.txt': 'share/sepp/ref/RAxML_info-reference-gg-raxml-bl.info',
+            'aligned-dna-sequences.fasta': 'share/sepp/ref/gg_13_5_ssu_align_'
+                                           '99_pfiltered.fasta',
+            'tree.nwk': 'share/sepp/ref/'
+                        'reference-gg-raxml-bl-rooted-relabelled.tre',
+            'raxml-info.txt': 'share/sepp/ref/'
+                              'RAxML_info-reference-gg-raxml-bl.info',
         },
     }
 
     SILVA = {
-        'url': 'https://anaconda.org/bioconda/sepp-refsilva128/4.3.6/download/noarch/sepp-refsilva128-4.3.6-0.tar.bz2',
+        'url': 'https://anaconda.org/bioconda/sepp-refsilva128/4.3.6/download/'
+               'noarch/sepp-refsilva128-4.3.6-0.tar.bz2',
         'basename': 'silva',
         'md5sum': '556e3f3092f20c3537b294d6fba581e8',
         'files': {
-            'aligned-dna-sequences.fasta': 'share/sepp/ref/99_otus_aligned_masked1977.fasta',
-            'tree.nwk': 'share/sepp/ref/reference-99_otus_aligned_masked1977.fasta-rooted.tre',
-            'raxml-info.txt': 'share/sepp/ref/RAxML_info.99_otus_aligned_masked1977.fasta',
+            'aligned-dna-sequences.fasta': 'share/sepp/ref/99_otus_aligned_'
+                                           'masked1977.fasta',
+            'tree.nwk': 'share/sepp/ref/reference-99_otus_aligned_masked1977'
+                        '.fasta-rooted.tre',
+            'raxml-info.txt': 'share/sepp/ref/'
+                              'RAxML_info.99_otus_aligned_masked1977.fasta',
         },
     }
 
@@ -50,7 +58,7 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         raise ValueError('please create output directory: %s' % (out_dir,))
 
-    for db in [SILVA]:
+    for db in [GG, SILVA]:
         # conda doesn't allow bot downloads, so build our own request to set UA
         req = urllib.request.Request(db['url'],
                                      headers={'User-Agent': 'Mozilla/5.0'})
