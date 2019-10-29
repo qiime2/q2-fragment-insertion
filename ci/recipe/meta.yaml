@@ -7,7 +7,10 @@ package:
   version: {{ version }}
 
 source:
-  - path: ../..
+  path: ../..
+
+build:
+  script: make install
 
 requirements:
   host:
@@ -22,6 +25,7 @@ requirements:
     - qiime2 {{ release }}.*
     - q2-types {{ release }}.*
     - sepp
+    - ijson
 
 test:
   imports:

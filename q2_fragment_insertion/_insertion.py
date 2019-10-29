@@ -7,7 +7,6 @@
 # ----------------------------------------------------------------------------
 
 import os
-import sys
 import shutil
 import tempfile
 import subprocess
@@ -18,83 +17,80 @@ import pandas as pd
 import numpy as np
 from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
-                                   DNAIterator,
-                                   AlignedDNASequencesDirectoryFormat,
-                                   AlignedDNAIterator,
-                                   AlignedDNAFASTAFormat)
-from qiime2.sdk import Artifact
+                                   DNAIterator)
 from q2_types.tree import NewickFormat
 
-from q2_fragment_insertion._format import PlacementsFormat
+from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceDirFmt
 
 
-def _sanity():
-    if shutil.which('java') is None:
-        raise ValueError("java does not appear in $PATH")
-
-
-def _sepp_refs_path():
-    return os.path.join(
-        os.path.split(os.path.split(shutil.which('run-sepp.sh'))[0])[0],
-        'share', 'fragment-insertion', 'ref')
-
-
-def _reference_matches(reference_alignment:
-                       AlignedDNASequencesDirectoryFormat = None,
-                       reference_phylogeny: NewickFormat = None) -> bool:
-    dir_sepp_ref = _sepp_refs_path()
-
-    # no check neccessary when user does not provide specific references,
-    # because we assume that the default reference matches.
-    if (reference_alignment is None) and (reference_phylogeny is None):
-        return True
-
-    # if only phylogeny is provided by the user, load default alignment
-    if reference_alignment is None:
-        filename_alignment = os.path.join(
-            dir_sepp_ref, 'gg_13_5_ssu_align_99_pfiltered.fasta')
-        ids_alignment = {
-            row.metadata['id']
-            for row in skbio.alignment.TabularMSA.read(
-                filename_alignment,
-                format='fasta', constructor=skbio.sequence.DNA)}
-    else:
-        ids_alignment = {
-            row.metadata['id']
-            for row in reference_alignment.file.view(AlignedDNAIterator)}
-
-    # if only alignment is provided by the user, load default phylogeny
-    if reference_phylogeny is None:
-        filename_phylogeny = os.path.join(
-            dir_sepp_ref, 'reference-gg-raxml-bl-rooted-relabelled.tre')
-    else:
-        filename_phylogeny = str(reference_phylogeny)
-    ids_tips = {node.name
-                for node in skbio.TreeNode.read(filename_phylogeny).tips()}
-
-    # both id sets need to match
-    return ids_alignment == ids_tips
-
-
-def _add_missing_branch_length(filename_tree):
-    """Beta-diversity computation with Qiime2 requires every branch to have a
-       length, which is not necessarily true for SEPP produced insertion trees.
-       Thus we add zero branch length information for branches without an
-       explicit length."""
-
-    tree = skbio.TreeNode.read(filename_tree)
+# Beta-diversity computation often requires every branch to have a length,
+# which is not necessarily true for SEPP produced insertion trees. We add zero
+# branch length information for branches without an explicit length.
+def _add_missing_branch_length(tree_fp):
+    tree = skbio.TreeNode.read(tree_fp)
     for node in tree.preorder():
         if node.length is None:
             node.length = 0
-    tree.write(filename_tree)
+    tree.write(tree_fp)
 
 
-def _obtain_taxonomy(filename_tree: str,
-                     representative_sequences:
-                     DNASequencesDirectoryFormat) -> pd.DataFrame:
-    """Buttom up traverse tree for nodes that are inserted fragments and
-       collect taxonomic labels upon traversal."""
-    tree = skbio.TreeNode.read(str(filename_tree))
+def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
+         reference_alignment, reference_phylogeny,
+         reference_info, debug=False):
+    cmd = ['run-sepp.sh',
+           seqs_fp,
+           'q2-fragment-insertion',
+           '-x', str(threads),
+           '-A', str(alignment_subset_size),
+           '-P', str(placement_subset_size),
+           '-a', reference_alignment,
+           '-t', reference_phylogeny,
+           '-r', reference_info,
+           ]
+    if debug:
+        cmd.extend(['-b', '1'])
+
+    subprocess.run(cmd, check=True, cwd=cwd)
+
+
+def sepp(representative_sequences: DNASequencesDirectoryFormat,
+         reference_database: SeppReferenceDirFmt,
+         alignment_subset_size: int = 1000,
+         placement_subset_size: int = 5000,
+         threads: int = 1,
+         debug: bool = False,
+         ) -> (NewickFormat, PlacementsFormat):
+
+    placements = 'q2-fragment-insertion_placement.json'
+    tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
+
+    placements_result = PlacementsFormat()
+    tree_result = NewickFormat()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        _run(str(representative_sequences.file.view(DNAFASTAFormat)),
+             str(threads), tmp,
+             str(alignment_subset_size), str(placement_subset_size),
+             str(reference_database.alignment.path_maker()),
+             str(reference_database.phylogeny.path_maker()),
+             str(reference_database.raxml_info.path_maker()),
+             debug)
+        outtree = os.path.join(tmp, tree)
+        outplacements = os.path.join(tmp, placements)
+
+        _add_missing_branch_length(outtree)
+
+        shutil.copyfile(outtree, str(tree_result))
+        shutil.copyfile(outplacements, str(placements_result))
+
+    return tree_result, placements_result
+
+
+def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
+                   tree: NewickFormat) -> pd.DataFrame:
+    # Traverse trees from bottom-up for nodes that are inserted fragments and
+    # collect taxonomic labels upon traversal.
+    tree = skbio.TreeNode.read(str(tree))
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
         lineage = []
@@ -110,98 +106,16 @@ def _obtain_taxonomy(filename_tree: str,
     pd_taxonomy = pd.DataFrame(taxonomy).set_index('Feature ID')
     if pd_taxonomy['Taxon'].dropna().shape[0] == 0:
         raise ValueError(
-            ("None of the representative-sequences can be found in the "
-             "insertion tree. Please double check that both inputs match up, "
-             "i.e. are results from the same 'sepp' run."))
+            ('None of the representative-sequences can be found in the '
+             'insertion tree. Please double check that both inputs match up, '
+             'i.e. are results from the same \'sepp\' run.'))
     return pd_taxonomy
-
-
-def _run(seqs_fp, threads, cwd, alignment_subset_size, placement_subset_size,
-         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
-         reference_phylogeny: NewickFormat = None,
-         debug: bool = False):
-    cmd = ['run-sepp.sh',
-           seqs_fp,
-           'q2-fragment-insertion',
-           '-x', str(threads),
-           '-A', str(alignment_subset_size),
-           '-P', str(placement_subset_size)]
-    if reference_alignment is not None:
-        cmd.extend([
-            '-a', str(reference_alignment.file.view(AlignedDNAFASTAFormat))])
-    if reference_phylogeny is not None:
-        cmd.extend(['-t', str(reference_phylogeny)])
-    if debug:
-        cmd.extend(['-b', '1'])
-
-    subprocess.run(cmd, check=True, cwd=cwd)
-
-
-# For future devs: Choice of default values for alignment_subset_size and
-# placement_subset_size was done by Siavash Mirarab (the developer of SEPP).
-# His justification is as follows:
-# SEPP has two main parameters. In the default version used for Greengenes and
-# incorporated into QIIME2, the reference tree is divided into 62 "placement"
-# subsets, each with at most 5000 leaves, and each placement subset is further
-# divided into alignment subsets of at most 1000 leaves to build the HMM
-# ensamples (292 alignment subsets in total). These choices are driven by
-# computational constraints; increasing the placement subset size (which is in
-# theory desirable) puts a high burden on the memory, and reducing the
-# alignment subset could increase the running time with very little
-# improvement in the accuracy of results (Mirarab et al. 2012).
-def sepp(representative_sequences: DNASequencesDirectoryFormat,
-         threads: int = 1,
-         alignment_subset_size: int = 1000,
-         placement_subset_size: int = 5000,
-         reference_alignment: AlignedDNASequencesDirectoryFormat = None,
-         reference_phylogeny: NewickFormat = None,
-         debug: bool = False,
-         ) -> (NewickFormat, PlacementsFormat):
-
-    _sanity()
-    # check if sequences and tips in reference match
-    if not _reference_matches(reference_alignment, reference_phylogeny):
-        raise ValueError(
-            ('Reference alignment and phylogeny do not match up. Please ensure'
-             ' that all sequences in the alignment correspond to exactly one '
-             'tip name in the phylogeny.'))
-
-    placements = 'q2-fragment-insertion_placement.json'
-    tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
-
-    placements_result = PlacementsFormat()
-    tree_result = NewickFormat()
-
-    with tempfile.TemporaryDirectory() as tmp:
-        _run(str(representative_sequences.file.view(DNAFASTAFormat)),
-             str(threads), tmp,
-             str(alignment_subset_size), str(placement_subset_size),
-             reference_alignment, reference_phylogeny, debug)
-        outtree = os.path.join(tmp, tree)
-        outplacements = os.path.join(tmp, placements)
-
-        _add_missing_branch_length(outtree)
-
-        shutil.copyfile(outtree, str(tree_result))
-        shutil.copyfile(outplacements, str(placements_result))
-
-    return tree_result, placements_result
-
-
-def classify_paths(representative_sequences: DNASequencesDirectoryFormat,
-                   tree: NewickFormat) -> pd.DataFrame:
-    return _obtain_taxonomy(str(tree), representative_sequences)
 
 
 def classify_otus_experimental(
         representative_sequences: DNASequencesDirectoryFormat,
         tree: NewickFormat,
-        reference_taxonomy: pd.DataFrame = None) -> pd.DataFrame:
-    if reference_taxonomy is None:
-        filename_default_taxonomy = os.path.join(_sepp_refs_path(),
-                                                 'taxonomy_gg99.qza')
-        reference_taxonomy = Artifact.load(
-            filename_default_taxonomy).view(pd.DataFrame)
+        reference_taxonomy: pd.DataFrame) -> pd.DataFrame:
 
     # convert type of feature IDs to str (depending on pandas type inference
     # they might come as integers), to make sure they are of the same type as
@@ -220,14 +134,11 @@ def classify_otus_experimental(
     missing_features = (names_tips - names_fragments) -\
         set(reference_taxonomy.index)
     if len(missing_features) > 0:
-        # QIIME2 users can run with --verbose and see stderr and stdout.
-        # Thus, we here report more details about the mismatch:
-        sys.stderr.write(
-            ("The taxonomy artifact you provided does not contain lineage "
-             "information for the following %i features:\n%s") %
-            (len(missing_features), "\n".join(missing_features)))
         raise ValueError("Not all OTUs in the provided insertion tree have "
-                         "mappings in the provided reference taxonomy.")
+                         "mappings in the provided reference taxonomy. "
+                         "Taxonomy missing for the following %i feature(s):"
+                         "\n%s" % (len(missing_features),
+                                   "\n".join(missing_features)))
 
     taxonomy = []
     for fragment in representative_sequences.file.view(DNAIterator):
@@ -340,6 +251,5 @@ def filter_features(table: biom.Table,
         index=tbl_positive.ids())
     results['removed_ratio'] = results['removed_reads'] / \
         (results['kept_reads'] + results['removed_reads'])
-    print(results)
 
     return (tbl_positive, tbl_negative)

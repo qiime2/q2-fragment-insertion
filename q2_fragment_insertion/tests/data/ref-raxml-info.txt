@@ -1,0 +1,49 @@
+IMPORTANT WARNING
+This is RAxML version 8.1.24 released by Alexandros Stamatakis on June 29 2015.
+
+Alignment has 1285 distinct alignment patterns
+
+Proportion of gaps and completely undetermined characters in this alignment: 4.51%
+
+RAxML rapid hill-climbing mode
+
+Using 1 distinct models/data partitions with joint branch length optimization
+
+
+Executing 1 inferences on the original alignment using 1 user-specified trees
+
+All free model parameters will be estimated by RAxML
+ML estimate of 25 per site rate categories
+
+Likelihood of final tree will be evaluated and optimized under GAMMA
+
+GAMMA Model parameters will be estimated up to an accuracy of 0.1000000000 Log Likelihood units
+
+Partition: 0
+Alignment Patterns: 1285
+Name: No Name Provided
+DataType: DNA
+Substitution Matrix: GTR
+
+
+
+
+RAxML was called as follows:
+
+raxmlHPC-PTHREADS -s gg_13_5_ssu_align_99_pfiltered.fasta -m GTRCAT -n score-f -F -g 99_otus_nice.tree -T 16 -p 32323
+
+
+Base frequencies: 0.250954 0.234726 0.318990 0.195330
+
+Inference[0]: Time 20468.479701 CAT-based likelihood -20826993.474014, best rearrangement setting 5
+alpha[0]: 1.000000 rates[0] ac ag at cg ct gt: 0.947786 2.643649 1.480482 0.786790 4.471837 1.000000
+
+
+NOT conducting any final model optimizations on all 1 trees under CAT-based model ....
+
+Final GAMMA  likelihood: -20884160.339468
+
+REMEMBER that CAT-based likelihood scores are meaningless!
+
+Program execution info written to /oasis/projects/nsf/uot136/smirarab/EMP/RAxML_info.score-f
+Overall execution time: 20969.915871 secs or 5.824977 hours or 0.242707 days

@@ -8,4 +8,6 @@
 
 from qiime2.plugin import SemanticType
 
+
 Placements = SemanticType('Placements')
+SeppReferenceDatabase = SemanticType('SeppReferenceDatabase')

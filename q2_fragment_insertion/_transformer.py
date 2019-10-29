@@ -22,4 +22,5 @@ def _1(data: dict) -> PlacementsFormat:
 
 @plugin.register_transformer
 def _2(ff: PlacementsFormat) -> dict:
-    return json.load(str(ff))
+    with ff.open() as fh:
+        return json.load(fh)

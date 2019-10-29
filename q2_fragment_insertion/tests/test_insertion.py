@@ -6,192 +6,135 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import os.path
+import shutil
 import unittest
 
-from qiime2.sdk import Artifact
-from qiime2.plugin.testing import TestPluginBase
-from io import StringIO
-from contextlib import redirect_stderr
-from q2_fragment_insertion._insertion import (sepp, classify_otus_experimental,
-                                              filter_features)
+import biom
 import skbio
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from q2_types.feature_data import (AlignedDNASequencesDirectoryFormat,
-                                   DNASequencesDirectoryFormat,
-                                   DNAIterator)
-from q2_types.tree import NewickFormat
-import biom
+
+from qiime2.sdk import Artifact
+from qiime2.plugin.testing import TestPluginBase
+
+from q2_types.feature_data import DNAIterator
 
 
 class TestSepp(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
 
+    def _cp_fp(self, frm, to):
+        shutil.copy(self.get_data_path(frm),
+                    os.path.join(self.temp_dir.name, to))
+
+    def setUp(self):
+        super().setUp()
+        self.action = self.plugin.actions['sepp']
+
+        input_sequences_fp = self.get_data_path('seqs-to-query.fasta')
+        self.input_sequences = Artifact.import_data('FeatureData[Sequence]',
+                                                    input_sequences_fp)
+
+        self._cp_fp('ref-tree.nwk', 'tree.nwk')
+        self._cp_fp('ref-seqs-aligned.fasta', 'aligned-dna-sequences.fasta')
+        self._cp_fp('ref-raxml-info.txt', 'raxml-info.txt')
+
+        self.reference_db = Artifact.import_data('SeppReferenceDatabase',
+                                                 self.temp_dir.name)
+
     def test_exercise_sepp(self):
-        ar = Artifact.load(self.get_data_path('real_data.qza'))
-        view = ar.view(DNASequencesDirectoryFormat)
+        obs_tree_artifact, obs_placements_artifact = self.action(
+            self.input_sequences, self.reference_db,
+            alignment_subset_size=1000, placement_subset_size=5000)
 
-        ar_refphylo = Artifact.load(self.get_data_path(
-            'reference_phylogeny_small.qza'))
-        ref_phylo_small = ar_refphylo.view(NewickFormat)
+        tree = obs_tree_artifact.view(skbio.TreeNode)
+        obs_tree = {n.name for n in tree.tips()}
+        seqs = {r.metadata['id'] for r
+                in self.input_sequences.view(DNAIterator)}
+        self.assertTrue(seqs <= obs_tree)
 
-        ar_refaln = Artifact.load(self.get_data_path(
-            'reference_alignment_small.qza'))
-        ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
-
-        obs_tree, obs_placements = sepp(
-            view,
-            reference_alignment=ref_aln_small,
-            reference_phylogeny=ref_phylo_small)
-
-        tree = skbio.TreeNode.read(str(obs_tree))
-        obs = {n.name for n in tree.tips()}
-        seqs = {r.metadata['id'] for r in ar.view(DNAIterator)}
-        for seq in seqs:
-            self.assertIn(seq, obs)
-
-    def test_refmismatch(self):
-        ar_refphylo = Artifact.load(self.get_data_path(
-            'reference_phylogeny_small.qza'))
-        ref_phylo_small = ar_refphylo.view(NewickFormat)
-
-        ar_refaln = Artifact.load(self.get_data_path(
-            'reference_alignment_small.qza'))
-        ref_aln_small = ar_refaln.view(AlignedDNASequencesDirectoryFormat)
-
-        with self.assertRaises(ValueError):
-            sepp(None, reference_phylogeny=ref_phylo_small)
-
-        with self.assertRaises(ValueError):
-            sepp(None, reference_alignment=ref_aln_small)
-
-        ar_refphylo_tiny = Artifact.load(self.get_data_path(
-            'reference_phylogeny_tiny.qza'))
-        ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
-
-        with self.assertRaises(ValueError):
-            sepp(None, reference_alignment=ref_aln_small,
-                 reference_phylogeny=ref_phylo_tiny)
+        obs_placements = obs_placements_artifact.view(dict)
+        self.assertEqual(set(obs_placements.keys()),
+                         {'tree', 'placements', 'metadata', 'version',
+                          'fields'})
 
 
 class TestClassify(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
 
-    # def test_classify_paths(self):
-    #     ar_tree = Artifact.load(self.get_data_path('sepp_tree_tiny.qza'))
-    #     ar_repseq = Artifact.load(self.get_data_path('real_data.qza'))
-    #
-    #     obs_classification = classify_paths(
-    #         ar_repseq.view(DNASequencesDirectoryFormat),
-    #         ar_tree.view(NewickFormat))
-    #     exp_classification = pd.read_csv(self.get_data_path(
-    #         'taxonomy_real_data_tiny_paths.tsv'),
-    #         index_col=0, sep="\t").fillna("")
-    #     assert_frame_equal(obs_classification, exp_classification)
-    #
-    #     ar_tree_small = Artifact.load(
-    #         self.get_data_path('sepp_tree_small.qza'))
-    #     obs_classification_small = classify_paths(
-    #         ar_repseq.view(DNASequencesDirectoryFormat),
-    #         ar_tree_small.view(NewickFormat))
-    #     exp_classification_small = pd.read_csv(self.get_data_path(
-    #         'taxonomy_real_data_small_paths.tsv'),
-    #         index_col=0, sep="\t").fillna("")
-    #     assert_frame_equal(obs_classification_small,
-    #                        exp_classification_small)
-    #
-    #     ar_refphylo_tiny = Artifact.load(self.get_data_path(
-    #         'reference_phylogeny_tiny.qza'))
-    #     ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
-    #     with self.assertRaises(ValueError):
-    #         classify_paths(
-    #             ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
+    def setUp(self):
+        super().setUp()
+        self.action = self.plugin.actions['classify_otus_experimental']
 
-    def test_classify_otus_experimental(self):
-        ar_tree = Artifact.load(self.get_data_path('sepp_tree_tiny.qza'))
-        ar_repseq = Artifact.load(self.get_data_path('real_data.qza'))
+        input_sequences_fp = self.get_data_path('seqs-to-query.fasta')
+        self.input_sequences = Artifact.import_data('FeatureData[Sequence]',
+                                                    input_sequences_fp)
 
-        obs_classification = classify_otus_experimental(
-            ar_repseq.view(DNASequencesDirectoryFormat),
-            ar_tree.view(NewickFormat))
-        exp_classification = pd.read_csv(self.get_data_path(
-            'taxonomy_real_data_tiny_otus.tsv'),
-            index_col=0, sep="\t").fillna("")
-        assert_frame_equal(obs_classification, exp_classification)
+        tree_fp = self.get_data_path('sepp-results.nwk')
+        self.tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        ar_tree_small = Artifact.load(
-            self.get_data_path('sepp_tree_small.qza'))
-        obs_classification_small = classify_otus_experimental(
-            ar_repseq.view(DNASequencesDirectoryFormat),
-            ar_tree_small.view(NewickFormat))
+        taxa_fp = self.get_data_path('ref-taxa.tsv')
+        self.taxonomy = Artifact.import_data('FeatureData[Taxonomy]', taxa_fp)
 
-        exp_classification_small = pd.read_csv(self.get_data_path(
-            'taxonomy_real_data_small_otus.tsv'),
-            index_col=0, sep="\t").fillna("")
-        assert_frame_equal(obs_classification_small, exp_classification_small)
+    def test_exercise_classify_otus_experimental(self):
+        obs_artifact, = self.action(self.input_sequences, self.tree,
+                                    self.taxonomy)
+        obs = obs_artifact.view(pd.DataFrame)
 
-        ar_refphylo_tiny = Artifact.load(self.get_data_path(
-            'reference_phylogeny_tiny.qza'))
-        ref_phylo_tiny = ar_refphylo_tiny.view(NewickFormat)
-        with self.assertRaises(ValueError):
-            classify_otus_experimental(
-                ar_repseq.view(DNASequencesDirectoryFormat), ref_phylo_tiny)
+        exp_artifact = Artifact.import_data(
+            'FeatureData[Taxonomy]', self.get_data_path('sepp-results.tsv'))
+        exp = exp_artifact.view(pd.DataFrame)
 
-        # test that missing taxon mappings result in an error
-        ar_taxonomy = Artifact.load(
-            self.get_data_path('taxonomy_missingotus.qza'))
+        assert_frame_equal(obs, exp)
 
-        # capture stderr message and check if its content is as expected
-        captured_stderr = StringIO()
-        with redirect_stderr(captured_stderr):
-            with self.assertRaises(ValueError):
-                classify_otus_experimental(
-                    ar_repseq.view(DNASequencesDirectoryFormat),
-                    ar_tree.view(NewickFormat),
-                    reference_taxonomy=ar_taxonomy.view(pd.DataFrame))
-        self.assertIn('The taxonomy artifact you provided does not cont',
-                      captured_stderr.getvalue())
-        self.assertIn('539572',
-                      captured_stderr.getvalue())
+    def test_mismatched_tree(self):
+        # Just load up the reference tree instead of creating new test data
+        wrong_tree_fp = self.get_data_path('ref-tree.nwk')
+        wrong_tree = Artifact.import_data('Phylogeny[Rooted]', wrong_tree_fp)
+        with self.assertRaisesRegex(ValueError, 'None of.*can be found.*'):
+            self.action(self.input_sequences, wrong_tree, self.taxonomy)
+
+    def test_mismatched_taxonomy(self):
+        wrong_taxa_fp = self.get_data_path('another-ref-taxa.tsv')
+        wrong_taxa = Artifact.import_data('FeatureData[Taxonomy]',
+                                          wrong_taxa_fp)
+        with self.assertRaisesRegex(ValueError,
+                                    'Not all OTUs.*1 feature.*\n.*879972'):
+            self.action(self.input_sequences, self.tree, wrong_taxa)
 
 
 class TestFilter(TestPluginBase):
     package = 'q2_fragment_insertion.tests'
 
-    def test_filter_features(self):
-        ar_tree = Artifact.load(self.get_data_path('tree_reject.qza'))
-        ar_table = Artifact.load(self.get_data_path('counts_reject.biom.qza'))
+    def setUp(self):
+        super().setUp()
+        self.action = self.plugin.actions['filter_features']
 
-        tbl_positive, tbl_negative = filter_features(
-            table=ar_table.view(biom.Table),
-            tree=ar_tree.view(NewickFormat)
-        )
-        self.assertEqual(tbl_positive.sum(), 715)
-        self.assertEqual(tbl_negative.sum(), 133)
+        table_fp = self.get_data_path('table.json')
+        self.table = Artifact.import_data('FeatureTable[Frequency]', table_fp,
+                                          view_type='BIOMV100Format')
 
-        exp_sample_ids = set(['sample_a', 'sample_b', 'sample_c', 'sample_d'])
-        self.assertEqual(set(tbl_positive.ids()) ^ exp_sample_ids, set())
-        self.assertEqual(set(tbl_negative.ids()) ^ exp_sample_ids, set())
+        tree_fp = self.get_data_path('sepp-results.nwk')
+        self.tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        exp_pos_feature_ids = set([
-            'testseqa', 'testseqb', 'testseqc', 'testseqd', 'testseqe',
-            'testseqf', 'testseqg', 'testseqh', 'testseqi', 'testseqj'])
-        self.assertEqual(set(tbl_positive.ids(
-            axis='observation')) ^ exp_pos_feature_ids, set())
-        exp_neg_feature_ids = set(['testseq_reject_1', 'testseq_reject_2'])
-        self.assertEqual(set(tbl_negative.ids(
-            axis='observation')) ^ exp_neg_feature_ids, set())
+    def test_exercise_filter_features(self):
+        filtered_table_artifact, removed_table_artifact = self.action(
+            self.table, self.tree)
+
+        filtered_table = filtered_table_artifact.view(biom.Table)
+        removed_table = removed_table_artifact.view(biom.Table)
+
+        self.assertEqual(filtered_table.sum(), 1247)
+        self.assertEqual(removed_table.sum(), 1224)
 
     def test_filter_features_nooverlap(self):
-        ar_tree = Artifact.load(self.get_data_path('tree_reject.qza'))
-        ar_table = Artifact.load(self.get_data_path(
-            'counts_nooverlap.biom.qza'))
-
-        with self.assertRaises(ValueError):
-            tbl_positive, tbl_negative = filter_features(
-                table=ar_table.view(biom.Table),
-                tree=ar_tree.view(NewickFormat)
-            )
+        # Just load up the reference tree instead of creating new test data
+        wrong_tree_fp = self.get_data_path('ref-tree.nwk')
+        wrong_tree = Artifact.import_data('Phylogeny[Rooted]', wrong_tree_fp)
+        with self.assertRaisesRegex(ValueError,
+                                    'Not a single fragment.*empty'):
+            self.action(self.table, wrong_tree)
 
 
 if __name__ == '__main__':
