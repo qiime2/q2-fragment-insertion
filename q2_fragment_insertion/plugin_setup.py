@@ -64,7 +64,7 @@ plugin.methods.register_function(
                                  'each subset includes at most these many '
                                  'subsets. The placement step places the '
                                  'fragment on only one subset, determined '
-                                 'based on alignment scores. Further '
+                                 'based on alignment scores.\nFurther '
                                  'reading: https://github.com/smirarab/sepp/'
                                  'blob/master/tutorial/sepp-tutorial.md#sample'
                                  '-datasets-default-parameters.',
