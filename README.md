@@ -5,3 +5,6 @@
 
 
 This is a QIIME 2 plugin. For details on QIIME 2, see https://qiime2.org.
+
+For usage examples and additional details please see this plugin's entry on the
+[QIIME 2 Library](https://library.qiime2.org/plugins/q2-fragment-insertion/16/).
