@@ -25,9 +25,11 @@ class PlacementsFormat(model.TextFileFormat):
         # doi.org/10.1371/journal.pone.0031009
         keys_found = set()
 
+        placements_builder = ijson.ObjectBuilder()
+
         # Can't self.open(mode='rb'), so we defer to the backing pathlib object
         with self.path.open(mode='rb') as fh:
-            root_element = None
+            root_element, placements_ctr = None, 0
             for prefix, event, value in ijson.parse(fh):
                 if root_element is None:
                     if event != 'start_map':
@@ -36,19 +38,36 @@ class PlacementsFormat(model.TextFileFormat):
                     else:
                         root_element = True
 
-                # Skip parsing attributes that could be prohibitively large
-                if prefix.startswith('placements') \
-                        or prefix.startswith('tree'):
+                # Skip parsing prohibitively large tree
+                if prefix.startswith('tree'):
                     continue
 
                 # Restricted to only checking root-level keys
                 if event == 'map_key' and prefix == '':
                     keys_found.add(value)
 
-        if keys_found != self.fields:
-            raise ValidationError('Expected the following fields: %s, found '
-                                  '%s.' % (sorted(self.fields),
-                                           sorted(keys_found)))
+                if prefix.startswith('placements'):
+                    placements_builder.event(event, value)
+                    current_len = len(placements_builder.value)
+                    # Only increment once an entire element has been filled
+                    if placements_ctr > 0 and placements_ctr != current_len:
+                        placements_ctr = current_len
+                    if placements_ctr > {'min': 10, 'max': 100}[level]:
+                        break
+
+        if not keys_found:
+            raise ValidationError('No fields found.')
+
+        if not keys_found.issubset(self.fields):
+            raise ValidationError('Expected one or more of the following '
+                                  'fields: %s, found ' '%s.' %
+                                  (sorted(self.fields), sorted(keys_found)))
+
+        # TODO: think harder about element validation, not sure if this even
+        # makes sense
+        for placement in placements_builder.value:
+            if set(placement.keys()) != {'p', 'nm'}:
+                raise ValidationError()
 
 
 PlacementsDirFmt = model.SingleFileDirectoryFormat(

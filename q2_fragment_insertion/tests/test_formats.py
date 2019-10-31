@@ -34,11 +34,11 @@ class TestPlacementFormat(TestPluginBase):
             fmt.validate()
 
     def test_validate_negative_missing_keys(self):
-        filepath = self.get_data_path('placements-missing.json')
+        filepath = self.get_data_path('placements-wrong-keys.json')
         fmt = PlacementsFormat(filepath, mode='r')
 
         with self.assertRaisesRegex(ValidationError,
-                                    'found.*placements.*tree'):
+                                    'found.*peanut'):
             fmt.validate()
 
 
