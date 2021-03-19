@@ -52,3 +52,4 @@ jobs:
         package-name: q2-fragment-insertion
         build-target: staging
         additional-tests: py.test --pyargs q2_fragment_insertion
+        library-token: ${{ secrets.LIBRARY_TOKEN }}
