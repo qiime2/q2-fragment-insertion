@@ -26,6 +26,8 @@ requirements:
     - q2-types {{ release }}.*
     - sepp
     - ijson
+    # TEMPORARY
+    - decorator >=4,<5
 
 test:
   imports:
