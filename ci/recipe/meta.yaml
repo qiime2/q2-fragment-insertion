@@ -22,12 +22,15 @@ requirements:
     - python {{ python }}
     - openjdk
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 {{ release }}.*
-    - q2-types {{ release }}.*
+    - qiime2 {{ qiime2 }}
+    - q2-types {{ q2_types }}
     - sepp
     - ijson
 
 test:
+  requires:
+    - pytest
+
   imports:
     - q2_fragment_insertion
     - qiime2.plugins.fragment_insertion
