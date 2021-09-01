@@ -1,6 +1,5 @@
 {% set data = load_setup_py_data() %}
 {% set version = data.get('version') or 'placehold' %}
-{% set release = '.'.join(version.split('.')[:2]) %}
 
 package:
   name: q2-fragment-insertion
@@ -22,13 +21,15 @@ requirements:
     - python {{ python }}
     - openjdk
     - biom-format >=2.1.5,<2.2.0
-    - qiime2 {{ qiime2 }}
-    - q2-types {{ q2_types }}
+    - qiime2 {{ qiime2_epoch }}.*
+    - q2-types {{ qiime2_epoch }}.*
     - sepp
     - ijson
 
 test:
   requires:
+    - qiime2 >={{ qiime2 }}
+    - q2-types >={{ q2_types }}
     - pytest
 
   imports:
