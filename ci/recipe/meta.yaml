@@ -20,7 +20,7 @@ requirements:
   run:
     - python {{ python }}
     - openjdk
-    - biom-format >=2.1.5,<2.2.0
+    - biom-format {{ biom_format }}
     - qiime2 {{ qiime2_epoch }}.*
     - q2-types {{ qiime2_epoch }}.*
     - sepp
