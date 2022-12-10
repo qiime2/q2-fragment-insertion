@@ -27,7 +27,7 @@ from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceDirFmt
 # which is not necessarily true for SEPP produced insertion trees. We add zero
 # branch length information for branches without an explicit length.
 def _add_missing_branch_length(tree_fp):
-    tree = skbio.TreeNode.read(tree_fp)
+    tree = skbio.TreeNode.read(tree_fp, format="newick")
     for node in tree.preorder():
         if node.length is None:
             node.length = 0
