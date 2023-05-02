@@ -25,6 +25,9 @@ requirements:
     - q2-types {{ qiime2_epoch }}.*
     - sepp
     - ijson
+    # they imported a private function which doesn't exist anymore...
+    # https://github.com/smirarab/sepp/blob/66cf22cfb9ca22ed9e9074984018d099617b3c6a/sepp/tree.py#L25
+    - dendropy 4.5.2
 
 test:
   requires:
