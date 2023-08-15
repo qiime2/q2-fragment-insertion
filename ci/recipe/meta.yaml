@@ -39,6 +39,9 @@ test:
     - q2_fragment_insertion
     - qiime2.plugins.fragment_insertion
 
+  commands:
+    - py.test --pyargs q2_fragment_insertion
+
 about:
   home: https://qiime2.org
   license: BSD-3-Clause
