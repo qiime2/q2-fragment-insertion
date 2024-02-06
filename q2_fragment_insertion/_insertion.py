@@ -19,6 +19,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
                                    DNAIterator)
 from q2_types.tree import NewickFormat
+from qiime2.sdk.util import get_available_cores
 
 from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceDirFmt
 
@@ -60,6 +61,9 @@ def sepp(representative_sequences: DNASequencesDirectoryFormat,
          threads: int = 1,
          debug: bool = False,
          ) -> (NewickFormat, PlacementsFormat):
+
+    if threads == 0:
+        threads = get_available_cores()
 
     placements = 'q2-fragment-insertion_placement.json'
     tree = 'q2-fragment-insertion_placement.tog.relabelled.tre'
