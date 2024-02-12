@@ -19,7 +19,7 @@ from q2_types.feature_data import (DNASequencesDirectoryFormat,
                                    DNAFASTAFormat,
                                    DNAIterator)
 from q2_types.tree import NewickFormat
-from qiime2.sdk.util import get_available_cores
+from qiime2.plugin import get_available_cores
 
 from q2_fragment_insertion._format import PlacementsFormat, SeppReferenceDirFmt
 
