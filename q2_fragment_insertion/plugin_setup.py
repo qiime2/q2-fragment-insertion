@@ -39,7 +39,7 @@ plugin.methods.register_function(
         'reference_database': SeppReferenceDatabase,
     },
     parameters={
-        'threads': qiime2.plugin.Int,
+        'threads': qiime2.plugin.Threads,
         'alignment_subset_size': qiime2.plugin.Int,
         'placement_subset_size': qiime2.plugin.Int,
         'debug': qiime2.plugin.Bool,
@@ -55,7 +55,8 @@ plugin.methods.register_function(
                               'representative sequences into.',
     },
     parameter_descriptions={
-        'threads': 'The number of threads to use.',
+        'threads': 'The number of threads to use. Pass 0 to use one per '
+                   'available core.',
         'alignment_subset_size': 'Each placement subset is further broken '
                                  'into subsets of at most these many '
                                  'sequences and a separate HMM is trained on '
