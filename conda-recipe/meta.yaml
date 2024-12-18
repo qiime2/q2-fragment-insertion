@@ -1,0 +1,40 @@
+package:
+  name: q2-fragment-insertion
+  version: {{ PLUGIN_VERSION }}
+source:
+  path: ..
+build:
+  script: make install
+requirements:
+  host:
+  - python {{ python }}
+  - setuptools
+  - openjdk
+  - versioningit
+  - wheel
+  run:
+  - python {{ python }}
+  - openjdk
+  - biom-format {{ biom_format }}
+  - qiime2 {{ qiime2_epoch }}.*
+  - q2-types {{ qiime2_epoch }}.*
+  - sepp
+  - ijson
+  - dendropy
+  build:
+  - setuptools
+  - versioningit
+test:
+  requires:
+  - qiime2 >={{ qiime2 }}
+  - q2-types >={{ q2_types }}
+  - pytest
+  imports:
+  - q2_fragment_insertion
+  - qiime2.plugins.fragment_insertion
+  commands:
+  - py.test --pyargs q2_fragment_insertion
+about:
+  home: https://qiime2.org
+  license: BSD-3-Clause
+  license_family: BSD

@@ -7,11 +7,12 @@
 # ----------------------------------------------------------------------------
 from ._insertion import (sepp, classify_paths, classify_otus_experimental,
                          filter_features)
-from ._version import get_versions
 
 
-__version__ = get_versions()['version']
-del get_versions
+try:
+    from ._version import __version__
+except ModuleNotFoundError:
+    __version__ = '0.0.0+notfound'
 
 __all__ = ['sepp', 'classify_paths', 'classify_otus_experimental',
            'filter_features']
