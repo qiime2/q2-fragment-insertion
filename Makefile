@@ -10,7 +10,7 @@ test: all
 	py.test
 
 install: all
-	python -m pip install -v .
+	$(PYTHON) -m pip install -v .
 
 dev: all
 	pip install -e .
