@@ -22,6 +22,7 @@ requirements:
   - ijson
   - dendropy
   build:
+  - python {{ python }}
   - setuptools
   - versioningit
 test:
