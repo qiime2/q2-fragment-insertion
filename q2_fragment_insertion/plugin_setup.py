@@ -33,7 +33,6 @@ plugin = qiime2.plugin.Plugin(
 
 
 plugin.methods.register_function(
-    deprecated=True,
     function=q2_fragment_insertion.sepp,
     inputs={
         'representative_sequences': FeatureData[Sequence],
@@ -85,7 +84,6 @@ plugin.methods.register_function(
 
 
 plugin.methods.register_function(
-    deprecated=True,
     function=q2_fragment_insertion.classify_otus_experimental,
     inputs={
         'representative_sequences': FeatureData[Sequence],
@@ -117,7 +115,6 @@ plugin.methods.register_function(
 
 
 plugin.methods.register_function(
-    deprecated=True,
     function=q2_fragment_insertion.filter_features,
     inputs={
         'table': FeatureTable[Frequency],
